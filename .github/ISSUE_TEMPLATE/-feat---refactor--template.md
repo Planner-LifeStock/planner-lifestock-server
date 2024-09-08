@@ -1,22 +1,19 @@
 ---
-name: Issue FEATURE & REFACTOR template
+name: "[FEAT]/[REFACTOR] template"
 about: Create FEATURE/REFACTOR Issue using this template by sueelly
-title: ''
+title: Add a placeholder for issue. ex) [FEAT] / [REFACTOR]
 labels: ''
-assignees: ''
+assignees: sueelly
 
 ---
 
 # Contents
----
 Please briefly explain the issue
 
 # Detail
----
-[] TODO
-[] TODO
-[] TODO
+[ ] TODO
+[ ] TODO
+[ ] TODO
 
 # Reference (Optional)
----
 (null)
