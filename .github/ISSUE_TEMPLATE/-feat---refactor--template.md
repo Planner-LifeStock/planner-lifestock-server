@@ -11,19 +11,19 @@ assignees: sueelly
 Please briefly explain the issue
 
 ## Detail
-[ ] TODO
-[ ] TODO
-[ ] TODO
+- [ ] TODO
+- [ ] TODO
+- [ ] TODO
 
 ## Confirm assignee
 (expected) assingee: 
-[ ] assginee check
+- [ ] assginee check
 
 ## Check Priority
 Expected Priority:
 
-[ ] Check the Assignee's Priority (adjust priority if necessary)
-[ ] Check PM(@sueelly)'s Final Priority
+- [ ] Check the Assignee's Priority (adjust priority if necessary)
+- [ ] Check PM(@sueelly)'s Final Priority
 
 ## Reference (Optional)
 (null)
