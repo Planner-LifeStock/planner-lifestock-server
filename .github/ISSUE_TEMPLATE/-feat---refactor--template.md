@@ -10,10 +10,20 @@ assignees: sueelly
 # Contents
 Please briefly explain the issue
 
-# Detail
+## Detail
 [ ] TODO
 [ ] TODO
 [ ] TODO
 
-# Reference (Optional)
+## Confirm assignee
+(expected) assingee: 
+[ ] assginee check
+
+## Check Priority
+Expected Priority:
+
+[ ] Check the Assignee's Priority (adjust priority if necessary)
+[ ] Check PM(@sueelly)'s Final Priority
+
+## Reference (Optional)
 (null)
