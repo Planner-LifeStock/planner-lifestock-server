@@ -16,5 +16,15 @@ Please briefly describe what kind of bug it is
 # Expected result
 Please describe what was the expected normal result
 
-# Reference (Optional)
+## Confirm assignee
+(expected) assingee: 
+- [ ] assginee check
+
+## Check Priority
+Expected Priority:
+
+- [ ] Check the Assignee's Priority (adjust priority if necessary)
+- [ ] Check PM(@sueelly)'s Final Priority
+
+## Reference (Optional)
 (null)
