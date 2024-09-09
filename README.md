@@ -1,6 +1,6 @@
 # planner-lifestock-server
 using spring
-최정혁&김혜주
+최정혁&김혜주&이태권
 
 ## Git 브랜치 전략
 <details>
