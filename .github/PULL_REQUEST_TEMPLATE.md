@@ -1,5 +1,5 @@
 ## #️⃣ Related Issue
-Linked Feature backlog: 
+Linked Feature backlog: close (put issue number here with #)
 
 ## 📝 Purpose of PR
 Please briefly explain your work in this PR.
