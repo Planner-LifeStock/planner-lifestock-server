@@ -1,7 +1,7 @@
 ---
-name: "[FEAT]/[REFACTOR] template"
+name: "[FEAT]/[REFACTOR]/[FIX] template"
 about: Create FEATURE/REFACTOR Issue using this template by sueelly
-title: Add a placeholder for issue. ex) [FEAT] / [REFACTOR]
+title: Add a placeholder for issue. ex) [FEAT] / [REFACTOR]/[FIX]
 labels: ''
 assignees: sueelly
 
@@ -16,12 +16,11 @@ Please briefly explain the issue
 - [ ] TODO
 
 ## Confirm assignee
-(expected) assingee: 
-- [ ] assginee check
+(expected) assignee: 
+- [ ] assignee check
 
 ## Check Priority
 Expected Priority:
-
 - [ ] Check the Assignee's Priority (adjust priority if necessary)
 - [ ] Check PM(@sueelly)'s Final Priority
 
