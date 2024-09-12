@@ -4,6 +4,7 @@ import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.user.domain.UserRole;
 import com.lifestockserver.lifestock.user.domain.UserStatus;
 import com.lifestockserver.lifestock.user.dto.UserRegisterDto;
+import com.lifestockserver.lifestock.user.mapper.UserMapper;
 import com.lifestockserver.lifestock.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,11 +20,15 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;  // MapStruct 주입
 
     @Override
     @Transactional
     public User registerMember(UserRegisterDto userRegisterDto) {
-        User newUser = convertToEntity(userRegisterDto);
+        User newUser = userMapper.toEntity(userRegisterDto);  // MapStruct로 매핑
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        newUser.setRole(UserRole.USER);  // 기본 역할 설정
+        newUser.setStatus(UserStatus.ACTIVE);  // 기본 상태 설정
         return userRepository.save(newUser);
     }
 
@@ -55,22 +60,5 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteMember(Long id) {
         userRepository.deleteById(id);
-    }
-
-    // Dto -> Entity 변환 로직에서 기본 role과 status 값을 설정
-    private User convertToEntity(UserRegisterDto userRegisterDto) {
-        User newUser = new User();
-        newUser.setUsername(userRegisterDto.getUsername());
-        newUser.setPassword(passwordEncoder.encode(userRegisterDto.getPassword()));
-        newUser.setRealName(userRegisterDto.getRealName());
-        newUser.setDisplayName(userRegisterDto.getDisplayName());
-        newUser.setEmail(userRegisterDto.getEmail());
-        newUser.setPhoneNumber(userRegisterDto.getPhoneNumber());
-
-        // 기본 role과 status 값 설정
-        newUser.setRole(UserRole.USER); // 기본 역할 설정
-        newUser.setStatus(UserStatus.ACTIVE); // 기본 상태 설정
-
-        return newUser;
     }
 }
