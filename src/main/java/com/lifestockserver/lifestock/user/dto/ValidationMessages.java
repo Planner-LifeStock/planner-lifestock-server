@@ -11,3 +11,7 @@ public class ValidationMessages {
     public static final String PHONE_NUMBER_EMPTY = "전화 번호를 입력해 주세요!";
     public static final String PHONE_NUMBER_INVALID = "올바른 번호를 입력해 주세요!";
 }
+
+
+
+/******** 구현은 해놨으나 나중에 프런트와 연계해야합니다! *********/
