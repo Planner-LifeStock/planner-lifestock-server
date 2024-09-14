@@ -30,6 +30,8 @@ public class Todo extends Base {
   @Builder.Default
   private boolean completed = false;
   @Builder.Default
+  private boolean done = false;
+  @Builder.Default
   @Enumerated(EnumType.STRING)
   private TodoLevel level = TodoLevel.LEVEL_3;
   
@@ -51,4 +53,63 @@ public class Todo extends Base {
           days = EnumSet.of(startDate.getDayOfWeek());
       }
   }
+
+  void setDone(boolean done) {
+    if (done) {
+      this.done = done;
+    }
+  }
+  
+  void setCompleted(boolean completed) {
+    if (completed) {
+      this.completed = completed;
+      setDone(true);
+    }
+  }
+
+  void setTitle(String title) {
+    if (done) {
+      throw new IllegalStateException("Todo is done");
+    }
+    if (title != null) {
+      this.title = title;
+    }
+  }
+
+  void setDescription(String description) {
+    if (done) {
+      throw new IllegalStateException("Todo is done");
+    }
+    if (description != null) {
+      this.description = description;
+    }
+  }
+
+  void setStartDate(LocalDate startDate) {
+    if (done) {
+      throw new IllegalStateException("Todo is done");
+    }
+    if (startDate != null) {
+      this.startDate = startDate;
+    }
+  }
+
+  void setEndDate(LocalDate endDate) {
+    if (done) {
+      throw new IllegalStateException("Todo is done");
+    }
+    if (endDate != null) {
+      this.endDate = endDate;
+    }
+  }
+  
+  void setDays(Set<DayOfWeek> days) {
+    if (done) {
+      throw new IllegalStateException("Todo is done");
+    }
+    if (days != null) {
+      this.days = days;
+    }
+  }
+  
 }
