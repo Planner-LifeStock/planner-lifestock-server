@@ -16,10 +16,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
-@EqualsAndHashCode
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @Table(name = "todo")
-public class Todo {
+public class Todo extends Base { 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
