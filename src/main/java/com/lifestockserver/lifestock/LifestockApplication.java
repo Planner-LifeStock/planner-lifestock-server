@@ -9,5 +9,4 @@ public class LifestockApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(LifestockApplication.class, args);
 	}
-
 }
