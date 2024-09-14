@@ -13,6 +13,6 @@ import com.lifestockserver.lifestock.todo.domain.Todo;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Long> {
-  @Query("SELECT t FROM Company c JOIN c.todoList t WHERE c.id = :companyId AND t.date = :date")
+  @Query("SELECT t FROM Company c JOIN c.todos t WHERE c.id = :companyId AND :date BETWEEN t.startDate AND t.endDate")
   ArrayList<Todo> findTodosByCompanyIdAndDate(@Param("companyId") Long companyId, @Param("date") LocalDate date);
 }

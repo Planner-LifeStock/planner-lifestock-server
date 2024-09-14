@@ -63,12 +63,20 @@ public class Company extends Base {
   private AppConfig appConfig;
 
   @PrePersist
+private void prePersist() {
+    setInitialStockPrice();
+    setLogoFilePath();
+}
+
+  @PreUpdate
+  private void preUpdate() {
+    setLogoFilePath();
+  }
+
   private void setInitialStockPrice() {
     this.initialStockPrice = this.initialStockPrice * 3 / 4 / this.initialStockQuantity;
   }
 
-  @PrePersist
-  @PreUpdate
   private void setLogoFilePath() {
     if (logo != null) {
       this.logoFilePath = logo.getPath();

@@ -46,7 +46,7 @@ public class File extends Base {
   private Long size; // bytes 단위 사이즈
 
   @Column(nullable = true)
-  private Object meta;
+  private String meta;
   @Transient
   private String url;
 
