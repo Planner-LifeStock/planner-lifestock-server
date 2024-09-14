@@ -30,6 +30,7 @@ public class Todo extends Base {
   @Builder.Default
   private boolean completed = false;
   @Builder.Default
+  @Enumerated(EnumType.STRING)
   private TodoLevel level = TodoLevel.LEVEL_3;
   
   private LocalDate startDate;
