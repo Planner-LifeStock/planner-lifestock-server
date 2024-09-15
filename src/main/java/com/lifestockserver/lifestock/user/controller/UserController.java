@@ -35,13 +35,12 @@ public class UserController {
     @GetMapping("/members")
     public String showMembers(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size, Model model) {
-        Page<User> userPage = userService.findPaginatedMembers(page, size);  // 서비스 호출
+        Page<User> userPage = userService.findPaginatedMembers(page, size);
 
         model.addAttribute("members", userPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", userPage.getTotalPages());
 
-        // 서비스로 페이지 번호 리스트 생성을 위임
         List<Integer> pageNumbers = userService.getPageNumbers(userPage);
         model.addAttribute("pageNumbers", pageNumbers);
 
@@ -51,7 +50,7 @@ public class UserController {
     @GetMapping("/members/{id}")
     public String getMemberById(@PathVariable Long id, Model model) {
         userService.findMemberById(id).ifPresent(user -> model.addAttribute("user", user));
-        return "member";  // member.html로 이동
+        return "member";
     }
 
     @GetMapping("/register")
