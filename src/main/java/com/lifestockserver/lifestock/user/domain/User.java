@@ -4,13 +4,14 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import com.lifestockserver.lifestock.common.domain.Base;
 
 @Entity
 @Table(name = "member")
 @Getter
 @Setter
 @ToString(exclude = "password")
-public class User {
+public class User extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
