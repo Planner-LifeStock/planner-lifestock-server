@@ -63,10 +63,10 @@ public class Company extends Base {
   private AppConfig appConfig;
 
   @PrePersist
-private void prePersist() {
-    setInitialStockPrice();
-    setLogoFilePath();
-}
+  private void prePersist() {
+      setInitialStockPrice();
+      setLogoFilePath();
+  }
 
   @PreUpdate
   private void preUpdate() {
