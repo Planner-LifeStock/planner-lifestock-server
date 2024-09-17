@@ -33,7 +33,8 @@ public class Company extends Base {
   private User user;
 
   @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
-  private ArrayList<Todo> todos;
+  @Builder.Default
+  private ArrayList<Todo> todos = new ArrayList<>();
 
   private String name;
   
