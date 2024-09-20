@@ -11,25 +11,4 @@ public class AppConfig {
   public String getServerHost() {
     return serverHost;
   }
-
-  @Value("${spring.servlet.multipart.location}")
-  private String fileStoragePath;
-
-  public String getFileStoragePath() {
-    return fileStoragePath;
-  }
-
-  @Value("${company.default.logo.path}")
-  private String defaultLogoPath;
-
-  public String getDefaultLogoPath() {
-    return defaultLogoPath;
-  }
-
-  @Value("${user.default.profile.path}")
-  private String defaultProfilePath;
-
-  public String getDefaultProfilePath() {
-    return defaultProfilePath;
-  }
 }
