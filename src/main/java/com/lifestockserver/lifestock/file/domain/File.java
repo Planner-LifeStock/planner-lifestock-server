@@ -1,9 +1,12 @@
 package com.lifestockserver.lifestock.file.domain;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 import com.lifestockserver.lifestock.common.domain.Base;
 import com.lifestockserver.lifestock.config.AppConfig;
+import com.lifestockserver.lifestock.config.FileConfig;
 import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
 
 import jakarta.persistence.Column;
@@ -11,7 +14,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
@@ -20,10 +22,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-
 
 @Entity
 @Table(name = "file")
@@ -32,12 +34,14 @@ import jakarta.persistence.Enumerated;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Component
 public class File extends Base {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private String id;
 
   private String originalName;
+
   @Enumerated(EnumType.STRING)
   private FileFolder folderName;
   private String path;
@@ -47,22 +51,26 @@ public class File extends Base {
 
   @Column(nullable = true)
   private String meta;
+
   @Transient
   private String url;
 
-  @Autowired
   @Transient
-  AppConfig appConfig;
+  private static ApplicationContext context;
 
-  @PrePersist
+  public static void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+    File.context = applicationContext;
+  }
+
   @PreUpdate
-  private void setFolderName() {
-    this.path = appConfig.getFileStoragePath() + "/" + FileFolder.FILE.getFolderName() + "/" + this.id;
+  public void updatePath() {
+    FileConfig fileConfig = context.getBean(FileConfig.class);
+    this.path = fileConfig.fileStoragePath + "/" + folderName + "/" + id;
   }
 
   @PostLoad
-  private void generateUrl() {
-    this.url = appConfig.getServerHost() + "/" + this.path;
+  public void generateUrl() {
+    AppConfig appConfig = context.getBean(AppConfig.class);
+    this.url = appConfig.serverHost + "/" + this.folderName + "/" + id;
   }
-
 }
