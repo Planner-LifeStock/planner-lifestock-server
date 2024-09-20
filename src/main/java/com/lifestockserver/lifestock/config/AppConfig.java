@@ -6,9 +6,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppConfig {
   @Value("${server.address}")
-  private String serverHost;
+  public final String serverHost;
 
-  public String getServerHost() {
-    return serverHost;
+  public AppConfig(@Value("${server.address}") String serverHost) {
+    this.serverHost = serverHost;
   }
 }
