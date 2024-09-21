@@ -7,15 +7,15 @@ import org.springframework.stereotype.Component;
 import com.lifestockserver.lifestock.common.domain.Base;
 import com.lifestockserver.lifestock.config.AppConfig;
 import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
+import com.lifestockserver.lifestock.config.FileConfig;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,7 +35,6 @@ import jakarta.persistence.Enumerated;
 @Component
 public class File extends Base {
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
   private String id;
 
   private String originalName;
@@ -60,9 +59,11 @@ public class File extends Base {
     File.context = applicationContext;
   }
 
+  @PreUpdate
   @PostLoad
   public void generateUrl() {
     AppConfig appConfig = context.getBean(AppConfig.class);
-    this.url = appConfig.serverHost + "/" + this.folderName + "/" + id;
+    FileConfig fileConfig = context.getBean(FileConfig.class);
+    this.url = "http://" + appConfig.serverHost + ":" + appConfig.serverPort + "/" + fileConfig.fileGetPath + "/" + folderName.getFolderName() + "/" + id;
   }
 }
