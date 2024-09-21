@@ -6,7 +6,6 @@ import com.lifestockserver.lifestock.company.domain.enums.CompanyLeastOperatePer
 import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLevel;
 
-import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +17,6 @@ public class CompanyCreateDto {
   private String description;
   private CompanyLevel level;
   private CompanyLeastOperatePeriod leastOperatePeriod;
-  private LocalDate listedDate;
   private Long investmentAmount;
   private Long initialStockPrice;
 }
