@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 import com.lifestockserver.lifestock.common.domain.Base;
 import com.lifestockserver.lifestock.config.AppConfig;
-import com.lifestockserver.lifestock.config.FileConfig;
 import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
 
 import jakarta.persistence.Column;
@@ -14,7 +13,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -60,12 +58,6 @@ public class File extends Base {
 
   public static void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
     File.context = applicationContext;
-  }
-
-  @PreUpdate
-  public void updatePath() {
-    FileConfig fileConfig = context.getBean(FileConfig.class);
-    this.path = fileConfig.fileStoragePath + "/" + folderName + "/" + id;
   }
 
   @PostLoad
