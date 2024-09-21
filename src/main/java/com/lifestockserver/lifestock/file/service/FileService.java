@@ -4,13 +4,10 @@ import org.springframework.stereotype.Service;
 
 import com.lifestockserver.lifestock.file.repository.FileRepository;
 
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.file.domain.File;
 import com.lifestockserver.lifestock.file.dto.FileCreateDto;
-import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
 
 @Service
 public class FileService {
@@ -21,27 +18,26 @@ public class FileService {
     this.fileRepository = fileRepository;
   }
 
-  public File saveFile(MultipartFile file, String meta) {
+  @Transactional
+  public File saveFile(FileCreateDto fileCreateDto) {
     File uploadFile = File.builder()
-      .originalName(file.getOriginalFilename())
-      .folderName(FileFolder.COMPANY)
-      .mimeType(file.getContentType())
-      .size(file.getSize())
-      .meta()
+      .originalName(fileCreateDto.getFile().getOriginalFilename())
+      .folderName(fileCreateDto.getFolder())
+      .mimeType(fileCreateDto.getFile().getContentType())
+      .size(fileCreateDto.getFile().getSize())
+      .meta(fileCreateDto.getMeta())
       .build();
 
-    // File file = File.builder()
-    //   .originalName(fileCreateDto.getOriginalName())
-    //   .folderName(fileCreateDto.getFolderName())
-    //   .mimeType(fileCreateDto.getMimeType())
-    //   .size(fileCreateDto.getSize())
-    //   .meta(fileCreateDto.getMeta())
-    //   .build();
-    return fileRepository.save(file);
+    return fileRepository.save(uploadFile);
   }
 
-  public File findFileById(Long id) {
+  @Transactional(readOnly = true)
+  public File findById(String id) {
     return fileRepository.findById(id).orElseThrow(() -> new RuntimeException("File not found"));
   }
 
+  @Transactional
+  public void deleteFile(String id) {
+    fileRepository.deleteById(id);
+  }
 }
