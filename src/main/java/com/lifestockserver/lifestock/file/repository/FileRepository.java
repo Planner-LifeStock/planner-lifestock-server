@@ -7,5 +7,5 @@ import com.lifestockserver.lifestock.file.domain.File;
 
 @Repository
 public interface FileRepository extends JpaRepository<File, String> {
-  
+
 }
