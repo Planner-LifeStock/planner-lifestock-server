@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.lifestockserver.lifestock.file.domain.File;
 
 @Repository
-public interface FileRepository extends JpaRepository<File, Long> {
-
+public interface FileRepository extends JpaRepository<File, String> {
+  
 }
