@@ -3,7 +3,6 @@ package com.lifestockserver.lifestock.company.dto;
 import lombok.*;
 
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLeastOperatePeriod;
-import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLevel;
 
 @Getter
@@ -12,7 +11,7 @@ import com.lifestockserver.lifestock.company.domain.enums.CompanyLevel;
 @AllArgsConstructor
 @Builder
 public class CompanyCreateDto {
-  private User user;
+  private String userId;
   private String name;
   private String description;
   private CompanyLevel level;
