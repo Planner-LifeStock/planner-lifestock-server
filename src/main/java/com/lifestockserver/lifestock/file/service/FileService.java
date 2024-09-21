@@ -10,10 +10,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
 import com.lifestockserver.lifestock.file.domain.File;
 import com.lifestockserver.lifestock.file.dto.FileCreateDto;
 import com.lifestockserver.lifestock.config.FileConfig;
+import com.lifestockserver.lifestock.file.dto.FileResponseDto;
 
 @Service
 public class FileService {
@@ -28,13 +28,18 @@ public class FileService {
   }
 
   @Transactional
-  public File saveFile(FileCreateDto fileCreateDto) {
+  public FileResponseDto saveFile(FileCreateDto fileCreateDto) {
     String uuid = UUID.randomUUID().toString();
-    String path = fileConfig.fileStoragePath + "/" + fileCreateDto.getFolder().getFolderName() + "/" + uuid;
+    String originalFilename = fileCreateDto.getFile().getOriginalFilename();
+    if (originalFilename == null) {
+      throw new RuntimeException("originalFilename is null");
+    }
+    String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+    String path = fileConfig.fileStoragePath + "/" + fileCreateDto.getFolder().getFolderName() + "/" + uuid + fileExtension;
 
     File uploadFile = File.builder()
       .id(uuid)
-      .originalName(fileCreateDto.getFile().getOriginalFilename())
+      .originalName(originalFilename)
       .folderName(fileCreateDto.getFolder())
       .mimeType(fileCreateDto.getFile().getContentType())
       .size(fileCreateDto.getFile().getSize())
@@ -47,12 +52,29 @@ public class FileService {
     } catch (IOException e) {
       throw new RuntimeException("Failed to save file", e);
     }
-    return fileRepository.save(uploadFile);
+
+    File savedFile = fileRepository.save(uploadFile);
+
+    FileResponseDto fileResponseDto = FileResponseDto.builder()
+      .originalName(savedFile.getOriginalName())
+      .mimeType(savedFile.getMimeType())
+      .size(savedFile.getSize())
+      .meta(savedFile.getMeta())
+      .url(savedFile.getUrl())
+      .build();
+    return fileResponseDto;
   }
 
   @Transactional(readOnly = true)
-  public File findById(String id) {
-    return fileRepository.findById(id).orElseThrow(() -> new RuntimeException("File not found"));
+  public FileResponseDto findById(String id) {
+    File file = fileRepository.findById(id).orElseThrow(() -> new RuntimeException("File not found"));
+    return FileResponseDto.builder()
+      .originalName(file.getOriginalName())
+      .mimeType(file.getMimeType())
+      .size(file.getSize())
+      .meta(file.getMeta())
+      .url(file.getUrl())
+      .build();
   }
 
   @Transactional
