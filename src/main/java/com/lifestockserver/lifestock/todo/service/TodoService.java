@@ -72,4 +72,20 @@ public class TodoService {
     // 추후 chart 업데이트되는 로직 추가
     return todoMapper.toDto(savedTodo);
   }
+
+  public TodoResponseDto updateTodoCompleted(Long id) {
+    Todo todo = todoRepository.findByIdAndDeletedAtIsNull(id);
+    if (todo == null) {
+      throw new RuntimeException("해당 id의 todo를 찾을 수 없습니다");
+    }
+    if (todo.isDone()) {
+      throw new RuntimeException("기한이 만료된 todo입니다");
+    }
+
+    todo.setCompleted(true);
+    Todo updatedTodo = todoRepository.save(todo);
+
+    // 추후 chart 업데이트되는 로직 추가
+    return todoMapper.toDto(updatedTodo);
+  }
 }
