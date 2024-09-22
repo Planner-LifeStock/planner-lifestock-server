@@ -1,23 +1,26 @@
 package com.lifestockserver.lifestock.todo.dto;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.Set;
+
+import com.lifestockserver.lifestock.todo.domain.enums.TodoLevel;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import com.lifestockserver.lifestock.todo.domain.enums.TodoLevel;
-
-import java.time.LocalDate;
-import java.time.DayOfWeek;
-import java.util.Set;
-
 @Getter
 @Setter
 @Builder
-public class TodoCreateDto {
-  private String userId;
-  private String companyId;
+public class TodoResponseDto {
+  private Long id;
+  private Long userId;
+  private Long companyId;
   private String title;
   private String description;
+  private boolean completed;
+  private boolean done;
   private TodoLevel level;
   private LocalDate startDate;
   private LocalDate endDate;
