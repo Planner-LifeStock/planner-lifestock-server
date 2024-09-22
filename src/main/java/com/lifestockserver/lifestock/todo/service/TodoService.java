@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Comparator;
+import java.time.LocalDateTime;
 
 @Service
 public class TodoService {
@@ -88,5 +89,16 @@ public class TodoService {
 
     // 추후 chart 업데이트되는 로직 추가
     return todoMapper.toDto(updatedTodo);
+  }
+
+  public void deleteTodo(Long id, String deletedReason) {
+    Todo todo = todoRepository.findByIdAndDeletedAtIsNull(id);
+    if (todo == null) {
+      throw new RuntimeException("해당 id의 todo를 찾을 수 없습니다");
+    }
+
+    todo.setDeletedAt(LocalDateTime.now());
+    todo.setDeletedReason(deletedReason);
+    todoRepository.save(todo);
   }
 }
