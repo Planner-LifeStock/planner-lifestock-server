@@ -57,8 +57,8 @@ public class Company extends Base {
   @Builder.Default
   private Long initialStockQuantity = 100L;
 
-  @OneToOne
-  @JoinColumn(name = "file_id")
+  @ManyToOne
+  @JoinColumn(name = "logo_file_id")
   private File logo;
 
   public void setDescription(String description) {
