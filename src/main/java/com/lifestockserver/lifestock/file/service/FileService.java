@@ -56,6 +56,7 @@ public class FileService {
     File savedFile = fileRepository.save(uploadFile);
 
     FileResponseDto fileResponseDto = FileResponseDto.builder()
+      .id(savedFile.getId())
       .originalName(savedFile.getOriginalName())
       .mimeType(savedFile.getMimeType())
       .size(savedFile.getSize())
@@ -69,12 +70,18 @@ public class FileService {
   public FileResponseDto findById(String id) {
     File file = fileRepository.findById(id).orElseThrow(() -> new RuntimeException("File not found"));
     return FileResponseDto.builder()
+      .id(file.getId())
       .originalName(file.getOriginalName())
       .mimeType(file.getMimeType())
       .size(file.getSize())
       .meta(file.getMeta())
       .url(file.getUrl())
       .build();
+  }
+
+  @Transactional(readOnly = true)
+  public File getFileById(String id) {
+    return fileRepository.findById(id).orElseThrow(() -> new RuntimeException("File not found"));
   }
 
   @Transactional(readOnly = true)
