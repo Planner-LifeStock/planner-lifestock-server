@@ -1,11 +1,12 @@
 package com.lifestockserver.lifestock.file.dto;
 
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 @Builder
 public class FileResponseDto {
+  private String id;
   private String originalName;
   private String mimeType;
   private Long size;
