@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -35,7 +36,17 @@ public class UserServiceImpl implements UserService {
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         newUser.setRole(UserRole.USER);  // 기본 역할 설정
         newUser.setStatus(UserStatus.ACTIVE);  // 기본 상태 설정
+
+        if (newUser.getDisplayName() == null || newUser.getDisplayName().isEmpty()) {
+            newUser.setDisplayName(generateDisplayName(newUser));
+        }
+
         return userRepository.save(newUser);
+    }
+
+    private String generateDisplayName(User user) {
+        String realNameBased = user.getRealName().replaceAll("\\s", "_");
+        return realNameBased + "_" + new Random().nextInt(10000);
     }
 
     @Override
