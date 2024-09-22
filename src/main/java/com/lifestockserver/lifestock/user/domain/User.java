@@ -7,7 +7,7 @@ import lombok.ToString;
 import com.lifestockserver.lifestock.common.domain.Base;
 
 @Entity
-@Table(name = "member")
+@Table(name = "user")
 @Getter
 @Setter
 @ToString(exclude = "password")
