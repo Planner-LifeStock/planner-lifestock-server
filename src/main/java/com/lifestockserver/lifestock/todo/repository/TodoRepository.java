@@ -5,14 +5,16 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import com.lifestockserver.lifestock.todo.domain.Todo;
 
+@Repository
 public interface TodoRepository extends JpaRepository<Todo, Long> {
   // 해당 날짜에 포함되는 삭제되지 않은 모든 todo 반환
   @Query("SELECT t FROM Todo t WHERE t.user.id = :userId AND t.company.id = :companyId " +
          "AND :date BETWEEN t.startDate AND t.endDate " +
-         "AND (t.days IS NULL OR FUNCTION('MOD', FUNCTION('DAYOFWEEK', :date) + 5, 7) + 1 MEMBER OF t.days) " +
+         "AND (t.days IS EMPTY OR FUNCTION('MOD', FUNCTION('DAYOFWEEK', :date) + 5, 7) + 1 IN (SELECT d FROM t.days d)) " +
          "AND t.deletedAt IS NULL")
   List<Todo> findAllByUserIdAndCompanyIdAndDate(Long userId, Long companyId, LocalDate date);
   
