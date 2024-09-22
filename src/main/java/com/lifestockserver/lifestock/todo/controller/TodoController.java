@@ -30,4 +30,13 @@ public class TodoController {
   ) {
     return ResponseEntity.ok(todoService.getAllTodosByDate(userId, companyId, date));
   }
+
+  @GetMapping("/monthly")
+  public ResponseEntity<List<TodoResponseDto>> getMonthlyTodos(
+    @RequestParam(required = true, value = "userId") Long userId, 
+    @RequestParam(required = true, value = "companyId") Long companyId, 
+    @RequestParam(required = true, value = "date") LocalDate date
+  ) {
+    return ResponseEntity.ok(todoService.getMonthlyTodos(userId, companyId, date));
+  }
 }
