@@ -34,8 +34,9 @@ public class TodoService {
     List<Todo> todos = todoRepository.findAllByUserIdAndCompanyIdAndDate(userId, companyId, date);
     
     List<TodoResponseDto> todoResponseDtos = todos.stream()
-      .map(todo -> todoMapper.toDto(todo))
-      .collect(Collectors.toList());
+        .filter(todo -> todo.getDays().contains(date.getDayOfWeek()))
+        .map(todoMapper::toDto)
+        .collect(Collectors.toList());
         
     return todoResponseDtos;
   }
