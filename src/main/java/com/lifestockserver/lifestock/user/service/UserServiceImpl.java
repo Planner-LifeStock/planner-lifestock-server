@@ -45,8 +45,12 @@ public class UserServiceImpl implements UserService {
     }
 
     private String generateDisplayName(User user) {
-        String realNameBased = user.getRealName().replaceAll("\\s", "_");
-        return realNameBased + "_" + new Random().nextInt(10000);
+        String displayName;
+        do {
+            String realNameBased = user.getRealName().replaceAll("\\s", "_");
+            displayName = realNameBased + "_" + new Random().nextInt(10000);
+        } while (userRepository.findByDisplayName(displayName).isPresent());
+        return displayName;
     }
 
     @Override
