@@ -27,7 +27,7 @@ public class Todo extends Base {
   private Long id;
 
   @ManyToOne
-  @JoinColumn(name = "member_id")
+  @JoinColumn(name = "user_id")
   private User user;
 
   @ManyToOne
