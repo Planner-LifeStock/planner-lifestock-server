@@ -44,7 +44,7 @@ public class CompanyService {
 
   @Transactional
   public CompanyResponseDto createCompany(CompanyCreateDto companyCreateDto) {
-    User user = userServiceImpl.findMemberById(companyCreateDto.getUserId())
+    User user = userServiceImpl.findUserById(companyCreateDto.getUserId())
       .orElseThrow(() -> new EntityNotFoundException("User not found"));
     companyCreateDto.setUser(user);
 
