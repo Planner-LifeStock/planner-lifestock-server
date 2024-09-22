@@ -86,7 +86,7 @@ public class CompanyService {
 
   @Transactional(readOnly = true)
   public List<CompanyResponseDto> findAllByUserId(Long userId) {
-    List<Company> companies = companyRepository.findAllByUserId(userId);
+    List<Company> companies = companyRepository.findAllByUserIdAndDeletedAtIsNull(userId);
 
     List<CompanyResponseDto> companyResponseDtos = companies.stream()
       .map(company -> {
@@ -100,8 +100,10 @@ public class CompanyService {
 
   @Transactional(readOnly = true)
   public CompanyResponseDto findById(Long id) {
-    Company company = companyRepository.findById(id)
-      .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+    Company company = companyRepository.findByIdAndDeletedAtIsNull(id);
+    if (company == null) {
+      throw new EntityNotFoundException("Company not found");
+    }
 
     // 가장 최근의 high 값을 가져와서 currentStockPrice에 설정
     Long currentStockPrice = chartService.getLatestHighByCompanyId(id);
