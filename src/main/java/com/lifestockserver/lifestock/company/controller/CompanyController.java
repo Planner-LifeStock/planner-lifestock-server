@@ -1,6 +1,7 @@
 package com.lifestockserver.lifestock.company.controller;
 
 import com.lifestockserver.lifestock.company.dto.CompanyCreateDto;
+import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
 import com.lifestockserver.lifestock.company.service.CompanyService;
 import com.lifestockserver.lifestock.company.dto.CompanyResponseDto;
 import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
-
+import org.springframework.web.bind.annotation.DeleteMapping;
 import java.util.List;
 
 @RestController
@@ -50,5 +51,11 @@ public class CompanyController {
   public ResponseEntity<CompanyResponseDto> updateCompany(@PathVariable Long companyId, @RequestBody CompanyUpdateDto companyUpdateDto) {
     CompanyResponseDto companyResponseDto = companyService.updateCompany(companyId, companyUpdateDto);
     return ResponseEntity.ok(companyResponseDto);
+  }
+
+  @DeleteMapping("/{companyId}")
+  public ResponseEntity<Void> deleteCompany(@PathVariable Long companyId, @RequestBody CompanyDeleteDto companyDeleteDto) {
+    companyService.deleteCompany(companyId, companyDeleteDto);
+    return ResponseEntity.ok().build();
   }
 }

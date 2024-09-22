@@ -6,6 +6,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.chart.service.ChartService;
@@ -17,7 +18,7 @@ import com.lifestockserver.lifestock.company.mapper.CompanyMapper;
 import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.file.service.FileService;
 import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
-
+import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -109,5 +110,16 @@ public class CompanyService {
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
     
     return companyResponseDto;
+  }
+
+  @Transactional
+  public void deleteCompany(Long companyId, CompanyDeleteDto companyDeleteDto) {
+    Company company = companyRepository.findById(companyId)
+      .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+
+    company.setDeletedAt(LocalDateTime.now());
+    company.setDeletedReason(companyDeleteDto.getDeletedReason());
+
+    companyRepository.save(company);
   }
 }
