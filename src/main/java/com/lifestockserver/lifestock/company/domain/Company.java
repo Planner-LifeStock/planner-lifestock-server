@@ -47,6 +47,7 @@ public class Company extends Base {
   @Enumerated(EnumType.STRING)
   private CompanyLeastOperatePeriod leastOperatePeriod;
   // 매각날짜
+  @Column(nullable = true)
   private LocalDate listedDate;
   // 투자 금액
   private Long investmentAmount;
