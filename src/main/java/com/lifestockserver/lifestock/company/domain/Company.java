@@ -65,7 +65,7 @@ public class Company extends Base {
     this.description = description;
   }
   
-  public void setSellDate(LocalDate listedDate) {
+  public void setListedDate(LocalDate listedDate) {
     this.listedDate = listedDate;
   }
 
