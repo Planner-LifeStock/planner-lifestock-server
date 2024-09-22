@@ -7,7 +7,7 @@ import lombok.Setter;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLevel;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLeastOperatePeriod;
 
-import com.lifestockserver.lifestock.file.domain.File;
+import com.lifestockserver.lifestock.file.dto.FileResponseDto;
 
 import java.time.LocalDate;
 
@@ -15,6 +15,8 @@ import java.time.LocalDate;
 @Setter
 @Builder
 public class CompanyResponseDto {
+  private Long userId;
+  private Long id;
   private String name;
   private String description;
   private CompanyLevel level;
@@ -23,6 +25,6 @@ public class CompanyResponseDto {
   private Long investmentAmount;
   private Long initialStockPrice;
   private Long initialStockQuantity;
-  private File logo;
+  private FileResponseDto logo;
   private Long currentStockPrice;
 }
