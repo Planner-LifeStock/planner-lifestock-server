@@ -1,6 +1,7 @@
 package com.lifestockserver.lifestock.company.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -19,9 +20,10 @@ import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.file.service.FileService;
 import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
 import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
-import org.springframework.transaction.annotation.Transactional;
-
-
+import com.lifestockserver.lifestock.file.dto.FileCreateDto;
+import com.lifestockserver.lifestock.file.dto.FileResponseDto;
+import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
+import com.lifestockserver.lifestock.file.domain.File;
 
 @Service
 public class CompanyService {
@@ -46,12 +48,21 @@ public class CompanyService {
       .orElseThrow(() -> new EntityNotFoundException("User not found"));
     companyCreateDto.setUser(user);
 
+    Company company = companyMapper.toEntity(companyCreateDto);
+
     // companyCreateDto.logo가 null이면 기본 로고를 설정
     if (companyCreateDto.getLogo() == null) {
-      companyCreateDto.setLogo(fileService.getDefaultCompanyLogo());
+      company.setLogo(fileService.getDefaultCompanyLogo());
+    } else {
+      FileCreateDto fileCreateDto = FileCreateDto.builder()
+        .file(companyCreateDto.getLogo())
+        .folder(FileFolder.COMPANY)
+        .build();
+      FileResponseDto fileResponseDto = fileService.saveFile(fileCreateDto);
+      File file = fileService.getFileById(fileResponseDto.getId());
+      company.setLogo(file);
     }
 
-    Company company = companyMapper.toEntity(companyCreateDto);
     Company savedCompany = companyRepository.save(company);
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
     companyResponseDto.setCurrentStockPrice(savedCompany.getInitialStockPrice());
@@ -63,8 +74,14 @@ public class CompanyService {
   public CompanyResponseDto updateCompany(Long companyId, CompanyUpdateDto companyUpdateDto) {
     Company company = companyRepository.findById(companyId)
       .orElseThrow(() -> new EntityNotFoundException("Company not found"));
-    if (companyUpdateDto.getLogo() != null && !company.getLogo().equals(companyUpdateDto.getLogo())) {
-      company.setLogo(companyUpdateDto.getLogo());
+    if (companyUpdateDto.getLogo() != null && !company.getLogo().getOriginalName().equals(companyUpdateDto.getLogo().getOriginalFilename())) {
+      FileCreateDto fileCreateDto = FileCreateDto.builder()
+        .file(companyUpdateDto.getLogo())
+        .folder(FileFolder.COMPANY)
+        .build();
+      FileResponseDto fileResponseDto = fileService.saveFile(fileCreateDto);
+      File file = fileService.getFileById(fileResponseDto.getId());
+      company.setLogo(file);
     }
     if (companyUpdateDto.getDescription() != null && !company.getDescription().equals(companyUpdateDto.getDescription())) {
       company.setDescription(companyUpdateDto.getDescription());
@@ -80,7 +97,7 @@ public class CompanyService {
 
     Company savedCompany = companyRepository.save(company);
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
-    companyResponseDto.setCurrentStockPrice(savedCompany.getInitialStockPrice());
+    companyResponseDto.setCurrentStockPrice(chartService.getLatestHighByCompanyId(companyId));
     return companyResponseDto;
   }
 
