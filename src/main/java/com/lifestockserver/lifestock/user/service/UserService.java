@@ -11,23 +11,23 @@ import java.util.Optional;
 
 public interface UserService {
 
-    User registerMember(UserCreateDto userCreateDto);
+    User registerUser(UserCreateDto userCreateDto);
 
-    List<User> findAllMembers();
+    List<User> findAllUsers();
 
-    Optional<User> findMemberById(Long id);
+    Optional<User> findUserById(Long id);
 
-    Optional<User> findMemberByUsername(String username);
+    Optional<User> findUserByUsername(String username);
 
-    User updateMember(User user);
+    User updateUser(User user);
 
-    void deleteMember(Long id);
+    void deleteUser(Long id);
 
-    ResponseEntity<User> findMemberByIdResponse(Long id);
+    ResponseEntity<User> findUserByIdResponse(Long id);
 
-    Page<User> findAllMembers(Pageable pageable);
+    Page<User> findAllUsers(Pageable pageable);
 
-    Page<User> findPaginatedMembers(int page, int size);
+    Page<User> findPaginatedUsers(int page, int size);
 
     List<Integer> getPageNumbers(Page<User> userPage);
 }

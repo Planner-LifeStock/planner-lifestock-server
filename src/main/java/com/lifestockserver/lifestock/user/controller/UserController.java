@@ -23,34 +23,34 @@ import java.util.stream.IntStream;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/members")
-    public String registerMember(@Valid UserCreateDto userCreateDto, BindingResult bindingResult) {
+    @PostMapping("/users")
+    public String registerUser(@Valid UserCreateDto userCreateDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "register";
         }
-        userService.registerMember(userCreateDto);
-        return "redirect:/members";
+        userService.registerUser(userCreateDto);
+        return "redirect:/users";
     }
 
-    @GetMapping("/members")
-    public String showMembers(@RequestParam(defaultValue = "0") int page,
+    @GetMapping("/users")
+    public String showUsers(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size, Model model) {
-        Page<User> userPage = userService.findPaginatedMembers(page, size);
+        Page<User> userPage = userService.findPaginatedUsers(page, size);
 
-        model.addAttribute("members", userPage.getContent());
+        model.addAttribute("users", userPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", userPage.getTotalPages());
 
         List<Integer> pageNumbers = userService.getPageNumbers(userPage);
         model.addAttribute("pageNumbers", pageNumbers);
 
-        return "members";
+        return "users";
     }
 
-    @GetMapping("/members/{id}")
-    public String getMemberById(@PathVariable Long id, Model model) {
-        userService.findMemberById(id).ifPresent(user -> model.addAttribute("user", user));
-        return "member";
+    @GetMapping("/users/{id}")
+    public String getUserById(@PathVariable Long id, Model model) {
+        userService.findUserById(id).ifPresent(user -> model.addAttribute("user", user));
+        return "user";
     }
 
     @GetMapping("/register")
