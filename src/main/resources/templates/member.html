@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>회원 정보</title>
+</head>
+<body>
+<h1>회원 정보</h1>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <td th:text="${user.id}"></td>
+    </tr>
+    <tr>
+        <th>Username</th>
+        <td th:text="${user.username}"></td>
+    </tr>
+    <tr>
+        <th>Real Name</th>
+        <td th:text="${user.realName}"></td>
+    </tr>
+    <tr>
+        <th>Display Name</th>
+        <td th:text="${user.displayName}"></td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td th:text="${user.email}"></td>
+    </tr>
+    <tr>
+        <th>Phone Number</th>
+        <td th:text="${user.phoneNumber}"></td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td th:text="${user.status}"></td>
+    </tr>
+    <tr>
+        <th>Role</th>
+        <td th:text="${user.role}"></td>
+    </tr>
+    <tr>
+        <th>Created At</th>
+        <td th:text="${user.createdAt}"></td>
+    </tr>
+    <tr>
+        <th>Updated At</th>
+        <td th:text="${user.updatedAt}"></td>
+    </tr>
+    <tr>
+        <th>Deleted At</th>
+        <td th:text="${user.deletedAt}"></td>
+    </tr>
+    <tr>
+        <th>Deleted Reason</th>
+        <td th:text="${user.deletedReason}"></td>
+    </tr>
+</table>
+</body>
+</html>
