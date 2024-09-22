@@ -16,6 +16,8 @@ import com.lifestockserver.lifestock.company.dto.CompanyResponseDto;
 import com.lifestockserver.lifestock.company.mapper.CompanyMapper;
 import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.file.service.FileService;
+import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
+
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -53,6 +55,31 @@ public class CompanyService {
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
     companyResponseDto.setCurrentStockPrice(savedCompany.getInitialStockPrice());
     
+    return companyResponseDto;
+  }
+
+  @Transactional
+  public CompanyResponseDto updateCompany(Long companyId, CompanyUpdateDto companyUpdateDto) {
+    Company company = companyRepository.findById(companyId)
+      .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+    if (companyUpdateDto.getLogo() != null && !company.getLogo().equals(companyUpdateDto.getLogo())) {
+      company.setLogo(companyUpdateDto.getLogo());
+    }
+    if (companyUpdateDto.getDescription() != null && !company.getDescription().equals(companyUpdateDto.getDescription())) {
+      company.setDescription(companyUpdateDto.getDescription());
+    }
+      if (companyUpdateDto.getListedDate() != null && company.getListedDate() == null) {
+      company.setListedDate(companyUpdateDto.getListedDate());
+    }
+
+    // companyCreateDto.logo가 null이면 기본 로고를 설정
+    if (company.getLogo() == null) {
+      company.setLogo(fileService.getDefaultCompanyLogo());
+    }
+
+    Company savedCompany = companyRepository.save(company);
+    CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
+    companyResponseDto.setCurrentStockPrice(savedCompany.getInitialStockPrice());
     return companyResponseDto;
   }
 
