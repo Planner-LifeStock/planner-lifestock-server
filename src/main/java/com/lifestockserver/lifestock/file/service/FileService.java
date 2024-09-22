@@ -77,6 +77,16 @@ public class FileService {
       .build();
   }
 
+  @Transactional(readOnly = true)
+  public File getDefaultCompanyLogo() {
+    return fileRepository.findById(fileConfig.defaultLogoName).orElseThrow(() -> new RuntimeException("File not found"));
+  }
+
+  @Transactional(readOnly = true)
+  public File getDefaultUserProfile() {
+    return fileRepository.findById(fileConfig.defaultProfileName).orElseThrow(() -> new RuntimeException("File not found"));
+  }
+
   @Transactional
   public void deleteFile(String id) {
     fileRepository.deleteById(id);
