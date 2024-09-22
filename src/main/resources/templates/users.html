@@ -26,10 +26,10 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="user : ${members}">
+    <tr th:each="user : ${users}">
         <td th:text="${user.id}"></td>
         <td>
-            <a th:href="@{/members/{id}(id=${user.id})}" th:text="${user.username}"></a>
+            <a th:href="@{/users/{id}(id=${user.id})}" th:text="${user.username}"></a>
         </td>
         <td th:text="${user.realName}"></td>
         <td th:text="${user.displayName}"></td>
@@ -50,19 +50,19 @@
     <ul>
         <!-- 이전 페이지 버튼 -->
         <li th:if="${currentPage > 0}">
-            <a th:href="@{/members(page=${currentPage - 1}, size=${10})}">Previous</a>
+            <a th:href="@{/users(page=${currentPage - 1}, size=${10})}">Previous</a>
         </li>
 
         <!-- 페이지 번호 목록 -->
         <li th:each="pageNum : ${pageNumbers}">
-            <a th:href="@{/members(page=${pageNum - 1}, size=${10})}"
+            <a th:href="@{/users(page=${pageNum - 1}, size=${10})}"
                th:text="${pageNum}"
                th:classappend="${currentPage + 1 == pageNum} ? 'active' : ''"></a>
         </li>
 
         <!-- 다음 페이지 버튼 -->
         <li th:if="${currentPage < totalPages - 1}">
-            <a th:href="@{/members(page=${currentPage + 1}, size=${10})}">Next</a>
+            <a th:href="@{/users(page=${currentPage + 1}, size=${10})}">Next</a>
         </li>
     </ul>
 </div>

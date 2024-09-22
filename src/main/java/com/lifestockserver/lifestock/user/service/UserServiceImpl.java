@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -30,47 +31,61 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User registerMember(UserCreateDto userCreateDto) {
+    public User registerUser(UserCreateDto userCreateDto) {
         User newUser = userMapper.toEntity(userCreateDto);  // MapStruct로 매핑
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         newUser.setRole(UserRole.USER);  // 기본 역할 설정
         newUser.setStatus(UserStatus.ACTIVE);  // 기본 상태 설정
+
+        if (newUser.getDisplayName() == null || newUser.getDisplayName().isEmpty()) {
+            newUser.setDisplayName(generateDisplayName(newUser));
+        }
+
         return userRepository.save(newUser);
+    }
+
+    private String generateDisplayName(User user) {
+        String displayName;
+        do {
+            String realNameBased = user.getRealName().replaceAll("\\s", "_");
+            displayName = realNameBased + "_" + new Random().nextInt(10000);
+        } while (userRepository.findByDisplayName(displayName).isPresent());
+        return displayName;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> findAllMembers() {
+    public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> findMemberById(Long id) {
+    public Optional<User> findUserById(Long id) {
         return userRepository.findById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> findMemberByUsername(String username) {
+    public Optional<User> findUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
     @Override
     @Transactional
-    public User updateMember(User user) {
+    public User updateUser(User user) {
         return userRepository.save(user);
     }
 
     @Override
     @Transactional
-    public void deleteMember(Long id) {
+    public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<User> findMemberByIdResponse(Long id) {
+    public ResponseEntity<User> findUserByIdResponse(Long id) {
         return userRepository.findById(id)
                 .map(user -> ResponseEntity.ok().body(user))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -78,13 +93,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<User> findAllMembers(Pageable pageable) {
+    public Page<User> findAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<User> findPaginatedMembers(int page, int size) {
+    public Page<User> findPaginatedUsers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return userRepository.findAll(pageable);
     }
