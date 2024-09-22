@@ -1,11 +1,10 @@
 package com.lifestockserver.lifestock.company.dto;
 
 import lombok.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLeastOperatePeriod;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLevel;
 import com.lifestockserver.lifestock.user.domain.User;
-import com.lifestockserver.lifestock.file.domain.File;
 
 @Getter
 @Setter
@@ -22,5 +21,5 @@ public class CompanyCreateDto {
   private Long investmentAmount;
   private Long initialStockQuantity;
   private Long initialStockPrice;
-  private File logo;
+  private MultipartFile logo;
 }
