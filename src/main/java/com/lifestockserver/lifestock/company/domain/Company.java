@@ -1,7 +1,5 @@
 package com.lifestockserver.lifestock.company.domain;
 
-import java.util.ArrayList;
-
 import com.lifestockserver.lifestock.common.domain.Base;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLevel;
 import com.lifestockserver.lifestock.user.domain.User;
@@ -10,6 +8,8 @@ import com.lifestockserver.lifestock.file.domain.File;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLeastOperatePeriod;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,9 +31,9 @@ public class Company extends Base {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @Builder.Default
-  private ArrayList<Todo> todos = new ArrayList<>();
+  private List<Todo> todos = new ArrayList<>();
 
   private String name;
   
