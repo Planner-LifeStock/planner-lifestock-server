@@ -3,6 +3,7 @@ package com.lifestockserver.lifestock.company.mapper;
 import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.company.dto.CompanyCreateDto;
 import com.lifestockserver.lifestock.company.dto.CompanyResponseDto;
+import com.lifestockserver.lifestock.file.dto.FileResponseDto;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,6 +18,8 @@ public class CompanyMapper {
                 .leastOperatePeriod(dto.getLeastOperatePeriod())
                 .investmentAmount(dto.getInvestmentAmount())
                 .initialStockPrice(dto.getInitialStockPrice())
+                .initialStockQuantity(dto.getInitialStockQuantity())
+                .logo(dto.getLogo())
                 .build();
     }
 
@@ -30,6 +33,13 @@ public class CompanyMapper {
                 .investmentAmount(company.getInvestmentAmount())
                 .initialStockPrice(company.getInitialStockPrice())
                 .currentStockPrice(company.getInitialStockPrice())
+                .logo(FileResponseDto.builder()
+                    .originalName(company.getLogo().getOriginalName())
+                    .mimeType(company.getLogo().getMimeType())
+                    .size(company.getLogo().getSize())
+                    .meta(company.getLogo().getMeta())
+                    .url(company.getLogo().getUrl())
+                    .build())
                 .build();
     }
 }
