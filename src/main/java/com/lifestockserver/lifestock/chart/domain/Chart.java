@@ -27,7 +27,7 @@ public class Chart extends Base {
   @JoinColumn(name = "user_id")
   private User user;
 
-  @ManyToOne
+  @OneToOne
   @JoinColumn(name = "todo_id")
   private Todo todo;
 
