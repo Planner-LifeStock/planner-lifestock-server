@@ -1,6 +1,6 @@
 package com.lifestockserver.lifestock.security;
 
-import com.lifestockserver.lifestock.auth.service.TokenService;
+import com.lifestockserver.lifestock.auth.service.TokenServiceImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -15,18 +15,18 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenService tokenService;
+    private final TokenServiceImpl tokenServiceImpl;
 
-    public JwtAuthenticationFilter(TokenService tokenService) {
-        this.tokenService = tokenService;
+    public JwtAuthenticationFilter(TokenServiceImpl tokenServiceImpl) {
+        this.tokenServiceImpl = tokenServiceImpl;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String token = extractToken(request);
-        if (token != null && tokenService.validateToken(token)) {
-            Authentication auth = tokenService.getAuthentication(token);
+        if (token != null && tokenServiceImpl.validateToken(token)) {
+            Authentication auth = tokenServiceImpl.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
