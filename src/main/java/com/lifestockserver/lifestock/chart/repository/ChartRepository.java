@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.List;
 import com.lifestockserver.lifestock.chart.domain.Chart;
 
@@ -15,20 +14,6 @@ import com.lifestockserver.lifestock.chart.domain.Chart;
 public interface ChartRepository extends JpaRepository<Chart, Long> {
     @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId AND DATE(c.createdAt) = :date ORDER BY c.createdAt DESC LIMIT 1")
     Optional<Chart> findLatestChartByCompanyIdAndDate(@Param("companyId") Long companyId, @Param("date") LocalDate date);
-
-    // previous day close and current day close
-    @Query("SELECT new map(" +
-           "  MAX(CASE WHEN DATE(c.createdAt) = DATE(:date) - 1 THEN c.id END) as previousDayId, " +
-           "  MAX(CASE WHEN DATE(c.createdAt) = DATE(:date) - 1 THEN c.createdAt END) as previousDayCreatedAt, " +
-           "  MAX(CASE WHEN DATE(c.createdAt) = DATE(:date) - 1 THEN c.close END) as previousDayClose, " +
-           "  MAX(CASE WHEN DATE(c.createdAt) = DATE(:date) THEN c.id END) as currentDayId, " +
-           "  MAX(CASE WHEN DATE(c.createdAt) = DATE(:date) THEN c.createdAt END) as currentDayCreatedAt, " +
-           "  MAX(CASE WHEN DATE(c.createdAt) = DATE(:date) THEN c.high END) as currentDayClose " +
-           ") " +
-           "FROM Chart c " +
-           "WHERE c.company.id = :companyId " +
-           "AND DATE(c.createdAt) IN (DATE(:date) - 1, DATE(:date))")
-    Map<String, Object> findPreviousAndCurrentDayCharts(@Param("companyId") Long companyId, @Param("date") LocalDate date);
 
     @Query("SELECT c FROM Chart c " +
            "WHERE c.company.id = :companyId " +
