@@ -97,7 +97,7 @@ public class CompanyService {
 
     Company savedCompany = companyRepository.save(company);
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
-    companyResponseDto.setCurrentStockPrice(chartService.getLatestHighByCompanyId(companyId));
+    companyResponseDto.setCurrentStockPrice(chartService.getLatestCloseByCompanyId(companyId));
     return companyResponseDto;
   }
 
@@ -108,7 +108,7 @@ public class CompanyService {
     List<CompanyResponseDto> companyResponseDtos = companies.stream()
       .map(company -> {
         CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
-        companyResponseDto.setCurrentStockPrice(chartService.getLatestHighByCompanyId(company.getId()));
+        companyResponseDto.setCurrentStockPrice(chartService.getLatestCloseByCompanyId(company.getId()));
         return companyResponseDto;
       })
       .collect(Collectors.toList());
@@ -123,7 +123,7 @@ public class CompanyService {
     }
 
     // 가장 최근의 high 값을 가져와서 currentStockPrice에 설정
-    Long currentStockPrice = chartService.getLatestHighByCompanyId(id);
+    Long currentStockPrice = chartService.getLatestCloseByCompanyId(id);
     
     CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
