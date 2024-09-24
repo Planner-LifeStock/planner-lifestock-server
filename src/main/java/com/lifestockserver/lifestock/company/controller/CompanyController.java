@@ -6,6 +6,7 @@ import com.lifestockserver.lifestock.company.service.CompanyService;
 import com.lifestockserver.lifestock.company.dto.CompanyResponseDto;
 import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/company")
+@Tag(name = "Company API", description = "생성한 company에 대한 컨트롤러")
 public class CompanyController {
 
   private final CompanyService companyService;
