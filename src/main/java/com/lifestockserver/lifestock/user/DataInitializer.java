@@ -1,4 +1,5 @@
 //더미 데이터를 만드는 코드입니다!!!!
+/*
 
 package com.lifestockserver.lifestock.user;
 
@@ -40,3 +41,5 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 }
+
+*/
