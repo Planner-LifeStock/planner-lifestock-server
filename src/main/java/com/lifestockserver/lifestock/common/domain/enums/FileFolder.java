@@ -1,6 +1,7 @@
 package com.lifestockserver.lifestock.common.domain.enums;
 
 public enum FileFolder {
+  DEFAULT("default"),
   TODO("todo"),
   COMPANY("company"),
   USER("user"),

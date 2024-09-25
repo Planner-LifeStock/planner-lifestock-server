@@ -27,7 +27,7 @@ public class Todo extends Base {
   private Long id;
 
   @ManyToOne
-  @JoinColumn(name = "member_id")
+  @JoinColumn(name = "user_id")
   private User user;
 
   @ManyToOne
@@ -59,57 +59,30 @@ public class Todo extends Base {
       if (endDate == null) { 
         endDate = startDate;
       }
-      if (days.isEmpty()) {
-          days = EnumSet.of(startDate.getDayOfWeek());
+      if (days == null) {
+        days = EnumSet.noneOf(DayOfWeek.class);
       }
   }
 
-  void setDone(boolean done) {
+  public void setDone(boolean done) {
     if (done) {
       this.done = done;
     }
   }
   
-  void setCompleted(boolean completed) {
+  public void setCompleted(boolean completed) {
     if (completed) {
       this.completed = completed;
       setDone(true);
     }
   }
 
-  void setTitle(String title) {
-    if (done) {
-      throw new IllegalStateException("Todo is done");
-    }
-    if (title != null) {
-      this.title = title;
-    }
-  }
-
-  void setDescription(String description) {
+  public void setDescription(String description) {
     if (done) {
       throw new IllegalStateException("Todo is done");
     }
     if (description != null) {
       this.description = description;
-    }
-  }
-
-  void setStartDate(LocalDate startDate) {
-    if (done) {
-      throw new IllegalStateException("Todo is done");
-    }
-    if (startDate != null) {
-      this.startDate = startDate;
-    }
-  }
-
-  void setEndDate(LocalDate endDate) {
-    if (done) {
-      throw new IllegalStateException("Todo is done");
-    }
-    if (endDate != null) {
-      this.endDate = endDate;
     }
   }
   

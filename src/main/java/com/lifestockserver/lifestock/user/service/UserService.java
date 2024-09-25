@@ -1,0 +1,33 @@
+package com.lifestockserver.lifestock.user.service;
+
+import com.lifestockserver.lifestock.user.domain.User;
+import com.lifestockserver.lifestock.user.dto.UserCreateDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface UserService {
+
+    User registerUser(UserCreateDto userCreateDto);
+
+    List<User> findAllUsers();
+
+    Optional<User> findUserById(Long id);
+
+    Optional<User> findUserByUsername(String username);
+
+    User updateUser(User user);
+
+    void deleteUser(Long id);
+
+    ResponseEntity<User> findUserByIdResponse(Long id);
+
+    Page<User> findAllUsers(Pageable pageable);
+
+    Page<User> findPaginatedUsers(int page, int size);
+
+    List<Integer> getPageNumbers(Page<User> userPage);
+}
