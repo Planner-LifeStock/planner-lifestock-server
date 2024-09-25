@@ -12,6 +12,8 @@ import lombok.Setter;
 @Setter
 public class ChartResponseDto {
   private Long id;
+  private Long userId;
+  private Long companyId;
   private Long todoId;
   private Long open;
   private Long high;
