@@ -6,30 +6,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppConfig {
   @Value("${server.address}")
-  private String serverHost;
+  public final String serverHost;
 
-  public String getServerHost() {
-    return serverHost;
-  }
+  @Value("${server.port}")
+  public final String serverPort;
 
-  @Value("${spring.servlet.multipart.location}")
-  private String fileStoragePath;
-
-  public String getFileStoragePath() {
-    return fileStoragePath;
-  }
-
-  @Value("${company.default.logo.path}")
-  private String defaultLogoPath;
-
-  public String getDefaultLogoPath() {
-    return defaultLogoPath;
-  }
-
-  @Value("${user.default.profile.path}")
-  private String defaultProfilePath;
-
-  public String getDefaultProfilePath() {
-    return defaultProfilePath;
+  public AppConfig(@Value("${server.address}") String serverHost, @Value("${server.port}") String serverPort) {
+    this.serverHost = serverHost;
+    this.serverPort = serverPort;
   }
 }
