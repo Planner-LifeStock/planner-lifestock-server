@@ -4,6 +4,7 @@ import com.lifestockserver.lifestock.auth.service.TokenServiceImpl;
 import com.lifestockserver.lifestock.company.controller.CompanyController;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLeastOperatePeriod;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLevel;
+import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
 import com.lifestockserver.lifestock.company.dto.CompanyResponseDto;
 import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
 import com.lifestockserver.lifestock.company.service.CompanyService;
@@ -35,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
@@ -180,5 +182,31 @@ public class CompanyControllerTest {
                 .andExpect(jsonPath("$.leastOperatePeriod").value("ONE_WEEK")); // leastOperatePeriod 필드 확인
 
         verify(companyService, times(1)).updateCompany(eq(companyId), any(CompanyUpdateDto.class));
+    }
+
+    @Test
+    @DisplayName("Company 삭제 테스트")
+    @WithMockUser(username = "user1", roles = {"USER"})
+    void testDeleteCompany() throws Exception{
+        Long companyId = 1L;
+
+        //Mocking - service의 deleteCompany 메소드가 호출되었을 때 아무 작업도 하지 않도록 설정
+        doNothing().when(companyService).deleteCompany(eq(companyId), any(CompanyDeleteDto.class));
+
+        // JSON 요청 본문 생성
+        String jsonRequest = "{ \"reason\": \"Company closed\", \"deletedBy\": \"admin\" }";
+
+        // MockMvc를 사용해 DELETE 요청 보내고 응답 검증
+        mockMvc.perform(delete("/company/" + companyId) // DELETE 요청
+                        .with(csrf()) // CSRF 토큰 추가
+                        .with(httpBasic("user1", "password1")) // 기본 인증 추가
+                        .contentType(MediaType.APPLICATION_JSON) // JSON 형식으로 Content-Type 설정
+                        .content(jsonRequest)) // 요청 본문 추가
+                .andDo(print()) // 요청 및 응답 출력
+                .andExpect(status().isOk()) // 상태 코드 200 확인
+                .andExpect(jsonPath("$").doesNotExist()); // 빈 응답 확인
+
+        //deleteCompany 메소드가 호출되었는지 검증
+        verify(companyService, times(1)).deleteCompany(eq(companyId), any(CompanyDeleteDto.class));
     }
 }
