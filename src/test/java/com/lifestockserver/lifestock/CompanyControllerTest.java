@@ -5,6 +5,7 @@ import com.lifestockserver.lifestock.company.controller.CompanyController;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLeastOperatePeriod;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLevel;
 import com.lifestockserver.lifestock.company.dto.CompanyResponseDto;
+import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
 import com.lifestockserver.lifestock.company.service.CompanyService;
 import com.lifestockserver.lifestock.file.dto.FileResponseDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,7 @@ import java.time.LocalDate;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -132,5 +134,51 @@ public class CompanyControllerTest {
 
         //companyService.findById()가 한 번 호출되었는지 검증
         verify(companyService, times(1)).findById(companyId);
+    }
+
+    @Test
+    @DisplayName("Company 데이터 수정 테스트")
+    @WithMockUser(username = "user1", roles = {"user"})
+    void testUpdateCompany() throws Exception{
+        Long companyId = 1L;
+
+        //수정 후 반환될 mockResponse 생성
+        CompanyResponseDto mockResponse = CompanyResponseDto.builder()
+                .id(companyId)
+                .name("Updated Company Name")
+                .description("Updated Description")
+                .level(CompanyLevel.MEDIUM)
+                .leastOperatePeriod(CompanyLeastOperatePeriod.ONE_WEEK)
+                .listedDate(LocalDate.now().minusDays(30))
+                .investmentAmount(2000000L)
+                .initialStockPrice(2000L)
+                .initialStockQuantity(200L)
+                .logo(null)
+                .currentStockPrice(15000L)
+                .build();
+
+        //service의 updateCompany 호출 시 mockResponse 반환
+        when(companyService.updateCompany(eq(companyId), any(CompanyUpdateDto.class))).thenReturn(mockResponse);
+
+        // JSON 요청 본문 생성
+        String jsonRequest = "{ \"name\": \"Updated Company Name\", \"description\": \"Updated Description\", " +
+                "\"level\": \"MEDIUM\", \"leastOperatePeriod\": \"ONE_WEEK\", " +
+                "\"listedDate\": \"" + LocalDate.now().minusDays(30) + "\", \"investmentAmount\": 2000000, " +
+                "\"initialStockPrice\": 2000, \"initialStockQuantity\": 200 }";
+
+        // MockMvc를 사용해 PUT 요청 보내고 응답 검증
+        mockMvc.perform(put("/company/" + companyId) // PUT 요청
+                        .with(csrf()) // CSRF 토큰 추가
+                        .with(httpBasic("user1", "password1")) // 기본 인증 추가
+                        .contentType(MediaType.APPLICATION_JSON) // JSON 형식으로 Content-Type 설정
+                        .content(jsonRequest)) // 요청 본문 추가
+                .andDo(print()) // 요청 및 응답 출력
+                .andExpect(status().isOk()) // 상태 코드 200 확인
+                .andExpect(jsonPath("$.name").value("Updated Company Name")) // name 필드 확인
+                .andExpect(jsonPath("$.description").value("Updated Description")) // description 필드 확인
+                .andExpect(jsonPath("$.level").value("MEDIUM")) // level 필드 확인
+                .andExpect(jsonPath("$.leastOperatePeriod").value("ONE_WEEK")); // leastOperatePeriod 필드 확인
+
+        verify(companyService, times(1)).updateCompany(eq(companyId), any(CompanyUpdateDto.class));
     }
 }
