@@ -45,7 +45,16 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+
+	// MockMvc 테스트를 위해 필요 (Spring MVC)
+	//testImplementation 'org.springframework:spring-test'
+
+	// JUnit 5 (Jupiter) 사용
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+	testImplementation 'org.springframework.security:spring-security-test'
 }
+
 
 tasks.named('test') {
 	useJUnitPlatform()
