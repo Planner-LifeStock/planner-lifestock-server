@@ -150,7 +150,42 @@ public class CompanyControllerTest {
                 .andExpect(jsonPath("$.name").value("Company Name")) // 응답 본문에서 name 필드 확인
                 .andExpect(jsonPath("$.description").value("Company Description")); // 응답 본문에서 description 필드 확인
         */
+    }
 
+    @Test
+    @DisplayName("Company 정보 조회 테스트")
+    @WithMockUser(username = "user1", roles = {"USER"})
+    void testGetCompany() throws Exception{
+        Long companyId = 1L;
 
+        CompanyResponseDto mockResponse = CompanyResponseDto.builder()
+                .userId(1L)
+                .id(companyId)
+                .name("Company Name")
+                .description("Company Description")
+                .level(CompanyLevel.LOW)
+                .leastOperatePeriod(CompanyLeastOperatePeriod.ONE_MONTH)
+                .listedDate(LocalDate.now())
+                .investmentAmount(1000000L)
+                .initialStockPrice(1000L)
+                .initialStockQuantity(100L)
+                .logo(null)
+                .currentStockPrice(12000L)
+                .build();
+
+        //Service 레이어가 반환할 데이터 설정
+        when(companyService.findById(companyId)).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/company/{companyId}", companyId)
+                        .with(csrf())
+                        .with(httpBasic("user1", "password1")))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(companyId))
+                .andExpect(jsonPath("$.name").value("Company Name"))
+                .andExpect(jsonPath("$.description").value("Company Description"));
+
+        //companyService.findById()가 한 번 호출되었는지 검증
+        verify(companyService, times(1)).findById(companyId);
     }
 }
