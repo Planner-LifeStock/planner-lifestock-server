@@ -27,7 +27,7 @@ public class User extends Base {
     private String realName;
 
     @Column(nullable = true)
-    private String displayName;  // Service에서 랜덤 생성하는 코드 필요
+    private String displayName;
 
     @Column(nullable = false, unique = true)
     private String email;
