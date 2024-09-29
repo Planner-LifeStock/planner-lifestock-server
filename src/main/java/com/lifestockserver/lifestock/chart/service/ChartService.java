@@ -42,6 +42,21 @@ public class ChartService {
     }
 
     @Transactional
+    public ChartResponseDto createInitialChart(Company company, User user, Long initialStockPrice) {
+        ChartCreateDto chartCreateDto = ChartCreateDto.builder()
+            .companyId(company.getId())
+            .userId(user.getId())
+            .open(initialStockPrice)
+            .high(initialStockPrice)
+            .low(initialStockPrice)
+            .close(initialStockPrice)
+            .build();
+        Chart chart = chartMapperImpl.toChart(chartCreateDto, user, company, null);
+        Chart savedChart = chartRepository.save(chart);
+        return chartMapperImpl.toChartResponseDto(savedChart);
+    }
+
+    @Transactional
     public ChartResponseDto createChart(ChartCreateDto chartCreateDto) {
         User user = userRepository.findById(chartCreateDto.getUserId())
             .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + chartCreateDto.getUserId()));
@@ -58,6 +73,35 @@ public class ChartService {
         }
         if (todo != null && todo.getCompany().getId() != company.getId()) {
             throw new IllegalArgumentException("todo company id is invalid:" + company.getId());
+        }
+
+        Chart latestChart = chartRepository.findLatestByCompanyId(company.getId());
+
+        if (latestChart == null) {
+            // throw new IllegalArgumentException("company's initial chart not found:" + company.getId());
+            Long initialStockPrice = company.getInitialStockPrice();
+
+            chartCreateDto.setOpen(initialStockPrice);
+            chartCreateDto.setHigh(initialStockPrice);
+            chartCreateDto.setLow(initialStockPrice);
+        } else {
+            if (latestChart.getDate().toLocalDate().isBefore(chartCreateDto.getDate().toLocalDate())) {
+                chartCreateDto.setOpen(latestChart.getClose());
+                chartCreateDto.setHigh(latestChart.getClose());
+                chartCreateDto.setLow(latestChart.getClose());
+            } else {
+                chartCreateDto.setOpen(latestChart.getOpen());
+                if (chartCreateDto.getClose() > latestChart.getHigh()) {
+                    chartCreateDto.setHigh(chartCreateDto.getClose());
+                } else {
+                    chartCreateDto.setHigh(latestChart.getHigh());
+                }
+                if (chartCreateDto.getClose() < latestChart.getLow()) {
+                    chartCreateDto.setLow(chartCreateDto.getClose());
+                } else {
+                    chartCreateDto.setLow(latestChart.getLow());
+                }
+            }
         }
 
         Chart chart = chartMapperImpl.toChart(chartCreateDto, user, company, todo);
@@ -88,6 +132,7 @@ public class ChartService {
 
     public UserCurrentPriceListResponseDto getUserCurrentPriceList(Long userId) {
         List<Chart> charts = chartRepository.findLatestChartsByUserIdGroupedByCompany(userId);
+
         return chartMapperImpl.toUserCurrentPriceListResponseDto(charts);
     }
 
