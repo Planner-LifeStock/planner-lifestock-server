@@ -11,11 +11,13 @@ import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.todo.domain.Todo;
 import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
 
+@Component
 public class ChartMapperImpl implements ChartMapper {
   @Override
   public Chart toChart(ChartCreateDto chartCreateDto, User user, Company company, Todo todo) {
@@ -23,9 +25,9 @@ public class ChartMapperImpl implements ChartMapper {
       .user(user)
       .company(company)
       .todo(todo)
+      .open(chartCreateDto.getOpen())
       .high(chartCreateDto.getHigh())
       .low(chartCreateDto.getLow())
-      .open(chartCreateDto.getOpen())
       .close(chartCreateDto.getClose())
       .date(chartCreateDto.getDate())
       .build();
@@ -40,7 +42,7 @@ public class ChartMapperImpl implements ChartMapper {
       .low(chart.getLow())
       .open(chart.getOpen())
       .close(chart.getClose())
-      .date(chart.getDate())
+      .date(chart.getDate().toLocalDate())
       .changeRate((double) (chart.getClose() - chart.getOpen()) / chart.getOpen() * 100)
       .build();
     return chartResponseDto;
