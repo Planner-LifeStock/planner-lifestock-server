@@ -6,18 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChartResponseDto {
-  private Long open;
-  private Long high;
-  private Long low;
-  private Long close;
-  private LocalDate date;
-  private double changeRate;
+public class CompanyMonthlyChartListResponseDto {
+  private Long companyId;
+  private int year;
+  private int month;
+  private List<ChartResponseDto> monthlyChartList;
 }

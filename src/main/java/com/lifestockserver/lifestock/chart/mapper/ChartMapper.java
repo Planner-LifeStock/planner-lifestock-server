@@ -1,60 +1,31 @@
 package com.lifestockserver.lifestock.chart.mapper;
 
-import org.mapstruct.Mapper;
-import org.springframework.data.domain.Page;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.time.LocalDate;
-// import org.springframework.data.domain.PageImpl;
-
-import org.mapstruct.Mapping;
-
 import com.lifestockserver.lifestock.chart.dto.ChartResponseDto;
+import com.lifestockserver.lifestock.chart.dto.CompanyChartPageReponseDto;
+import com.lifestockserver.lifestock.chart.dto.CompanyMonthlyChartListResponseDto;
+import com.lifestockserver.lifestock.chart.dto.CompanyCurrentPriceResponseDto;
+import com.lifestockserver.lifestock.chart.dto.UserCurrentPriceListResponseDto;
+import com.lifestockserver.lifestock.chart.dto.ChartCreateDto;
 import com.lifestockserver.lifestock.chart.domain.Chart;
-import com.lifestockserver.lifestock.chart.dto.CompanyChartElementResponseDto;
-import com.lifestockserver.lifestock.chart.dto.UserChartElementResponseDto;
-import com.lifestockserver.lifestock.chart.dto.CompanyChartPageResponseDto;
-import com.lifestockserver.lifestock.chart.dto.CompanyChartMonthlyListResponseDto;
+import com.lifestockserver.lifestock.user.domain.User;
+import com.lifestockserver.lifestock.company.domain.Company;
+import com.lifestockserver.lifestock.todo.domain.Todo;
 
-@Mapper(componentModel = "spring")
+import java.util.List;
+import org.springframework.data.domain.Page;
+
 public interface ChartMapper {
-  @Mapping(source = "company.id", target = "companyId")
-  @Mapping(source = "user.id", target = "userId")
-  @Mapping(source = "todo.id", target = "todoId")
+  Chart toChart(ChartCreateDto chartCreateDto, User user, Company company, Todo todo);
+
   ChartResponseDto toChartResponseDto(Chart chart);
 
-  @Mapping(source = "company.id", target = "companyId")
-  @Mapping(source = "user.id", target = "userId")
-  @Mapping(source = "todo.id", target = "todoId")
   List<ChartResponseDto> toChartResponseDtoList(List<Chart> chartList);
 
-  CompanyChartElementResponseDto toCompanyChartElementResponseDto(Chart chart);
+  CompanyChartPageReponseDto toCompanyChartPageReponseDto(Page<Chart> chartPage);
 
-  List<CompanyChartElementResponseDto> toCompanyChartElementResponseDtoList(List<Chart> chartList);
+  CompanyMonthlyChartListResponseDto toCompanyMonthlyChartListResponseDto(List<Chart> chartList);
 
-  @Mapping(source = "company.id", target = "companyId")
-  UserChartElementResponseDto toUserChartElementResponseDto(Chart chart);
+  CompanyCurrentPriceResponseDto toCompanyCurrentPriceResponseDto(Chart chart);
 
-  List<UserChartElementResponseDto> toUserChartElementResponseDtoList(List<Chart> chartList);
-
-  // @Mapping(target = "pageable", source = "pageable")
-  // @Mapping(target = "totalElements", source = "totalElements")
-  // PageImpl<ChartResponseDto> toChartResponseDtoPage(Page<Chart> chartPage);
-
-  default List<CompanyChartElementResponseDto> toCompanyChartElementResponseDtoList(Page<Chart> chartList) {
-    return chartList.getContent().stream()
-      .map(this::toCompanyChartElementResponseDto)
-      .collect(Collectors.toList());
-  }
-
-  @Mapping(source = "content", target = "chartList")
-  @Mapping(source = "number", target = "pageNumber")
-  @Mapping(source = "size", target = "pageSize")
-  CompanyChartPageResponseDto toCompanyChartPageResponseDto(Page<Chart> chartPage);
-
-  CompanyChartMonthlyListResponseDto toCompanyChartMonthlyListResponseDto(List<Chart> chartList, LocalDate month);
-
-  default LocalDate mapMonthToLocalDate(java.time.Month month) {
-      return LocalDate.of(LocalDate.now().getYear(), month, 1);
-  }
+  UserCurrentPriceListResponseDto toUserCurrentPriceListResponseDto(List<Chart> chartList);
 }
