@@ -89,7 +89,12 @@ public class ChartService {
 
   @Transactional(readOnly = true)
   public Long getLatestCloseByCompanyId(Long companyId) {
-    return chartRepository.findLatestChartByCompanyIdAndDate(companyId, LocalDate.now()).orElseThrow(() -> new RuntimeException("There is no chart for the company: " + companyId)).getClose();
+    return chartRepository.findLatestChartByCompanyId(companyId).orElseThrow(() -> new RuntimeException("There is no chart for the company: " + companyId)).getClose();
+  }
+
+  @Transactional(readOnly = true)
+  public Long getLatestCloseByCompanyIdAndDate(Long companyId, LocalDate date) {
+    return chartRepository.findLatestChartByCompanyIdAndDate(companyId, date).orElseThrow(() -> new RuntimeException("There is no chart for the company: " + companyId)).getClose();
   }
 
   @Transactional(readOnly = true)
