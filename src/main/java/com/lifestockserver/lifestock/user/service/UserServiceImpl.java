@@ -4,6 +4,7 @@ import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.user.domain.UserRole;
 import com.lifestockserver.lifestock.user.domain.UserStatus;
 import com.lifestockserver.lifestock.user.dto.UserCreateDto;
+import com.lifestockserver.lifestock.user.dto.UserResponseDto;
 import com.lifestockserver.lifestock.user.mapper.UserMapper;
 import com.lifestockserver.lifestock.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,32 +23,26 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.passwordEncoder = passwordEncoder;
-    }
-
     @Override
     @Transactional
-    public User registerUser(UserCreateDto userCreateDto) {
-        User newUser = userMapper.toEntity(userCreateDto);  // MapStruct로 매핑
+    public UserResponseDto registerUser(UserCreateDto userCreateDto) {
+        User newUser = userMapper.toEntity(userCreateDto);
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        newUser.setRole(UserRole.USER);  // 기본 역할 설정
-        newUser.setStatus(UserStatus.ACTIVE);  // 기본 상태 설정
+        newUser.setRole(UserRole.USER);
+        newUser.setStatus(UserStatus.ACTIVE);
 
         if (newUser.getDisplayName() == null || newUser.getDisplayName().isEmpty()) {
             newUser.setDisplayName(generateDisplayName(newUser));
         }
 
-        return userRepository.save(newUser);
+        return toResponseDto(userRepository.save(newUser));
     }
 
     private String generateDisplayName(User user) {
@@ -61,8 +56,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> findAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponseDto> findAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -99,15 +97,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<User> findAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<User> findPaginatedUsers(int page, int size) {
+    public Page<UserResponseDto> findPaginatedUsers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return userRepository.findAll(pageable);
+        return userRepository.findAll(pageable)
+                .map(userMapper::toDto);
     }
 
     @Override
@@ -117,5 +110,10 @@ public class UserServiceImpl implements UserService {
             return IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
         }
         return List.of();
+    }
+
+    @Override
+    public UserResponseDto toResponseDto(User user) {
+        return userMapper.toDto(user);
     }
 }
