@@ -52,7 +52,7 @@ public class TodoController {
   }
 
   @PutMapping("/complete/{id}")
-  public ResponseEntity<TodoResponseDto> updateTodoCompleted(
+  public ResponseEntity<?> updateTodoCompleted(
     @PathVariable Long id
   ) {
     return ResponseEntity.ok(todoService.updateTodoCompleted(id));

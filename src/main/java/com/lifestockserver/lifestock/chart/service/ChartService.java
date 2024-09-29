@@ -84,7 +84,17 @@ public class ChartService {
             chartCreateDto.setOpen(initialStockPrice);
             chartCreateDto.setHigh(initialStockPrice);
             chartCreateDto.setLow(initialStockPrice);
+            if (chartCreateDto.getClose() == null) {
+                chartCreateDto.setClose(initialStockPrice);
+            }
         } else {
+            if (chartCreateDto.getClose() == null) {
+                chartCreateDto.setClose(latestChart.getClose());
+                if (chartCreateDto.getTodoId() != null) {
+                    chartCreateDto.setClose(calculateChartClose(company, todo, latestChart.getClose()));
+                }
+            }
+
             if (latestChart.getDate().toLocalDate().isBefore(chartCreateDto.getDate().toLocalDate())) {
                 chartCreateDto.setOpen(latestChart.getClose());
                 chartCreateDto.setHigh(latestChart.getClose());
@@ -108,7 +118,12 @@ public class ChartService {
         Chart savedChart = chartRepository.save(chart);
         return chartMapperImpl.toChartResponseDto(savedChart);
     }
-    
+
+    private Long calculateChartClose(Company company, Todo todo, Long latestChartClose) {
+        // 로직 구현
+        return latestChartClose + company.getId() * 10 + todo.getId() * 10;
+    }
+
     public ChartResponseDto getChart(Long id) {
         Chart chart = chartRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Invalid chart Id:" + id));
