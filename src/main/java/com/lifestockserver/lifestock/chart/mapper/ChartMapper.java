@@ -10,16 +10,11 @@ import com.lifestockserver.lifestock.chart.domain.Chart;
 import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.todo.domain.Todo;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 import org.springframework.data.domain.Page;
 
-@Mapper(componentModel = "spring")
 public interface ChartMapper {
-  ChartMapper INSTANCE = Mappers.getMapper(ChartMapper.class);
-
   Chart toChart(ChartCreateDto chartCreateDto, User user, Company company, Todo todo);
 
   ChartResponseDto toChartResponseDto(Chart chart);
