@@ -1,136 +1,94 @@
 package com.lifestockserver.lifestock.chart.service;
 
-import java.time.LocalDate;
-import java.util.List;
+import com.lifestockserver.lifestock.chart.dto.ChartCreateDto;
+import com.lifestockserver.lifestock.chart.dto.ChartResponseDto;
+import com.lifestockserver.lifestock.chart.dto.CompanyChartPageReponseDto;
+import com.lifestockserver.lifestock.chart.dto.CompanyMonthlyChartListResponseDto;
+import com.lifestockserver.lifestock.chart.dto.UserCurrentPriceListResponseDto;
+import com.lifestockserver.lifestock.chart.domain.Chart;
+import com.lifestockserver.lifestock.chart.repository.ChartRepository;
+import com.lifestockserver.lifestock.chart.mapper.ChartMapperImpl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
-import com.lifestockserver.lifestock.chart.domain.Chart;
 import com.lifestockserver.lifestock.user.domain.User;
-import com.lifestockserver.lifestock.todo.domain.Todo;
 import com.lifestockserver.lifestock.company.domain.Company;
-import com.lifestockserver.lifestock.company.repository.CompanyRepository;
+import com.lifestockserver.lifestock.todo.domain.Todo;
 import com.lifestockserver.lifestock.user.repository.UserRepository;
+import com.lifestockserver.lifestock.company.repository.CompanyRepository;
 import com.lifestockserver.lifestock.todo.repository.TodoRepository;
-import com.lifestockserver.lifestock.chart.repository.ChartRepository;
-import com.lifestockserver.lifestock.chart.mapper.ChartMapper;
-import com.lifestockserver.lifestock.chart.dto.CompanyChartPageResponseDto;
-import com.lifestockserver.lifestock.chart.dto.UserChartListResponseDto;
-import com.lifestockserver.lifestock.chart.dto.CompanyChartMonthlyListResponseDto;
-import com.lifestockserver.lifestock.chart.dto.ChartCreateDto;
-import com.lifestockserver.lifestock.chart.dto.ChartResponseDto;
+
+import java.util.List;
+
 @Service
+@Transactional(readOnly = true)
 public class ChartService {
-  private final CompanyRepository companyRepository;
-  private final UserRepository userRepository;
-  private final TodoRepository todoRepository;
-  private final ChartRepository chartRepository;
-  private final ChartMapper chartMapper;
 
-  public ChartService(ChartRepository chartRepository, ChartMapper chartMapper, CompanyRepository companyRepository, UserRepository userRepository, TodoRepository todoRepository) {
-    this.chartRepository = chartRepository;
-    this.chartMapper = chartMapper;
-    this.companyRepository = companyRepository;
-    this.userRepository = userRepository;
-    this.todoRepository = todoRepository;
-  }
+    private final ChartRepository chartRepository;
+    private final ChartMapperImpl chartMapperImpl;
+    private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
+    private final TodoRepository todoRepository;
 
-  @Transactional
-  public ChartResponseDto saveChart(ChartCreateDto chartCreateDto) {
-    Long open;
-    Long high;
-    Long low;
-    Long close = chartCreateDto.getClose();
-    
-    Chart prevChart = chartRepository.findTopByCompany_IdOrderByCreatedAtDesc(chartCreateDto.getCompanyId());
-    Company company = companyRepository.findByIdAndDeletedAtIsNull(chartCreateDto.getCompanyId());
-    User user = userRepository.findById(chartCreateDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
-    Todo todo = todoRepository.findById(chartCreateDto.getTodoId()).orElseThrow(() -> new RuntimeException("Todo not found"));
-
-    if (prevChart == null) {
-      open = company.getInitialStockPrice();
-      high = open;
-      low = open;
-    } else if (prevChart.getCreatedAt().toLocalDate().isBefore(LocalDate.now())) {
-      open = prevChart.getClose();
-      high = open;
-      low = open;
-    } else {
-      open = prevChart.getOpen();
-      high = prevChart.getHigh();
-      low = prevChart.getLow();
+    public ChartService(ChartRepository chartRepository, ChartMapperImpl chartMapperImpl, UserRepository userRepository, CompanyRepository companyRepository, TodoRepository todoRepository) {
+        this.chartRepository = chartRepository;
+        this.chartMapperImpl = chartMapperImpl;
+        this.userRepository = userRepository;
+        this.companyRepository = companyRepository;
+        this.todoRepository = todoRepository;
     }
 
-    if (high < close) {
-      high = close;
+    @Transactional
+    public ChartResponseDto createChart(ChartCreateDto chartCreateDto) {
+        User user = userRepository.findById(chartCreateDto.getUserId())
+            .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + chartCreateDto.getUserId()));
+        Company company = companyRepository.findById(chartCreateDto.getCompanyId())
+            .orElseThrow(() -> new IllegalArgumentException("Invalid company Id:" + chartCreateDto.getCompanyId()));
+        Todo todo = null;
+        if (chartCreateDto.getTodoId() != null) {
+            todo = todoRepository.findById(chartCreateDto.getTodoId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid todo Id:" + chartCreateDto.getTodoId()));
+        }
+
+        if (company.getUser().getId() != user.getId() || (todo != null && todo.getUser().getId() != user.getId())) {
+            throw new IllegalArgumentException("company or todo user id is invalid:" + user.getId());
+        }
+        if (todo != null && todo.getCompany().getId() != company.getId()) {
+            throw new IllegalArgumentException("todo company id is invalid:" + company.getId());
+        }
+
+        Chart chart = chartMapperImpl.toChart(chartCreateDto, user, company, todo);
+        Chart savedChart = chartRepository.save(chart);
+        return chartMapperImpl.toChartResponseDto(savedChart);
     }
-    if (low > close) {
-      low = close;
+    
+    public ChartResponseDto getChart(Long id) {
+        Chart chart = chartRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid chart Id:" + id));
+        return chartMapperImpl.toChartResponseDto(chart);
     }
 
-    Chart chart = Chart.builder()
-      .user(user)
-      .todo(todo)
-      .company(company)
-      .open(open)
-      .high(high)
-      .low(low)
-      .close(close)
-      .build();
+    public Long getLatestCloseByCompanyId(Long companyId) {
+        Chart chart = chartRepository.findLatestAfterMarketOpenChartByCompanyId(companyId);
+        return chart.getClose();
+    }
 
-    Chart savedChart = chartRepository.save(chart);
+    public CompanyMonthlyChartListResponseDto getCompanyMonthlyChartList(Long companyId, int year, int month) {
+        List<Chart> charts = chartRepository.findLatestAfterMarketOpenChartListByCompanyIdAndYearMonth(companyId, year, month);
+        return chartMapperImpl.toCompanyMonthlyChartListResponseDto(charts);
+    }
 
-    return chartMapper.toChartResponseDto(savedChart);
+    public CompanyChartPageReponseDto getCompanyChartPage(Long companyId, int page, int size) {
+        Page<Chart> charts = chartRepository.findLatestAfterMarketOpenChartPageByCompanyId(companyId, PageRequest.of(page, size));
+        return chartMapperImpl.toCompanyChartPageReponseDto(charts);
+    }
+
+    public UserCurrentPriceListResponseDto getUserCurrentPriceList(Long userId) {
+        List<Chart> charts = chartRepository.findLatestChartsByUserIdGroupedByCompany(userId);
+        return chartMapperImpl.toUserCurrentPriceListResponseDto(charts);
+    }
+
   }
-
-  @Transactional(readOnly = true)
-  public Long getLatestCloseByCompanyId(Long companyId) {
-    return chartRepository.findLatestChartByCompanyId(companyId).orElseThrow(() -> new RuntimeException("There is no chart for the company: " + companyId)).getClose();
-  }
-
-  @Transactional(readOnly = true)
-  public Long getLatestCloseByCompanyIdAndDate(Long companyId, LocalDate date) {
-    return chartRepository.findLatestChartByCompanyIdAndDate(companyId, date).orElseThrow(() -> new RuntimeException("There is no chart for the company: " + companyId)).getClose();
-  }
-
-  @Transactional(readOnly = true)
-  public Page<Chart> getCompanyChartPage(Long companyId, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    Page<Chart> chartPage = chartRepository.findLatestChartsPageByCompanyId(companyId, pageable);
-    
-    // return chartMapper.toCompanyChartPageResponseDto(chartPage);
-    return chartPage;
-  }
-
-  @Transactional(readOnly = true)
-  public UserChartListResponseDto getUserChartList(Long userId) {
-    List<Chart> chartList = chartRepository.findLatestChartsForUnlistedCompaniesByUserId(userId);
-    UserChartListResponseDto userChartListResponseDto = new UserChartListResponseDto();
-    
-    userChartListResponseDto.setUserId(userId);
-    userChartListResponseDto.setChartList(chartMapper.toUserChartElementResponseDtoList(chartList));
-    
-    return userChartListResponseDto;
-  }
-
-  @Transactional(readOnly = true)
-  public CompanyChartMonthlyListResponseDto getCompanyMonthlyChartList(String date, Long companyId) {
-    List<Chart> chartList = chartRepository.findLatestChartsForCompanyByMonth(companyId, LocalDate.parse(date));
-    
-    return chartMapper.toCompanyChartMonthlyListResponseDto(chartList, LocalDate.parse(date));
-  }
-
-  @Transactional(readOnly = true)
-  public Long getCompanyChartCount(Long companyId) {
-    return chartRepository.countChartsByCompanyId(companyId);
-  }
-
-  @Transactional(readOnly = true)
-  public List<?> getCompanyChartList(Long companyId) {
-    return chartRepository.findAllChartResponseDtosByCompanyId(companyId);
-  }
-}
