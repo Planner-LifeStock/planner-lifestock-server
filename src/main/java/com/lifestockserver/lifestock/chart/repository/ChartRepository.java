@@ -18,6 +18,9 @@ public interface ChartRepository extends JpaRepository<Chart, Long> {
     @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId AND DATE(c.createdAt) = :date ORDER BY c.createdAt DESC LIMIT 1")
     Optional<Chart> findLatestChartByCompanyIdAndDate(@Param("companyId") Long companyId, @Param("date") LocalDate date);
 
+    @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId ORDER BY c.createdAt DESC LIMIT 1")
+    Optional<Chart> findLatestChartByCompanyId(@Param("companyId") Long companyId);
+    
     @Query("SELECT c FROM Chart c " +
            "WHERE c.company.id = :companyId " +
            "AND FUNCTION('YEAR', c.createdAt) = FUNCTION('YEAR', :date) " +
@@ -65,4 +68,5 @@ public interface ChartRepository extends JpaRepository<Chart, Long> {
     Page<Chart> findLatestDailyChartsByCompanyId(@Param("companyId") Long companyId, Pageable pageable);
 
     Chart findTopByCompany_IdOrderByCreatedAtDesc(Long companyId);
+
 }
