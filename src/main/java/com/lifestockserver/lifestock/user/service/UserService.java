@@ -26,11 +26,6 @@ public interface UserService {
 
     ResponseEntity<User> findUserByIdResponse(Long id);
 
-    Page<UserResponseDto> findPaginatedUsers(int page, int size);
-
-    List<Integer> getPageNumbers(Page<User> userPage);
-
     UserResponseDto toResponseDto(User user);
-
 
 }

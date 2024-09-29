@@ -96,23 +96,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<UserResponseDto> findPaginatedUsers(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return userRepository.findAll(pageable)
-                .map(userMapper::toDto);
-    }
-
-    @Override
-    public List<Integer> getPageNumbers(Page<User> userPage) {
-        int totalPages = userPage.getTotalPages();
-        if (totalPages > 0) {
-            return IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
-        }
-        return List.of();
-    }
-
-    @Override
     public UserResponseDto toResponseDto(User user) {
         return userMapper.toDto(user);
     }
