@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+
 import java.util.List;
 
 @RestController
@@ -28,7 +29,6 @@ public class CompanyController {
     this.companyService = companyService;
   }
 
-  
   @GetMapping
   public ResponseEntity<List<CompanyResponseDto>> getCompaniesByUserId(@RequestParam(required = true, value="userId") Long userId) {
     List<CompanyResponseDto> companyResponseDtos = companyService.findAllByUserId(userId);
@@ -40,7 +40,7 @@ public class CompanyController {
     CompanyResponseDto companyResponseDto = companyService.findById(companyId);
     return ResponseEntity.ok(companyResponseDto);
   }
-  
+
   @PostMapping
   public ResponseEntity<CompanyResponseDto> createCompany(@RequestBody CompanyCreateDto companyCreateDto, String userId) {
     CompanyResponseDto companyResponseDto = companyService.createCompany(companyCreateDto);

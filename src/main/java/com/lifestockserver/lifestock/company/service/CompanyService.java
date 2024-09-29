@@ -66,6 +66,8 @@ public class CompanyService {
     Company savedCompany = companyRepository.save(company);
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
     companyResponseDto.setCurrentStockPrice(savedCompany.getInitialStockPrice());
+
+    chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
     
     return companyResponseDto;
   }
