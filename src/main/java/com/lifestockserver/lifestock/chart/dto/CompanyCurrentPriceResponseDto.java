@@ -6,16 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserCurrentPriceListResponseDto {
-  private Long userId;
-  private List<CompanyCurrentPriceResponseDto> companyCurrentPriceList;
-  private double totalChangeRate;
-  private Long totalCurrentPrice;
+public class CompanyCurrentPriceResponseDto {
+  private Long companyId;
+  private Long currentPrice;
+  private double changeRate;
 }
