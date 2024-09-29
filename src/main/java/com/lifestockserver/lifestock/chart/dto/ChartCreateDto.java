@@ -1,6 +1,6 @@
 package com.lifestockserver.lifestock.chart.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +22,7 @@ public class ChartCreateDto {
   private Long high;
   private Long low;
   private Long close;
-  private LocalDate date;
-  private boolean isAfterMarketOpen;
+  private LocalDateTime date;
+  @Builder.Default
+  private boolean isAfterMarketOpen = true;
 }
