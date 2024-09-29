@@ -22,7 +22,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
         String accessToken = tokenService.createAccessToken(loginRequest.getUsername(), UserRole.USER.name());
-        return ResponseEntity.ok(new TokenResponseDto(accessToken, null));
+        String refreshToken = tokenService.createRefreshToken(loginRequest.getUsername());
+
+        return ResponseEntity.ok(new TokenResponseDto(accessToken, refreshToken));
     }
 
     @PostMapping("/refresh")

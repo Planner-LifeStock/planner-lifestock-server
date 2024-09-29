@@ -63,6 +63,16 @@ public class TokenServiceImpl implements TokenService {
                 .compact();
     }
 
+    @Override
+    public String createRefreshToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)  // 사용자 이름을 포함
+                .setIssuedAt(new Date())  // 발행 시간
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))  // 7일 동안 유효
+                .signWith(SignatureAlgorithm.HS256, secretKey)  // 서명
+                .compact();  // 리프레시 토큰 생성
+    }
+
     private UserDetails loadUserDetailsFromToken(String token) {
         // 유저 정보 로드하는 로직 만드는 곳!
         return null;
