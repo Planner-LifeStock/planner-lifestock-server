@@ -22,7 +22,8 @@ public class ChartCreateDto {
   private Long high;
   private Long low;
   private Long close;
-  private LocalDateTime date;
+  @Builder.Default
+  private LocalDateTime date = LocalDateTime.now();
   @Builder.Default
   private boolean isAfterMarketOpen = true;
 }
