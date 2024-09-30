@@ -1,6 +1,6 @@
 package com.lifestockserver.lifestock.security;
 
-import com.lifestockserver.lifestock.auth.service.TokenServiceImpl;
+import com.lifestockserver.lifestock.auth.service.AuthServiceImpl;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,11 +14,11 @@ import org.aspectj.lang.annotation.Pointcut;
 @Aspect
 public class AuthAspect {
 
-    private final TokenServiceImpl tokenServiceImpl;
+    private final AuthServiceImpl authServiceImpl;
     private final HttpServletRequest request;
 
-    public AuthAspect(TokenServiceImpl tokenServiceImpl, HttpServletRequest request) {
-        this.tokenServiceImpl = tokenServiceImpl;
+    public AuthAspect(AuthServiceImpl authServiceImpl, HttpServletRequest request) {
+        this.authServiceImpl = authServiceImpl;
         this.request = request;
     }
 
@@ -28,11 +28,11 @@ public class AuthAspect {
     @Before("authPointcut()")
     public void validateToken() {
         String token = getBearerTokenFromRequest(request);
-        if (token == null || !tokenServiceImpl.validateToken(token)) {
+        if (token == null || !authServiceImpl.validateToken(token)) {
             throw new SecurityException("잘못된 토큰입니다.");
         }
 
-        Authentication auth = tokenServiceImpl.getAuthentication(token);
+        Authentication auth = authServiceImpl.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
