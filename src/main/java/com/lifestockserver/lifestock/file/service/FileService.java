@@ -1,30 +1,37 @@
 package com.lifestockserver.lifestock.file.service;
 
 import org.springframework.stereotype.Service;
-
+import org.springframework.beans.factory.annotation.Value;
 import com.lifestockserver.lifestock.file.repository.FileRepository;
 
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.UUID;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+
 import com.lifestockserver.lifestock.file.domain.File;
 import com.lifestockserver.lifestock.file.dto.FileCreateDto;
 import com.lifestockserver.lifestock.config.FileConfig;
 import com.lifestockserver.lifestock.file.dto.FileResponseDto;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+
 @Service
 public class FileService {
 
   private final FileRepository fileRepository;
-
+  private final AmazonS3 amazonS3;
   private final FileConfig fileConfig;
 
-  public FileService(FileRepository fileRepository, FileConfig fileConfig) {
+  @Value("${cloud.aws.s3.bucket}")
+  private String bucket;
+
+  public FileService(FileRepository fileRepository, FileConfig fileConfig, AmazonS3 amazonS3) {
     this.fileRepository = fileRepository;
     this.fileConfig = fileConfig;
+    this.amazonS3 = amazonS3;
   }
 
   @Transactional
@@ -34,24 +41,31 @@ public class FileService {
     if (originalFilename == null) {
       throw new RuntimeException("originalFilename is null");
     }
-    String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-    String path = fileConfig.fileStoragePath + "/" + fileCreateDto.getFolder().getFolderName() + "/" + uuid + fileExtension;
+
+    String fileName = fileCreateDto.getFolder().getFolderName() + "/" + uuid;
+
+    ObjectMetadata metadata = new ObjectMetadata();
+    metadata.setContentLength(fileCreateDto.getFile().getSize());
+    metadata.setContentType(fileCreateDto.getFile().getContentType());
+
+    try {
+      amazonS3.putObject(bucket, fileName, fileCreateDto.getFile().getInputStream(), metadata);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to save file to s3", e);
+    }
+
+    String url = amazonS3.getUrl(bucket, fileName).toString();
 
     File uploadFile = File.builder()
       .id(uuid)
       .originalName(originalFilename)
       .folderName(fileCreateDto.getFolder())
+      .fileName(fileName)
       .mimeType(fileCreateDto.getFile().getContentType())
       .size(fileCreateDto.getFile().getSize())
       .meta(fileCreateDto.getMeta())
-      .path(path)
+      .url(url)
       .build();
-
-    try {
-      Files.copy(fileCreateDto.getFile().getInputStream(), Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to save file", e);
-    }
 
     File savedFile = fileRepository.save(uploadFile);
 
@@ -71,6 +85,7 @@ public class FileService {
     File file = fileRepository.findById(id).orElseThrow(() -> new RuntimeException("File not found"));
     return FileResponseDto.builder()
       .id(file.getId())
+      .fileName(file.getFileName())
       .originalName(file.getOriginalName())
       .mimeType(file.getMimeType())
       .size(file.getSize())
@@ -96,6 +111,8 @@ public class FileService {
 
   @Transactional
   public void deleteFile(String id) {
-    fileRepository.deleteById(id);
+    File file = fileRepository.findById(id).orElseThrow(() -> new RuntimeException("File not found"));
+
+    file.setDeletedAt(LocalDateTime.now());
   }
 }
