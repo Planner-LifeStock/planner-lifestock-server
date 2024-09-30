@@ -1,5 +1,8 @@
 package com.lifestockserver.lifestock.auth.service;
 
+import com.lifestockserver.lifestock.user.domain.UserRole;
+import com.lifestockserver.lifestock.user.service.UserService;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,15 +16,19 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 @Service
-public class TokenServiceImpl implements TokenService {
+public class AuthServiceImpl implements AuthService {
 
-    private static final Logger logger = LoggerFactory.getLogger(TokenServiceImpl.class);
+    private final UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
     private final String secretKey;
     private final long expirationTime;
 
-    public TokenServiceImpl(
+    public AuthServiceImpl(
+            UserService userService,  // 필드 주입
             @Value("${jwt.secret-key}") String secretKey,
-            @Value("${jwt.expiration-time}") long expirationTime) {
+            @Value("${jwt.expiration-time}") long expirationTime
+    ) {
+        this.userService = userService;
         this.secretKey = secretKey;
         this.expirationTime = expirationTime;
     }
@@ -46,6 +53,9 @@ public class TokenServiceImpl implements TokenService {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            logger.error("Token has expired: {}", token);
+            return false;
         } catch (Exception e) {
             logger.error("Invalid token: {}", token, e);
             return false;
@@ -53,10 +63,10 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public String createAccessToken(String username, String role) {
+    public String createAccessToken(String username, UserRole role) {
         return Jwts.builder()
                 .setSubject(username)
-                .claim("role", role)
+                .claim("role", role.name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
@@ -66,15 +76,22 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String createRefreshToken(String username) {
         return Jwts.builder()
-                .setSubject(username)  // 사용자 이름을 포함
-                .setIssuedAt(new Date())  // 발행 시간
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))  // 7일 동안 유효
-                .signWith(SignatureAlgorithm.HS256, secretKey)  // 서명
-                .compact();  // 리프레시 토큰 생성
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
     }
 
     private UserDetails loadUserDetailsFromToken(String token) {
-        // 유저 정보 로드하는 로직 만드는 곳!
+        // JWT 토큰을 통해 사용자 정보를 로드하는 로직을 구현해야 함
         return null;
+    }
+
+    @Override
+    public UserRole getUserRoleByUsername(String username) {
+        return userService.findUserByUsername(username)
+                .map(user -> user.getRole())
+                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
     }
 }
