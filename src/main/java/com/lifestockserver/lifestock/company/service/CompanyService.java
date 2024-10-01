@@ -23,6 +23,7 @@ import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
 import com.lifestockserver.lifestock.file.domain.File;
 
 @Service
+@Transactional(readOnly = true)
 public class CompanyService {
 
   private final ChartService chartService;
@@ -91,7 +92,6 @@ public class CompanyService {
     return companyResponseDto;
   }
 
-  @Transactional(readOnly = true)
   public List<CompanyResponseDto> findAllByUserId(Long userId) {
     List<Company> companies = companyRepository.findAllByUserIdAndDeletedAtIsNull(userId);
 
@@ -105,7 +105,6 @@ public class CompanyService {
     return companyResponseDtos;
   }
 
-  @Transactional(readOnly = true)
   public CompanyResponseDto findById(Long id) {
     Company company = companyRepository.findByIdAndDeletedAtIsNull(id);
     if (company == null) {
