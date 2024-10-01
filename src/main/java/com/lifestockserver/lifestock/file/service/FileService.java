@@ -19,6 +19,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 
 @Service
+@Transactional(readOnly = true)
 public class FileService {
 
   private final FileRepository fileRepository;
@@ -80,7 +81,6 @@ public class FileService {
     return fileResponseDto;
   }
 
-  @Transactional(readOnly = true)
   public FileResponseDto findById(String id) {
     File file = fileRepository.findById(id).orElseThrow(() -> new RuntimeException("File not found"));
     return FileResponseDto.builder()
@@ -94,17 +94,14 @@ public class FileService {
       .build();
   }
 
-  @Transactional(readOnly = true)
   public File getFileById(String id) {
     return fileRepository.findById(id).orElseThrow(() -> new RuntimeException("File not found"));
   }
 
-  @Transactional(readOnly = true)
   public File getDefaultCompanyLogo() {
     return fileRepository.findById(fileConfig.defaultLogoName).orElseThrow(() -> new RuntimeException("File not found"));
   }
 
-  @Transactional(readOnly = true)
   public File getDefaultUserProfile() {
     return fileRepository.findById(fileConfig.defaultProfileName).orElseThrow(() -> new RuntimeException("File not found"));
   }

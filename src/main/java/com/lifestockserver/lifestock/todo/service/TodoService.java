@@ -62,6 +62,7 @@ public class TodoService {
     return todoResponseDtos;
   }
 
+  @Transactional
   public TodoResponseDto createTodo(TodoCreateDto todoCreateDto) {
     if (todoCreateDto.getStartDate().isAfter(todoCreateDto.getEndDate())) {
       throw new RuntimeException("시작일이 종료일보다 클 수 없습니다");
