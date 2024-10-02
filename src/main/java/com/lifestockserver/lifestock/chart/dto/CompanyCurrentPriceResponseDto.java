@@ -1,7 +1,5 @@
 package com.lifestockserver.lifestock.chart.dto;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserChartListResponseDto extends ChartListResponseDto {
-  private Long userId;
-  private List<UserChartElementResponseDto> chartList;
+public class CompanyCurrentPriceResponseDto {
+  private Long companyId;
+  private Long currentPrice;
+  private double changeRate;
 }
