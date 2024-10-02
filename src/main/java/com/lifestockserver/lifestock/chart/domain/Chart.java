@@ -5,6 +5,7 @@ import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.todo.domain.Todo;
 import com.lifestockserver.lifestock.user.domain.User;
 
+import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,4 +36,9 @@ public class Chart extends Base {
   private Long high;
   private Long low;
   private Long close;
+
+  private LocalDateTime date;
+
+  @Builder.Default
+  private boolean isAfterMarketOpen = true;
 }

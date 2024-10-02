@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.lifestockserver.lifestock.file.dto.FileResponseDto;
 import com.lifestockserver.lifestock.file.dto.FileCreateDto;
@@ -19,6 +20,9 @@ import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
 public class FileController {
 
   private final FileService fileService;
+
+  @Value("${cloud.aws.s3.bucket}")
+  private String bucket;
 
   public FileController(FileService fileService) {
     this.fileService = fileService;

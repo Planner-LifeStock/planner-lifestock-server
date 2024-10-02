@@ -20,12 +20,10 @@ import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.file.service.FileService;
 import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
 import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
-import com.lifestockserver.lifestock.file.dto.FileCreateDto;
-import com.lifestockserver.lifestock.file.dto.FileResponseDto;
-import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
 import com.lifestockserver.lifestock.file.domain.File;
 
 @Service
+@Transactional(readOnly = true)
 public class CompanyService {
 
   private final ChartService chartService;
@@ -42,6 +40,7 @@ public class CompanyService {
     this.fileService = fileService;
   }
 
+  // file 저장은 따로 api 보내야만함
   @Transactional
   public CompanyResponseDto createCompany(CompanyCreateDto companyCreateDto) {
     User user = userServiceImpl.findUserById(companyCreateDto.getUserId())
@@ -51,21 +50,18 @@ public class CompanyService {
     Company company = companyMapper.toEntity(companyCreateDto);
 
     // companyCreateDto.logo가 null이면 기본 로고를 설정
-    if (companyCreateDto.getLogo() == null) {
+    if (companyCreateDto.getLogoFileId() == null) {
       company.setLogo(fileService.getDefaultCompanyLogo());
     } else {
-      FileCreateDto fileCreateDto = FileCreateDto.builder()
-        .file(companyCreateDto.getLogo())
-        .folder(FileFolder.COMPANY)
-        .build();
-      FileResponseDto fileResponseDto = fileService.saveFile(fileCreateDto);
-      File file = fileService.getFileById(fileResponseDto.getId());
+      File file = fileService.getFileById(companyCreateDto.getLogoFileId());
       company.setLogo(file);
     }
 
     Company savedCompany = companyRepository.save(company);
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
     companyResponseDto.setCurrentStockPrice(savedCompany.getInitialStockPrice());
+
+    chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
     
     return companyResponseDto;
   }
@@ -74,13 +70,8 @@ public class CompanyService {
   public CompanyResponseDto updateCompany(Long companyId, CompanyUpdateDto companyUpdateDto) {
     Company company = companyRepository.findById(companyId)
       .orElseThrow(() -> new EntityNotFoundException("Company not found"));
-    if (companyUpdateDto.getLogo() != null && !company.getLogo().getOriginalName().equals(companyUpdateDto.getLogo().getOriginalFilename())) {
-      FileCreateDto fileCreateDto = FileCreateDto.builder()
-        .file(companyUpdateDto.getLogo())
-        .folder(FileFolder.COMPANY)
-        .build();
-      FileResponseDto fileResponseDto = fileService.saveFile(fileCreateDto);
-      File file = fileService.getFileById(fileResponseDto.getId());
+    if (companyUpdateDto.getLogoFileId() != null && !company.getLogo().getId().equals(companyUpdateDto.getLogoFileId())) {
+      File file = fileService.getFileById(companyUpdateDto.getLogoFileId());
       company.setLogo(file);
     }
     if (companyUpdateDto.getDescription() != null && !company.getDescription().equals(companyUpdateDto.getDescription())) {
@@ -101,7 +92,6 @@ public class CompanyService {
     return companyResponseDto;
   }
 
-  @Transactional(readOnly = true)
   public List<CompanyResponseDto> findAllByUserId(Long userId) {
     List<Company> companies = companyRepository.findAllByUserIdAndDeletedAtIsNull(userId);
 
@@ -115,7 +105,6 @@ public class CompanyService {
     return companyResponseDtos;
   }
 
-  @Transactional(readOnly = true)
   public CompanyResponseDto findById(Long id) {
     Company company = companyRepository.findByIdAndDeletedAtIsNull(id);
     if (company == null) {

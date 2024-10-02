@@ -2,6 +2,7 @@ package com.lifestockserver.lifestock.user.mapper;
 
 import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.user.dto.UserCreateDto;
+import com.lifestockserver.lifestock.user.dto.UserResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -13,5 +14,5 @@ public interface UserMapper {
     User toEntity(UserCreateDto userCreateDto);
 
     // Entity -> Dto
-    UserCreateDto toDto(User user);
+    UserResponseDto toDto(User user);
 }

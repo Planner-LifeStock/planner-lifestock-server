@@ -8,13 +8,11 @@ import org.springframework.context.ApplicationContextAware;
 
 import org.springframework.lang.NonNull;
 
-import com.lifestockserver.lifestock.file.domain.File;
 @SpringBootApplication
 public class LifestockApplication  implements ApplicationContextAware {
 
 	@Override
     public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
-        File.setApplicationContext(applicationContext);
     }
 
 	public static void main(String[] args) {

@@ -2,13 +2,14 @@ package com.lifestockserver.lifestock.user.mapper;
 
 import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.user.dto.UserCreateDto;
+import com.lifestockserver.lifestock.user.dto.UserResponseDto;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-09-23T21:01:59+0900",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.12 (Homebrew)"
+    date = "2024-09-29T00:16:55+0900",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.12 (Eclipse Adoptium)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
@@ -32,20 +33,26 @@ public class UserMapperImpl implements UserMapper {
     }
 
     @Override
-    public UserCreateDto toDto(User user) {
+    public UserResponseDto toDto(User user) {
         if ( user == null ) {
             return null;
         }
 
-        UserCreateDto userCreateDto = new UserCreateDto();
+        UserResponseDto userResponseDto = new UserResponseDto();
 
-        userCreateDto.setUsername( user.getUsername() );
-        userCreateDto.setPassword( user.getPassword() );
-        userCreateDto.setRealName( user.getRealName() );
-        userCreateDto.setDisplayName( user.getDisplayName() );
-        userCreateDto.setEmail( user.getEmail() );
-        userCreateDto.setPhoneNumber( user.getPhoneNumber() );
+        userResponseDto.setId( user.getId() );
+        userResponseDto.setUsername( user.getUsername() );
+        userResponseDto.setRealName( user.getRealName() );
+        userResponseDto.setEmail( user.getEmail() );
+        userResponseDto.setDisplayName( user.getDisplayName() );
+        userResponseDto.setPhoneNumber( user.getPhoneNumber() );
+        if ( user.getStatus() != null ) {
+            userResponseDto.setStatus( user.getStatus().name() );
+        }
+        if ( user.getRole() != null ) {
+            userResponseDto.setRole( user.getRole().name() );
+        }
 
-        return userCreateDto;
+        return userResponseDto;
     }
 }
