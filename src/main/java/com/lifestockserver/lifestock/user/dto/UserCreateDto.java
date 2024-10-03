@@ -9,25 +9,25 @@ import jakarta.validation.constraints.Pattern;
 @Data
 public class UserCreateDto {
 
-    @NotBlank(message = ValidationMessages.USERNAME_EMPTY)
-    @Length(min = 3, max = 20, message = ValidationMessages.USERNAME_LENGTH)
+    @NotBlank
+    @Length(min = 3, max = 20)
     private String username;
 
-    @NotBlank(message = ValidationMessages.PASSWORD_EMPTY)
-    @Length(min = 6, message = ValidationMessages.PASSWORD_LENGTH)
+    @NotBlank
+    @Length(min = 6)
     private String password;
 
-    @NotBlank(message = ValidationMessages.REAL_NAME_EMPTY)
+    @NotBlank
     private String realName;
 
     private String displayName;  // Optional
 
-    @NotBlank(message = ValidationMessages.EMAIL_EMPTY)
-    @Email(message = ValidationMessages.EMAIL_INVALID)
+    @NotBlank
+    @Email
     private String email;
 
-    @NotBlank(message = ValidationMessages.PHONE_NUMBER_EMPTY)
-    @Pattern(regexp = "^\\+?\\d{10,15}$", message = ValidationMessages.PHONE_NUMBER_INVALID)
+    @NotBlank
+    @Pattern(regexp = "^\\+?\\d{10,15}$")
     private String phoneNumber;
 
 }
