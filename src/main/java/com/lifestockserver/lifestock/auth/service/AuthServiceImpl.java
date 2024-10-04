@@ -1,7 +1,10 @@
 package com.lifestockserver.lifestock.auth.service;
 
+import com.lifestockserver.lifestock.auth.service.AuthService;
+import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.user.domain.UserRole;
 import com.lifestockserver.lifestock.user.service.UserService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -24,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final long expirationTime;
 
     public AuthServiceImpl(
-            UserService userService,  // 필드 주입
+            UserService userService,
             @Value("${jwt.secret-key}") String secretKey,
             @Value("${jwt.expiration-time}") long expirationTime
     ) {
@@ -39,13 +42,18 @@ public class AuthServiceImpl implements AuthService {
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
+    public UserDetails loadUserDetailsFromToken(String token) {
+        String username = getUsernameFromToken(token);
+        return userService.loadUserByUsername(username);  // UserDetailsService를 통해 UserDetails 가져오기
+    }
+
     @Override
     public String getUsernameFromToken(String token) {
-        return Jwts.parser()
+        Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
+        return claims.getSubject();  // 토큰에서 사용자명 추출
     }
 
     @Override
@@ -81,11 +89,6 @@ public class AuthServiceImpl implements AuthService {
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
-    }
-
-    private UserDetails loadUserDetailsFromToken(String token) {
-        // JWT 토큰을 통해 사용자 정보를 로드하는 로직을 구현해야 함
-        return null;
     }
 
     @Override
