@@ -27,7 +27,7 @@ public class UserCreateDto {
     private String email;
 
     @NotBlank(message = "핸드폰 번호를 입력해주세요.")
-    @Pattern(regexp = "^\\+?\\d{10,15}$", message = "올바른 전화번호를 입력해주세요.")
+    @Pattern(regexp = "^\\+?[0-9\\-]{10,16}$", message = "올바른 전화번호를 입력해주세요.")
     private String phoneNumber;
 
     //setPhoneNumber은 @Valid에서 자동으로 실행됨.
