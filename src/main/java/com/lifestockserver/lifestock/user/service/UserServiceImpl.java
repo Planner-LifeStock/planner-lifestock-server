@@ -84,15 +84,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(Long id) {
-        userRepository.deleteById(id);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public ResponseEntity<User> findUserByIdResponse(Long id) {
-        return userRepository.findById(id)
-                .map(user -> ResponseEntity.ok().body(user))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Optional<User> user = userRepository.findById(id);
+        user.ifPresent(u -> {
+            u.setStatus(UserStatus.DELETED);
+            userRepository.save(u);
+        });
     }
 
     @Override
