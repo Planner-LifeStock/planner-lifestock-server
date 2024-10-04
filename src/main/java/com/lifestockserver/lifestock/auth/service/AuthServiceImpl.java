@@ -1,5 +1,6 @@
 package com.lifestockserver.lifestock.auth.service;
 
+import com.lifestockserver.lifestock.auth.dto.LoginRequestDto;
 import com.lifestockserver.lifestock.auth.service.AuthService;
 import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.user.domain.UserRole;
@@ -8,6 +9,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -97,4 +99,40 @@ public class AuthServiceImpl implements AuthService {
                 .map(user -> user.getRole())
                 .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
     }
+
+
+    @Override
+    public void login(LoginRequestDto loginRequest, HttpServletResponse response) {
+        UserRole userRole = userService.findUserByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .getRole();
+
+        String accessToken = createAccessToken(loginRequest.getUsername(), userRole);
+        String refreshToken = createRefreshToken(loginRequest.getUsername());
+
+        // 헤더에 토큰 추가
+        response.setHeader("Authorization", "Bearer " + accessToken);
+        response.setHeader("Refresh-Token", refreshToken);
+    }
+
+    @Override
+    public void refresh(String refreshToken, HttpServletResponse response) {
+        if (validateToken(refreshToken)) {
+            String username = getUsernameFromToken(refreshToken);
+            String newAccessToken = createAccessToken(username, getUserRoleByUsername(username));
+
+            // 새로운 엑세스 토큰 발급
+            response.setHeader("Authorization", "Bearer " + newAccessToken);
+        } else {
+            throw new IllegalArgumentException("Invalid refresh token");
+        }
+    }
+
+    @Override
+    public void validateToken(String token, HttpServletResponse response) {
+        if (!validateToken(token)) {
+            throw new IllegalArgumentException("Invalid token");
+        }
+    }
+
 }

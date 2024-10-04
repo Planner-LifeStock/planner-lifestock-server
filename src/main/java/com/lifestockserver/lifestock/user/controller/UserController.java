@@ -28,12 +28,13 @@ public class UserController {
             return "register";
         }
         userService.registerUser(userCreateDto);
-        return "redirect:/users";
+        return "redirect:/";
     }
 
     // 회원가입 폼
     @GetMapping("/register")
-    public String showRegistrationForm() {
+    public String showRegistrationForm(Model model) {
+        model.addAttribute("userCreateDto", new UserCreateDto());
         return "register";
     }
 

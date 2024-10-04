@@ -14,5 +14,6 @@ public interface UserMapper {
     User toEntity(UserCreateDto userCreateDto);
 
     // Entity -> Dto
+    @Mapping(target = "status", source = "status")
     UserResponseDto toDto(User user);
 }

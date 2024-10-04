@@ -1,6 +1,8 @@
 package com.lifestockserver.lifestock.auth.service;
 
+import com.lifestockserver.lifestock.auth.dto.LoginRequestDto;
 import com.lifestockserver.lifestock.user.domain.UserRole;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,4 +14,7 @@ public interface AuthService {
     Authentication getAuthentication(String token);
     UserRole getUserRoleByUsername(String username);
     UserDetails loadUserDetailsFromToken(String token);
+    void login(LoginRequestDto loginRequest, HttpServletResponse response);
+    void refresh(String refreshToken, HttpServletResponse response);
+    void validateToken(String token, HttpServletResponse response);
 }
