@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
-@Controller // RestController 대신 Controller 사용
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {

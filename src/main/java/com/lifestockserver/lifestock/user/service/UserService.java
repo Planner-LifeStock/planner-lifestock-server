@@ -24,8 +24,6 @@ public interface UserService {
 
     void deleteUser(Long id);
 
-    ResponseEntity<User> findUserByIdResponse(Long id);
-
     UserResponseDto toResponseDto(User user);
 
 }
