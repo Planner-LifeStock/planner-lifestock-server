@@ -24,18 +24,15 @@ public class AuthController {
 
     // 로그인 처리
     @PostMapping("/login")
-    public String login(@Valid @ModelAttribute LoginRequestDto loginRequest, BindingResult bindingResult, Model model) {
+    public String login(@Valid @ModelAttribute LoginRequestDto loginRequest, BindingResult bindingResult, Model model, HttpServletResponse response) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("errors", bindingResult.getAllErrors());
             return "login";
         }
 
-        UserRole userRole = authService.getUserRoleByUsername(loginRequest.getUsername());
-        String accessToken = authService.createAccessToken(loginRequest.getUsername(), userRole);
-        String refreshToken = authService.createRefreshToken(loginRequest.getUsername());
+        Long userId = authService.login(loginRequest, response);
 
-        // 토큰 발행 후 메인 페이지로 리다이렉트
-        return "redirect:/";
+        return "redirect:/users/" + userId;
     }
 
     // 로그인 페이지 출력
