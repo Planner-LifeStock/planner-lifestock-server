@@ -5,8 +5,8 @@ import com.lifestockserver.lifestock.user.dto.UserResponseDto;
 import com.lifestockserver.lifestock.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
@@ -22,8 +22,9 @@ public class UserController {
 
     // 회원가입 처리
     @PostMapping
-    public String registerUser(@Valid UserCreateDto userCreateDto, BindingResult bindingResult) {
+    public String registerUser(@Valid UserCreateDto userCreateDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("errors", bindingResult.getAllErrors());
             return "register";
         }
         userService.registerUser(userCreateDto);
