@@ -26,16 +26,19 @@ public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
     private final String secretKey;
-    private final long expirationTime;
+    private final long accessExpirationTime;
+    private final long refreshExpirationTime;
 
     public AuthServiceImpl(
             UserService userService,
             @Value("${jwt.secret-key}") String secretKey,
-            @Value("${jwt.expiration-time}") long expirationTime
+            @Value("${jwt.access-token-expiration-time}") long accessExpirationTime,
+            @Value("${jwt.refresh-token-expiration-time}") long refreshExpirationTime
     ) {
         this.userService = userService;
         this.secretKey = secretKey;
-        this.expirationTime = expirationTime;
+        this.accessExpirationTime = accessExpirationTime;
+        this.refreshExpirationTime = accessExpirationTime;
     }
 
     @Override
@@ -78,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
                 .setSubject(username)
                 .claim("role", role.name())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .setExpiration(new Date(System.currentTimeMillis() + accessExpirationTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
@@ -88,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpirationTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
@@ -100,19 +103,19 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
     }
 
-
     @Override
-    public void login(LoginRequestDto loginRequest, HttpServletResponse response) {
-        UserRole userRole = userService.findUserByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"))
-                .getRole();
+    public Long login(LoginRequestDto loginRequest, HttpServletResponse response) {
+        User user = userService.findUserByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        String accessToken = createAccessToken(loginRequest.getUsername(), userRole);
-        String refreshToken = createRefreshToken(loginRequest.getUsername());
+        UserRole userRole = user.getRole();
+        String accessToken = createAccessToken(user.getUsername(), userRole);
+        String refreshToken = createRefreshToken(user.getUsername());
 
-        // 헤더에 토큰 추가
         response.setHeader("Authorization", "Bearer " + accessToken);
         response.setHeader("Refresh-Token", refreshToken);
+
+        return user.getId();
     }
 
     @Override

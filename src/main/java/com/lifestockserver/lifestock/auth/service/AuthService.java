@@ -14,7 +14,7 @@ public interface AuthService {
     Authentication getAuthentication(String token);
     UserRole getUserRoleByUsername(String username);
     UserDetails loadUserDetailsFromToken(String token);
-    void login(LoginRequestDto loginRequest, HttpServletResponse response);
+    Long login(LoginRequestDto loginRequest, HttpServletResponse response);
     void refresh(String refreshToken, HttpServletResponse response);
     void validateToken(String token, HttpServletResponse response);
 }
