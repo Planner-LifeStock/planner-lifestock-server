@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class RankService {
@@ -24,6 +25,9 @@ public class RankService {
     // 유저 자산 업데이트 (Sorted Set에 유저 ID와 자산 저장)
     public void updateUserAsset(Long userId, double totalAssets){
         zSetOperations.add(KEY, String.valueOf(userId), totalAssets);
+
+        //만료 시간 정의
+        redisTemplate.expire(KEY, 1, TimeUnit.DAYS);
     }
 
     // 특정 유저의 순위 조회
