@@ -5,13 +5,15 @@ import com.lifestockserver.lifestock.user.dto.UserResponseDto;
 import com.lifestockserver.lifestock.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -20,23 +22,30 @@ public class UserController {
 
     private final UserService userService;
 
-    // 회원가입 처리
+    // 회원가입 post 요청
     @PostMapping
-    public String registerUser(@Valid UserCreateDto userCreateDto, BindingResult bindingResult, Model model) {
+    @ResponseBody
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserCreateDto userCreateDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("errors", bindingResult.getAllErrors());
-            return "register";
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error ->
+                    errors.put(error.getField(), error.getDefaultMessage())
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);  // 400 error
         }
-        userService.registerUser(userCreateDto);
-        return "redirect:/";
+
+        UserResponseDto userResponseDto = userService.registerUser(userCreateDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);  // 201 Created
     }
 
-    // 회원가입 폼
+    /* 회원가입 폼(없어도 될 거 같은데 실제로 괜찮으면 지울게요)
     @GetMapping("/register")
-    public String showRegistrationForm(Model model) {
-        model.addAttribute("userCreateDto", new UserCreateDto());
-        return "register";
+    @ResponseBody  // JSON 응답
+    public ResponseEntity<UserCreateDto> showRegistrationForm() {
+        UserCreateDto userCreateDto = new UserCreateDto();
+        return ResponseEntity.ok(userCreateDto);  // 200 OK와 함께 기본 UserCreateDto 반환
     }
+    */
 
     // 모든 유저 목록 조회
     @GetMapping
