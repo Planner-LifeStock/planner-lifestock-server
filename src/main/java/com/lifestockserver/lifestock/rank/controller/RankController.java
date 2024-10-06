@@ -1,5 +1,6 @@
 package com.lifestockserver.lifestock.rank.controller;
 
+import com.lifestockserver.lifestock.rank.dto.UserAssetDto;
 import com.lifestockserver.lifestock.rank.service.RankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
@@ -20,8 +21,9 @@ public class RankController {
 
     //유저 자산 업데이트 API
     @PostMapping("/update")
-    public void updateUserAsset(@RequestParam Long userId, @RequestParam double totalAssets){
-        rankService.updateUserAsset(userId, totalAssets);
+    public void updateUserAsset(@RequestBody UserAssetDto userAssetDto){
+        //System.out.println("Received request to update user asset : userID = " + userId + ", totalAssets = " + totalAssets);
+        rankService.updateUserAsset(userAssetDto.getUserId(), userAssetDto.getTotalAssets());
     }
 
     //유저 순위 조회 API
