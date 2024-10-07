@@ -57,7 +57,6 @@ public class UserMapperImpl implements UserMapper {
             return;
         }
 
-        user.setId( userUpdateDto.getId() );
         user.setRealName( userUpdateDto.getRealName() );
         user.setDisplayName( userUpdateDto.getDisplayName() );
         user.setEmail( userUpdateDto.getEmail() );
