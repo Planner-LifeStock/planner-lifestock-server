@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class FileResponseDto {
   private String id;
+  private String fileName;
   private String originalName;
   private String mimeType;
   private Long size;
