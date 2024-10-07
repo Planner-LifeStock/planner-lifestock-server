@@ -3,8 +3,10 @@ package com.lifestockserver.lifestock.user.mapper;
 import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.user.dto.UserCreateDto;
 import com.lifestockserver.lifestock.user.dto.UserResponseDto;
+import com.lifestockserver.lifestock.user.dto.UserUpdateDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -16,4 +18,6 @@ public interface UserMapper {
     // Entity -> Dto
     @Mapping(target = "status", source = "status")
     UserResponseDto toDto(User user);
+
+    void updateEntityFromDto(UserUpdateDto userUpdateDto, @MappingTarget User user);
 }

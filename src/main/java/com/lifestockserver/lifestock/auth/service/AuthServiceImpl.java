@@ -43,13 +43,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = loadUserDetailsFromToken(token);
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-    }
-
-    public UserDetails loadUserDetailsFromToken(String token) {
         String username = getUsernameFromToken(token);
-        return userServiceProvider.get().loadUserByUsername(username);
+        UserDetails userDetails = userServiceProvider.get().loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
     @Override
@@ -68,11 +64,18 @@ public class AuthServiceImpl implements AuthService {
             return true;
         } catch (ExpiredJwtException e) {
             logger.error("만료된 토큰: {}", token);
-            return false;
+        } catch (io.jsonwebtoken.MalformedJwtException e) {
+            logger.error("잘못된 형식의 토큰: {}", token);
+        } catch (io.jsonwebtoken.SignatureException e) {
+            logger.error("서명 검증 실패: {}", token);
+        } catch (io.jsonwebtoken.UnsupportedJwtException e) {
+            logger.error("지원하지 않는 토큰: {}", token);
+        } catch (IllegalArgumentException e) {
+            logger.error("토큰이 비어있거나 잘못되었습니다: {}", token);
         } catch (Exception e) {
-            logger.error("잘못된 토큰: {}", token, e);
-            return false;
+            logger.error("알 수 없는 오류로 인해 토큰이 유효하지 않습니다: {}", token, e);
         }
+        return false;
     }
 
     @Override
@@ -97,13 +100,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserRole getUserRoleByUsername(String username) {
-        return userServiceProvider.get().findUserByUsername(username)
-                .map(User::getRole)
-                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
-    }
-
-    @Override
     public TokenResponseDto login(LoginRequestDto loginRequest) {
         User user = userServiceProvider.get().findUserByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -119,7 +115,9 @@ public class AuthServiceImpl implements AuthService {
     public TokenResponseDto refresh(String refreshToken) {
         if (validateToken(refreshToken)) {
             String username = getUsernameFromToken(refreshToken);
-            String newAccessToken = createAccessToken(username, getUserRoleByUsername(username));
+            String newAccessToken = createAccessToken(username, userServiceProvider.get().findUserByUsername(username)
+                    .map(User::getRole)
+                    .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다.")));
 
             return new TokenResponseDto(newAccessToken, refreshToken);
         } else {

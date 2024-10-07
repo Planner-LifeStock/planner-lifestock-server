@@ -1,12 +1,10 @@
 package com.lifestockserver.lifestock.user.service;
 
 import com.lifestockserver.lifestock.user.domain.User;
+import com.lifestockserver.lifestock.user.domain.UserRole;
 import com.lifestockserver.lifestock.user.dto.UserCreateDto;
 import com.lifestockserver.lifestock.user.dto.UserResponseDto;
 import com.lifestockserver.lifestock.user.dto.UserUpdateDto;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -19,7 +17,7 @@ public interface UserService {
 
     List<UserResponseDto> findAllUsers();
 
-    Optional<User> findUserById(Long id);
+    Optional<UserResponseDto> findUserById(Long id);
 
     Optional<User> findUserByUsername(String username);
 
@@ -29,5 +27,7 @@ public interface UserService {
 
     UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
-    UserResponseDto updateUser(UserUpdateDto userUpdateDto);
+    UserResponseDto updateUser(Long id, UserUpdateDto userUpdateDto);
+
+    UserRole getUserRoleByUsername(String username);
 }

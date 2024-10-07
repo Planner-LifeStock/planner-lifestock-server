@@ -11,11 +11,14 @@ import java.io.IOException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final AuthService authService;
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Autowired
     public JwtAuthenticationFilter(AuthService authService) {
@@ -40,9 +43,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String extractToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        if (bearerToken == null) {
+            logger.warn("Authorization 헤더가 존재하지 않습니다.");
+            return null;
         }
-        return null;
+        if (!bearerToken.startsWith("Bearer ")) {
+            logger.warn("Authorization 헤더의 형식이 올바르지 않습니다. 토큰이 'Bearer '로 시작해야 합니다.");
+            return null;
+        }
+
+        // "BEARER " 제거
+        return bearerToken.substring(7);
     }
 }

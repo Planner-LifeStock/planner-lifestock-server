@@ -1,5 +1,6 @@
 package com.lifestockserver.lifestock.company.service;
 
+import com.lifestockserver.lifestock.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,21 +32,21 @@ public class CompanyService {
   private final ChartService chartService;
   private final CompanyRepository companyRepository;
   private final CompanyMapper companyMapper;
-  private final UserServiceImpl userServiceImpl;
+  private final UserRepository userRepository;
   private final FileService fileService;
 
-  public CompanyService(ChartService chartService, CompanyRepository companyRepository, CompanyMapper companyMapper, UserServiceImpl userServiceImpl, FileService fileService) {
+  public CompanyService(ChartService chartService, CompanyRepository companyRepository, CompanyMapper companyMapper, UserRepository userRepository, FileService fileService) {
     this.chartService = chartService;
     this.companyRepository = companyRepository;
     this.companyMapper = companyMapper;
-    this.userServiceImpl = userServiceImpl;
+    this.userRepository = userRepository;
     this.fileService = fileService;
   }
 
   @Transactional
   public CompanyResponseDto createCompany(CompanyCreateDto companyCreateDto) {
-    User user = userServiceImpl.findUserById(companyCreateDto.getUserId())
-      .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    User user = userRepository.findById(companyCreateDto.getUserId())
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
     companyCreateDto.setUser(user);
 
     Company company = companyMapper.toEntity(companyCreateDto);

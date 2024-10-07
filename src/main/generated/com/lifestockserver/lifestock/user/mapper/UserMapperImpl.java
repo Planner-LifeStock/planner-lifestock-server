@@ -3,13 +3,12 @@ package com.lifestockserver.lifestock.user.mapper;
 import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.user.dto.UserCreateDto;
 import com.lifestockserver.lifestock.user.dto.UserResponseDto;
+import com.lifestockserver.lifestock.user.dto.UserUpdateDto;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
-    value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-10-07T16:15:58+0900",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.12 (Eclipse Adoptium)"
+    value = "org.mapstruct.ap.MappingProcessor"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
@@ -50,5 +49,18 @@ public class UserMapperImpl implements UserMapper {
         userResponseDto.setRole( user.getRole() );
 
         return userResponseDto;
+    }
+
+    @Override
+    public void updateEntityFromDto(UserUpdateDto userUpdateDto, User user) {
+        if ( userUpdateDto == null ) {
+            return;
+        }
+
+        user.setId( userUpdateDto.getId() );
+        user.setRealName( userUpdateDto.getRealName() );
+        user.setDisplayName( userUpdateDto.getDisplayName() );
+        user.setEmail( userUpdateDto.getEmail() );
+        user.setPhoneNumber( userUpdateDto.getPhoneNumber() );
     }
 }

@@ -31,8 +31,6 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())   // jwt는 STATELESS니까 csrf 비활성화
                 .authorizeHttpRequests(authorize -> authorize
-                        //.requestMatchers("/", "/auth/login", "/users/register").permitAll()
-                        //.requestMatchers(HttpMethod.GET, "/users").permitAll()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
