@@ -5,6 +5,7 @@ import com.lifestockserver.lifestock.user.domain.UserRole;
 import com.lifestockserver.lifestock.user.domain.UserStatus;
 import com.lifestockserver.lifestock.user.dto.UserCreateDto;
 import com.lifestockserver.lifestock.user.dto.UserResponseDto;
+import com.lifestockserver.lifestock.user.dto.UserUpdateDto;
 import com.lifestockserver.lifestock.user.mapper.UserMapper;
 import com.lifestockserver.lifestock.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -80,12 +81,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User updateUser(User user) {
-        return userRepository.save(user);
-    }
-
-    @Override
-    @Transactional
     public void deleteUser(Long id) {
         Optional<User> user = userRepository.findById(id);
         user.ifPresent(u -> {
@@ -108,4 +103,27 @@ public class UserServiceImpl implements UserService {
                         List.of(new SimpleGrantedAuthority(user.getRole().name()))))
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
     }
+
+    @Override
+    @Transactional
+    public UserResponseDto updateUser(UserUpdateDto userUpdateDto) {
+        User user = userRepository.findById(userUpdateDto.getId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        if (userUpdateDto.getRealName() != null && !userUpdateDto.getRealName().isEmpty()) {
+            user.setRealName(userUpdateDto.getRealName());
+        }
+        if (userUpdateDto.getDisplayName() != null && !userUpdateDto.getDisplayName().isEmpty()) {
+            user.setDisplayName(userUpdateDto.getDisplayName());
+        }
+        if (userUpdateDto.getEmail() != null && !userUpdateDto.getEmail().isEmpty()) {
+            user.setEmail(userUpdateDto.getEmail());
+        }
+        if (userUpdateDto.getPhoneNumber() != null && !userUpdateDto.getPhoneNumber().isEmpty()) {
+            user.setPhoneNumber(userUpdateDto.getPhoneNumber());
+        }
+
+        return toResponseDto(userRepository.save(user));
+    }
+
 }
