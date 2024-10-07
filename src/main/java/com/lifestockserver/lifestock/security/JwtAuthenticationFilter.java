@@ -8,8 +8,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -24,30 +22,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.authService = authService;
     }
 
-    private static final List<String> EXCLUDED_PATHS = Arrays.asList(
-            "/", "/auth/login", "/users/register"
-    );
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String requestPath = request.getServletPath();
-
-        if (EXCLUDED_PATHS.stream().anyMatch(requestPath::equals)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         String token = extractToken(request);
 
+        // 토큰이 유효하면 SecurityContext에 저장
         if (token != null && authService.validateToken(token)) {
-            Authentication auth = authService.getAuthentication(token);     //토큰에서 사용자 정보 추출해 객체로 생성
-            SecurityContextHolder.getContext().setAuthentication(auth);     //그 객체를 SecurityContext에 저장
-        } else {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "권한 없음");
-            return;
+            Authentication auth = authService.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
+        // 다음 필터로 요청 전달
         filterChain.doFilter(request, response);
     }
 
