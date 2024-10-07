@@ -3,13 +3,9 @@ package com.lifestockserver.lifestock.auth.controller;
 import com.lifestockserver.lifestock.auth.dto.LoginRequestDto;
 import com.lifestockserver.lifestock.auth.dto.TokenResponseDto;
 import com.lifestockserver.lifestock.auth.service.AuthService;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,10 +31,10 @@ public class AuthController {
 
     // 리프레시 토큰 만들어서 refresh로 POST
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestHeader("Authorization") String refreshToken, HttpServletResponse response) {
+    public ResponseEntity<?> refresh(@RequestHeader("Authorization") String refreshToken) {
         try {
-            authService.refresh(refreshToken, response);
-            return ResponseEntity.ok("Access token refreshed successfully");
+            TokenResponseDto tokenResponse = authService.refresh(refreshToken);
+            return ResponseEntity.ok(tokenResponse);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
@@ -49,7 +45,7 @@ public class AuthController {
     public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String token) {
         try {
             authService.validateToken(token);
-            return ResponseEntity.ok("Token is valid");
+            return ResponseEntity.ok("유효한 토큰");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }

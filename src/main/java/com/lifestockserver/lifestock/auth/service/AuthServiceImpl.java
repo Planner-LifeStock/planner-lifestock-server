@@ -9,7 +9,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.inject.Provider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,22 +23,22 @@ import java.util.Date;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final UserService userService;
+    private final Provider<UserService> userServiceProvider;
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
     private final String secretKey;
     private final long accessExpirationTime;
     private final long refreshExpirationTime;
 
     public AuthServiceImpl(
-            UserService userService,
+            Provider<UserService> userServiceProvider,
             @Value("${jwt.secret-key}") String secretKey,
             @Value("${jwt.access-token-expiration-time}") long accessExpirationTime,
             @Value("${jwt.refresh-token-expiration-time}") long refreshExpirationTime
     ) {
-        this.userService = userService;
+        this.userServiceProvider = userServiceProvider;
         this.secretKey = secretKey;
         this.accessExpirationTime = accessExpirationTime;
-        this.refreshExpirationTime = accessExpirationTime;
+        this.refreshExpirationTime = refreshExpirationTime;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
 
     public UserDetails loadUserDetailsFromToken(String token) {
         String username = getUsernameFromToken(token);
-        return userService.loadUserByUsername(username);
+        return userServiceProvider.get().loadUserByUsername(username);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody();
-        return claims.getSubject();  // 토큰에서 사용자명 추출
+        return claims.getSubject();
     }
 
     @Override
@@ -67,10 +67,10 @@ public class AuthServiceImpl implements AuthService {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            logger.error("Token has expired: {}", token);
+            logger.error("만료된 토큰: {}", token);
             return false;
         } catch (Exception e) {
-            logger.error("Invalid token: {}", token, e);
+            logger.error("잘못된 토큰: {}", token, e);
             return false;
         }
     }
@@ -98,15 +98,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserRole getUserRoleByUsername(String username) {
-        return userService.findUserByUsername(username)
-                .map(user -> user.getRole())
+        return userServiceProvider.get().findUserByUsername(username)
+                .map(User::getRole)
                 .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
     }
 
     @Override
     public TokenResponseDto login(LoginRequestDto loginRequest) {
-        User user = userService.findUserByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userServiceProvider.get().findUserByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         UserRole userRole = user.getRole();
         String accessToken = createAccessToken(user.getUsername(), userRole);
@@ -116,14 +116,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void refresh(String refreshToken, HttpServletResponse response) {
+    public TokenResponseDto refresh(String refreshToken) {
         if (validateToken(refreshToken)) {
             String username = getUsernameFromToken(refreshToken);
             String newAccessToken = createAccessToken(username, getUserRoleByUsername(username));
 
-            response.setHeader("Authorization", "Bearer " + newAccessToken);
+            return new TokenResponseDto(newAccessToken, refreshToken);
         } else {
-            throw new IllegalArgumentException("Invalid refresh token");
+            throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
         }
     }
 }

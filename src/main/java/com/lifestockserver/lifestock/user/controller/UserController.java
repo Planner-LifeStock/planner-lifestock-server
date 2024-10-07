@@ -23,8 +23,8 @@ public class UserController {
 
     private final UserService userService;
 
-    // 회원가입 post 요청
-    @PostMapping
+    // 회원가입 요청
+    @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserCreateDto userCreateDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = bindingResult.getFieldErrors().stream()
@@ -32,10 +32,10 @@ public class UserController {
                             error -> error.getField(),
                             error -> error.getDefaultMessage()
                     ));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);  // 400 error
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
         UserResponseDto userResponseDto = userService.registerUser(userCreateDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);  // 201 Created
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);
     }
 
     // 모든 유저 목록 조회
@@ -50,18 +50,19 @@ public class UserController {
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         return userService.findUserById(id)
                 .map(user -> ResponseEntity.ok(userService.toResponseDto(user)))
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // 유저 업데이트
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateDto userUpdateDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);  // 400 error
+            Map<String, String> errors = bindingResult.getFieldErrors().stream()
+                    .collect(Collectors.toMap(
+                            error -> error.getField(),
+                            error -> error.getDefaultMessage()
+                    ));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
 
         return userService.findUserById(id)
@@ -70,17 +71,17 @@ public class UserController {
                     UserResponseDto updatedUser = userService.updateUser(userUpdateDto);
                     return ResponseEntity.ok(updatedUser);
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // 유저 삭제 (Status를 DELETED로)
+    // 유저 삭제 (Status를 DELETED로 변경)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         return userService.findUserById(id)
                 .map(user -> {
                     userService.deleteUser(id);
-                    return ResponseEntity.noContent().build();  // 204 No Content
+                    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 }
