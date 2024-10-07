@@ -9,10 +9,6 @@ import com.lifestockserver.lifestock.user.dto.UserUpdateDto;
 import com.lifestockserver.lifestock.user.mapper.UserMapper;
 import com.lifestockserver.lifestock.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,11 +16,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +49,7 @@ public class UserServiceImpl implements UserService {
         String displayName;
         do {
             String realNameBased = user.getRealName().replaceAll("\\s", "_");
-            displayName = realNameBased + "_" + new Random().nextInt(10000);
+            displayName = realNameBased + "_" + ThreadLocalRandom.current().nextInt(10000);
         } while (userRepository.findByDisplayName(displayName).isPresent());
         return displayName;
     }
@@ -69,8 +65,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> findUserById(Long id) {
-        return userRepository.findById(id);
+    public Optional<UserResponseDto> findUserById(Long id) {
+        return userRepository.findById(id).map(this::toResponseDto);
     }
 
     @Override
@@ -82,11 +78,18 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(Long id) {
-        Optional<User> user = userRepository.findById(id);
-        user.ifPresent(u -> {
-            u.setStatus(UserStatus.DELETED);
-            userRepository.save(u);
-        });
+        User user = findUserByIdOrThrow(id);
+        user.setStatus(UserStatus.DELETED);
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserResponseDto updateUser(Long id, UserUpdateDto userUpdateDto) {
+        User user = findUserByIdOrThrow(id);
+
+        userMapper.updateEntityFromDto(userUpdateDto, user);
+
+        return toResponseDto(userRepository.save(user));
     }
 
     @Override
@@ -105,25 +108,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
-    public UserResponseDto updateUser(UserUpdateDto userUpdateDto) {
-        User user = userRepository.findById(userUpdateDto.getId())
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        if (userUpdateDto.getRealName() != null && !userUpdateDto.getRealName().isEmpty()) {
-            user.setRealName(userUpdateDto.getRealName());
-        }
-        if (userUpdateDto.getDisplayName() != null && !userUpdateDto.getDisplayName().isEmpty()) {
-            user.setDisplayName(userUpdateDto.getDisplayName());
-        }
-        if (userUpdateDto.getEmail() != null && !userUpdateDto.getEmail().isEmpty()) {
-            user.setEmail(userUpdateDto.getEmail());
-        }
-        if (userUpdateDto.getPhoneNumber() != null && !userUpdateDto.getPhoneNumber().isEmpty()) {
-            user.setPhoneNumber(userUpdateDto.getPhoneNumber());
-        }
-
-        return toResponseDto(userRepository.save(user));
+    @Transactional(readOnly = true)
+    public UserRole getUserRoleByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(User::getRole)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다: " + username));
     }
 
+    private User findUserByIdOrThrow(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + id));
+    }
 }
