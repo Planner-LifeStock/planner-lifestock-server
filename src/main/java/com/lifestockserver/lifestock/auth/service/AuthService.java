@@ -3,7 +3,6 @@ package com.lifestockserver.lifestock.auth.service;
 import com.lifestockserver.lifestock.auth.dto.LoginRequestDto;
 import com.lifestockserver.lifestock.auth.dto.TokenResponseDto;
 import com.lifestockserver.lifestock.user.domain.UserRole;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -16,5 +15,5 @@ public interface AuthService {
     UserRole getUserRoleByUsername(String username);
     UserDetails loadUserDetailsFromToken(String token);
     TokenResponseDto login(LoginRequestDto loginRequest);
-    void refresh(String refreshToken, HttpServletResponse response);
+    TokenResponseDto refresh(String refreshToken);
 }

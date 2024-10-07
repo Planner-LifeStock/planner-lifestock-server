@@ -28,13 +28,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable())   // jwt는 STATELESS니까 csrf 비활성화
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/auth/login", "/auth/register").permitAll()
-                        .anyRequest().permitAll()       //이 부분은 나중에 세부적으로 조정
+                        .requestMatchers("/", "/auth/login", "/users/register").permitAll()
+                        .anyRequest().authenticated()       // 이 부분은 나중에 세부적으로 조정
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))    // 세션 쓰지 않기
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
