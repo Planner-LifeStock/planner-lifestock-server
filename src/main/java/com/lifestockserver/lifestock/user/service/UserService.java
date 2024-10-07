@@ -3,6 +3,7 @@ package com.lifestockserver.lifestock.user.service;
 import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.user.dto.UserCreateDto;
 import com.lifestockserver.lifestock.user.dto.UserResponseDto;
+import com.lifestockserver.lifestock.user.dto.UserUpdateDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +23,11 @@ public interface UserService {
 
     Optional<User> findUserByUsername(String username);
 
-    User updateUser(User user);
-
     void deleteUser(Long id);
 
     UserResponseDto toResponseDto(User user);
 
     UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+
+    UserResponseDto updateUser(UserUpdateDto userUpdateDto);
 }

@@ -1,7 +1,7 @@
 package com.lifestockserver.lifestock.auth.service;
 
 import com.lifestockserver.lifestock.auth.dto.LoginRequestDto;
-import com.lifestockserver.lifestock.auth.service.AuthService;
+import com.lifestockserver.lifestock.auth.dto.TokenResponseDto;
 import com.lifestockserver.lifestock.user.domain.User;
 import com.lifestockserver.lifestock.user.domain.UserRole;
 import com.lifestockserver.lifestock.user.service.UserService;
@@ -49,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
 
     public UserDetails loadUserDetailsFromToken(String token) {
         String username = getUsernameFromToken(token);
-        return userService.loadUserByUsername(username);  // UserDetailsService를 통해 UserDetails 가져오기
+        return userService.loadUserByUsername(username);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Long login(LoginRequestDto loginRequest, HttpServletResponse response) {
+    public TokenResponseDto login(LoginRequestDto loginRequest) {
         User user = userService.findUserByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -112,10 +112,7 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = createAccessToken(user.getUsername(), userRole);
         String refreshToken = createRefreshToken(user.getUsername());
 
-        response.setHeader("Authorization", "Bearer " + accessToken);
-        response.setHeader("Refresh-Token", refreshToken);
-
-        return user.getId();
+        return new TokenResponseDto(accessToken, refreshToken);
     }
 
     @Override
@@ -124,18 +121,9 @@ public class AuthServiceImpl implements AuthService {
             String username = getUsernameFromToken(refreshToken);
             String newAccessToken = createAccessToken(username, getUserRoleByUsername(username));
 
-            // 새로운 엑세스 토큰 발급
             response.setHeader("Authorization", "Bearer " + newAccessToken);
         } else {
             throw new IllegalArgumentException("Invalid refresh token");
         }
     }
-
-    @Override
-    public void validateToken(String token, HttpServletResponse response) {
-        if (!validateToken(token)) {
-            throw new IllegalArgumentException("Invalid token");
-        }
-    }
-
 }
