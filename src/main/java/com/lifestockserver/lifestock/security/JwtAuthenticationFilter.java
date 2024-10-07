@@ -16,20 +16,20 @@ import jakarta.inject.Provider;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final Provider<AuthService> authServiceProvider;
+    private final AuthService authService;
 
     @Autowired
-    public JwtAuthenticationFilter(Provider<AuthService> authServiceProvider) {
-        this.authServiceProvider = authServiceProvider;
+    public JwtAuthenticationFilter(AuthService authService) {
+        this.authService = authService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String token = extractToken(request);
-        if (token != null && authServiceProvider.get().validateToken(token)) {
-            Authentication auth = authServiceProvider.get().getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(auth);
+        if (token != null && authService.validateToken(token)) {
+            Authentication auth = authService.getAuthentication(token);     //토큰에서 사용자 정보 추출해 객체로 생성
+            SecurityContextHolder.getContext().setAuthentication(auth);     //그 객체를 SecurityContext에 저장
         }
         filterChain.doFilter(request, response);
     }
