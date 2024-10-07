@@ -2,6 +2,7 @@ package com.lifestockserver.lifestock.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,8 +31,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())   // jwt는 STATELESS니까 csrf 비활성화
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/auth/login", "/users/register").permitAll()
-                        .anyRequest().authenticated()       // 이 부분은 나중에 세부적으로 조정
+                        //.requestMatchers("/", "/auth/login", "/users/register").permitAll()
+                        //.requestMatchers(HttpMethod.GET, "/users").permitAll()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))    // 세션 쓰지 않기
