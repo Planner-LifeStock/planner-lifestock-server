@@ -2,7 +2,11 @@ package com.lifestockserver.lifestock.rank.controller;
 
 import com.lifestockserver.lifestock.rank.dto.UserAssetDto;
 import com.lifestockserver.lifestock.rank.service.RankService;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +37,17 @@ public class RankController {
     }
 
     //상위 N명의 유저 조회 API
-    @GetMapping("/top/{count}")
-    public Set<?> getTopUsers(@PathVariable int count){
-        return rankService.getTopUsers(count);
+    @GetMapping("/top")
+    public Set<?> getTopUsers(@RequestParam(value = "size", defaultValue = "30") int size){
+        return rankService.getTopUsers(size);
+    }
+
+    @GetMapping()
+    public Page<?> getRankingPage(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "30") int size
+    ){
+        Pageable pageable = PageRequest.of(page, size);
+        return rankService.getTopUsersByPage(pageable);
     }
 }

@@ -1,12 +1,17 @@
 package com.lifestockserver.lifestock.rank.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class RankService {
@@ -43,5 +48,23 @@ public class RankService {
 
     public Double getUserTotalAsset(Long userID){
         return zSetOperations.score(KEY, userID);
+    }
+    /*
+    public Set<ZSetOperations.TypedTuple<Object>> getTopUsersByPage(int page, int size){
+        int start = page*size;
+        int end = (page+1)*size - 1;
+
+        return zSetOperations.reverseRangeWithScores(KEY, start, end);
+    }*/
+    public Page<ZSetOperations.TypedTuple<Object>> getTopUsersByPage(Pageable pageable){
+        int start = (int)pageable.getOffset();
+        int end = (start + pageable.getPageSize()) - 1;
+
+        Set<ZSetOperations.TypedTuple<Object>> users = zSetOperations.reverseRangeWithScores(KEY, start, end);
+        long total = zSetOperations.zCard(KEY);
+
+        List<ZSetOperations.TypedTuple<Object>> userList = users.stream().collect(Collectors.toList());
+
+        return new PageImpl<>(userList, pageable, total);
     }
 }
