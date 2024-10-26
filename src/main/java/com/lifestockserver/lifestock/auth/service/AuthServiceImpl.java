@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,17 +29,20 @@ public class AuthServiceImpl implements AuthService {
     private final String secretKey;
     private final long accessExpirationTime;
     private final long refreshExpirationTime;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public AuthServiceImpl(
             Provider<UserService> userServiceProvider,
             @Value("${jwt.secret-key}") String secretKey,
             @Value("${jwt.access-token-expiration-time}") long accessExpirationTime,
-            @Value("${jwt.refresh-token-expiration-time}") long refreshExpirationTime
+            @Value("${jwt.refresh-token-expiration-time}") long refreshExpirationTime,
+            BCryptPasswordEncoder passwordEncoder
     ) {
         this.userServiceProvider = userServiceProvider;
         this.secretKey = secretKey;
         this.accessExpirationTime = accessExpirationTime;
         this.refreshExpirationTime = refreshExpirationTime;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -103,6 +107,10 @@ public class AuthServiceImpl implements AuthService {
     public TokenResponseDto login(LoginRequestDto loginRequest) {
         User user = userServiceProvider.get().findUserByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        // 비밀번호 검증
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
 
         UserRole userRole = user.getRole();
         String accessToken = createAccessToken(user.getUsername(), userRole);
