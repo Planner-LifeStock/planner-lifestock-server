@@ -1,5 +1,7 @@
 package com.lifestockserver.lifestock.user.dto;
 
+import com.lifestockserver.lifestock.user.domain.UserRole;
+import com.lifestockserver.lifestock.user.domain.UserStatus;
 import lombok.Data;
 
 @Data
@@ -10,6 +12,6 @@ public class UserResponseDto {
     private String email;
     private String displayName;
     private String phoneNumber;
-    private String status;
-    private String role;
+    private UserStatus status;
+    private UserRole role;
 }
