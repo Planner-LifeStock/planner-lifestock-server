@@ -65,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
     public boolean validateToken(String token) {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+    
             return true;
         } catch (ExpiredJwtException e) {
             logger.error("만료된 토큰: {}", token);

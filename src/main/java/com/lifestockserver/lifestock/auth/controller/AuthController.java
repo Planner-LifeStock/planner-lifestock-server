@@ -33,7 +33,7 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestHeader("Authorization") String refreshToken) {
         try {
-            TokenResponseDto tokenResponse = authService.refresh(refreshToken);
+            TokenResponseDto tokenResponse = authService.refresh(refreshToken.substring(7));
             return ResponseEntity.ok(tokenResponse);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
