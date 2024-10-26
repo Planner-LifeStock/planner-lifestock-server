@@ -2,38 +2,28 @@ package com.lifestockserver.lifestock.user.controller;
 
 import com.lifestockserver.lifestock.user.dto.UserCreateDto;
 import com.lifestockserver.lifestock.user.dto.UserResponseDto;
+import com.lifestockserver.lifestock.user.dto.UserUpdateDto;
 import com.lifestockserver.lifestock.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
-@Controller // RestController 대신 Controller 사용
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
 
-    // 회원가입 처리
-    @PostMapping
-    public String registerUser(@Valid UserCreateDto userCreateDto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "register";
-        }
-        userService.registerUser(userCreateDto);
-        return "redirect:/users";
-    }
-
-    // 회원가입 폼
-    @GetMapping("/register")
-    public String showRegistrationForm() {
-        return "register";
+    // 회원가입 요청
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserCreateDto userCreateDto) {
+        UserResponseDto userResponseDto = userService.registerUser(userCreateDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);
     }
 
     // 모든 유저 목록 조회
@@ -47,7 +37,21 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         return userService.findUserById(id)
-                .map(user -> ResponseEntity.ok(userService.toResponseDto(user)))
-                .orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    // 유저 업데이트
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
+        UserResponseDto updatedUser = userService.updateUser(id, userUpdateDto);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    // 유저 삭제 (Status를 DELETED로 변경)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

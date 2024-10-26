@@ -5,22 +5,22 @@ import com.lifestockserver.lifestock.user.domain.UserRole;
 import com.lifestockserver.lifestock.user.domain.UserStatus;
 import com.lifestockserver.lifestock.user.dto.UserCreateDto;
 import com.lifestockserver.lifestock.user.dto.UserResponseDto;
+import com.lifestockserver.lifestock.user.dto.UserUpdateDto;
 import com.lifestockserver.lifestock.user.mapper.UserMapper;
 import com.lifestockserver.lifestock.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
         String displayName;
         do {
             String realNameBased = user.getRealName().replaceAll("\\s", "_");
-            displayName = realNameBased + "_" + new Random().nextInt(10000);
+            displayName = realNameBased + "_" + ThreadLocalRandom.current().nextInt(10000);
         } while (userRepository.findByDisplayName(displayName).isPresent());
         return displayName;
     }
@@ -65,8 +65,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> findUserById(Long id) {
-        return userRepository.findById(id);
+    public Optional<UserResponseDto> findUserById(Long id) {
+        return userRepository.findById(id).map(this::toResponseDto);
     }
 
     @Override
@@ -77,43 +77,46 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User updateUser(User user) {
-        return userRepository.save(user);
-    }
-
-    @Override
-    @Transactional
     public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+        User user = findUserByIdOrThrow(id);
+        user.setStatus(UserStatus.DELETED);
+        userRepository.save(user);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public ResponseEntity<User> findUserByIdResponse(Long id) {
-        return userRepository.findById(id)
-                .map(user -> ResponseEntity.ok().body(user))
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+    public UserResponseDto updateUser(Long id, UserUpdateDto userUpdateDto) {
+        User user = findUserByIdOrThrow(id);
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<UserResponseDto> findPaginatedUsers(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return userRepository.findAll(pageable)
-                .map(userMapper::toDto);
-    }
+        userMapper.updateEntityFromDto(userUpdateDto, user);
 
-    @Override
-    public List<Integer> getPageNumbers(Page<User> userPage) {
-        int totalPages = userPage.getTotalPages();
-        if (totalPages > 0) {
-            return IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
-        }
-        return List.of();
+        return toResponseDto(userRepository.save(user));
     }
 
     @Override
     public UserResponseDto toResponseDto(User user) {
         return userMapper.toDto(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username)
+                .map(user -> new org.springframework.security.core.userdetails.User(
+                        user.getUsername(),
+                        user.getPassword(),
+                        List.of(new SimpleGrantedAuthority(user.getRole().name()))))
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserRole getUserRoleByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(User::getRole)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다: " + username));
+    }
+
+    private User findUserByIdOrThrow(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + id));
     }
 }

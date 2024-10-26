@@ -1,10 +1,14 @@
 package com.lifestockserver.lifestock.user.domain;
 
+import com.lifestockserver.lifestock.company.domain.Company;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import com.lifestockserver.lifestock.common.domain.Base;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -43,4 +47,6 @@ public class User extends Base {
     @Column(name = "role", nullable = false)
     private UserRole role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Company> companies = new ArrayList<>();
 }
