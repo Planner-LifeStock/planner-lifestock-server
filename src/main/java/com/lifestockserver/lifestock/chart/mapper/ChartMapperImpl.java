@@ -113,7 +113,6 @@ public class ChartMapperImpl implements ChartMapper {
     }
 
     return UserCurrentPriceListResponseDto.builder()
-      .userId(chartList.get(0).getUser().getId())
       .companyCurrentPriceList(companyCurrentPriceList)
       .totalChangeRate(totalChangeRate)
       .totalCurrentPrice(totalCurrentPrice)
