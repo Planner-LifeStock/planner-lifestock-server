@@ -5,6 +5,8 @@ import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
 import com.lifestockserver.lifestock.company.service.CompanyService;
 import com.lifestockserver.lifestock.company.dto.CompanyResponseDto;
 import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
+import com.lifestockserver.lifestock.company.domain.enums.CompanyStatus;
+import com.lifestockserver.lifestock.user.domain.CustomUserDetails;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import com.lifestockserver.lifestock.user.domain.CustomUserDetails;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -32,9 +34,10 @@ public class CompanyController {
 
   @GetMapping
   public ResponseEntity<List<CompanyResponseDto>> getCompaniesByUserId(
-    @AuthenticationPrincipal CustomUserDetails userDetails
+    @AuthenticationPrincipal CustomUserDetails userDetails,
+    @RequestParam(required = false, value = "status") CompanyStatus status
   ) {
-    List<CompanyResponseDto> companyResponseDtos = companyService.findAllByUserId(userDetails.getUserId());
+    List<CompanyResponseDto> companyResponseDtos = companyService.findAllByUserId(userDetails.getUserId(), status);
     return ResponseEntity.ok(companyResponseDtos);
   }
   
@@ -56,6 +59,12 @@ public class CompanyController {
   @PutMapping("/{companyId}")
   public ResponseEntity<CompanyResponseDto> updateCompany(@PathVariable Long companyId, @RequestBody CompanyUpdateDto companyUpdateDto) {
     CompanyResponseDto companyResponseDto = companyService.updateCompany(companyId, companyUpdateDto);
+    return ResponseEntity.ok(companyResponseDto);
+  }
+
+  @PutMapping("/{companyId}/list")
+  public ResponseEntity<CompanyResponseDto> listCompany(@PathVariable Long companyId) {
+    CompanyResponseDto companyResponseDto = companyService.listCompany(companyId);
     return ResponseEntity.ok(companyResponseDto);
   }
 

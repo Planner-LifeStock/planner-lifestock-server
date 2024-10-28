@@ -9,11 +9,11 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.chart.service.ChartService;
 import com.lifestockserver.lifestock.company.repository.CompanyRepository;
-import com.lifestockserver.lifestock.user.service.UserServiceImpl;
 import com.lifestockserver.lifestock.company.dto.CompanyCreateDto;
 import com.lifestockserver.lifestock.company.dto.CompanyResponseDto;
 import com.lifestockserver.lifestock.company.mapper.CompanyMapper;
@@ -22,6 +22,7 @@ import com.lifestockserver.lifestock.file.service.FileService;
 import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
 import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
 import com.lifestockserver.lifestock.file.domain.File;
+import com.lifestockserver.lifestock.company.domain.enums.CompanyStatus;
 
 @Service
 @Transactional(readOnly = true)
@@ -75,11 +76,8 @@ public class CompanyService {
       File file = fileService.getFileById(companyUpdateDto.getLogoFileId());
       company.setLogo(file);
     }
-    if (companyUpdateDto.getDescription() != null && !company.getDescription().equals(companyUpdateDto.getDescription())) {
+    if (companyUpdateDto.getDescription() != null && !companyUpdateDto.getDescription().equals(company.getDescription())) {
       company.setDescription(companyUpdateDto.getDescription());
-    }
-      if (companyUpdateDto.getListedDate() != null && company.getListedDate() == null) {
-      company.setListedDate(companyUpdateDto.getListedDate());
     }
 
     // companyCreateDto.logo가 null이면 기본 로고를 설정
@@ -87,14 +85,31 @@ public class CompanyService {
       company.setLogo(fileService.getDefaultCompanyLogo());
     }
 
-    Company savedCompany = companyRepository.save(company);
-    CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
+    CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
     companyResponseDto.setCurrentStockPrice(chartService.getLatestCloseByCompanyId(companyId));
     return companyResponseDto;
   }
 
-  public List<CompanyResponseDto> findAllByUserId(Long userId) {
-    List<Company> companies = companyRepository.findAllByUserIdAndDeletedAtIsNull(userId);
+  @Transactional
+  public CompanyResponseDto listCompany(Long companyId) {
+    Company company = companyRepository.findById(companyId)
+      .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+    company.setListed(LocalDate.now(), chartService.getLatestCloseByCompanyId(companyId));
+
+    CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
+    companyResponseDto.setCurrentStockPrice(chartService.getLatestCloseByCompanyId(companyId));
+    return companyResponseDto;
+  }
+
+  public List<CompanyResponseDto> findAllByUserId(Long userId, CompanyStatus status) {
+    if (status == CompanyStatus.LISTED) {
+      return findListedCompaniesByUserId(userId);
+    }
+    if (status == CompanyStatus.UNLISTED) {
+      return findUnlistedCompaniesByUserId(userId);
+    }
+
+    List<Company> companies = companyRepository.findAllByUserId(userId);
 
     List<CompanyResponseDto> companyResponseDtos = companies.stream()
       .map(company -> {
@@ -106,11 +121,25 @@ public class CompanyService {
     return companyResponseDtos;
   }
 
+  public List<CompanyResponseDto> findListedCompaniesByUserId(Long userId) {
+    List<Company> companies = companyRepository.findListedCompaniesByUserId(userId);
+
+    return companies.stream()
+      .map(company -> companyMapper.toDto(company))
+      .collect(Collectors.toList());
+  }
+
+  public List<CompanyResponseDto> findUnlistedCompaniesByUserId(Long userId) {
+    List<Company> companies = companyRepository.findUnlistedCompaniesByUserId(userId);
+
+    return companies.stream()
+      .map(company -> companyMapper.toDto(company))
+      .collect(Collectors.toList());
+  }
+
   public CompanyResponseDto findById(Long id) {
-    Company company = companyRepository.findByIdAndDeletedAtIsNull(id);
-    if (company == null) {
-      throw new EntityNotFoundException("Company not found");
-    }
+    Company company = companyRepository.findById(id)
+      .orElseThrow(() -> new EntityNotFoundException("Company not found"));
 
     // 가장 최근의 high 값을 가져와서 currentStockPrice에 설정
     Long currentStockPrice = chartService.getLatestCloseByCompanyId(id);
