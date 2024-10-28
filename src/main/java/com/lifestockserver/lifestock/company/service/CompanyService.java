@@ -43,8 +43,8 @@ public class CompanyService {
 
   // file 저장은 따로 api 보내야만함
   @Transactional
-  public CompanyResponseDto createCompany(CompanyCreateDto companyCreateDto) {
-    User user = userRepository.findById(companyCreateDto.getUserId())
+  public CompanyResponseDto createCompany(Long userId, CompanyCreateDto companyCreateDto) {
+    User user = userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
     companyCreateDto.setUser(user);
 

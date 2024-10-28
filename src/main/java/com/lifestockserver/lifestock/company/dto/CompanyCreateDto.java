@@ -11,7 +11,6 @@ import com.lifestockserver.lifestock.user.domain.User;
 @AllArgsConstructor
 @Builder
 public class CompanyCreateDto {
-  private Long userId;
   private User user;
   private String name;
   private String description;

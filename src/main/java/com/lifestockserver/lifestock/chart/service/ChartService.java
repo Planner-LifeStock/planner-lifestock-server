@@ -45,7 +45,6 @@ public class ChartService {
     public ChartResponseDto createInitialChart(Company company, User user, Long initialStockPrice) {
         ChartCreateDto chartCreateDto = ChartCreateDto.builder()
             .companyId(company.getId())
-            .userId(user.getId())
             .open(initialStockPrice)
             .high(initialStockPrice)
             .low(initialStockPrice)
@@ -57,20 +56,22 @@ public class ChartService {
     }
 
     @Transactional
-    public ChartResponseDto createChart(ChartCreateDto chartCreateDto) {
-        User user = userRepository.findById(chartCreateDto.getUserId())
-            .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + chartCreateDto.getUserId()));
+    public ChartResponseDto createChart(Long userId, ChartCreateDto chartCreateDto) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userId));
         Company company = companyRepository.findById(chartCreateDto.getCompanyId())
             .orElseThrow(() -> new IllegalArgumentException("Invalid company Id:" + chartCreateDto.getCompanyId()));
+        
+        if (company.getUser().getId() != user.getId()) {
+            throw new IllegalArgumentException("company user id is invalid:" + user.getId());
+        }
+        
         Todo todo = null;
         if (chartCreateDto.getTodoId() != null) {
             todo = todoRepository.findById(chartCreateDto.getTodoId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid todo Id:" + chartCreateDto.getTodoId()));
         }
 
-        if (company.getUser().getId() != user.getId() || (todo != null && todo.getUser().getId() != user.getId())) {
-            throw new IllegalArgumentException("company or todo user id is invalid:" + user.getId());
-        }
         if (todo != null && todo.getCompany().getId() != company.getId()) {
             throw new IllegalArgumentException("todo company id is invalid:" + company.getId());
         }
@@ -151,4 +152,4 @@ public class ChartService {
         return chartMapperImpl.toUserCurrentPriceListResponseDto(charts);
     }
 
-  }
+}
