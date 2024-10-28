@@ -59,6 +59,12 @@ public class CompanyController {
     return ResponseEntity.ok(companyResponseDto);
   }
 
+  @PutMapping("/{companyId}/list")
+  public ResponseEntity<CompanyResponseDto> listCompany(@PathVariable Long companyId) {
+    CompanyResponseDto companyResponseDto = companyService.listCompany(companyId);
+    return ResponseEntity.ok(companyResponseDto);
+  }
+
   @DeleteMapping("/{companyId}")
   public ResponseEntity<Void> deleteCompany(@PathVariable Long companyId, @RequestBody CompanyDeleteDto companyDeleteDto) {
     companyService.deleteCompany(companyId, companyDeleteDto);
