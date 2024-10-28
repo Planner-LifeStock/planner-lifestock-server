@@ -16,6 +16,9 @@ import java.time.LocalDate;
 import com.lifestockserver.lifestock.todo.dto.TodoCreateDto;
 import com.lifestockserver.lifestock.todo.service.TodoService;
 import com.lifestockserver.lifestock.todo.dto.TodoResponseDto;
+import com.lifestockserver.lifestock.user.domain.CustomUserDetails;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
 @RequestMapping("/todo")
@@ -28,27 +31,28 @@ public class TodoController {
 
   @GetMapping
   public ResponseEntity<List<TodoResponseDto>> getAllTodos(
-    @RequestParam(required = true, value = "userId") Long userId, 
+    @AuthenticationPrincipal CustomUserDetails userDetails,
     @RequestParam(required = true, value = "companyId") Long companyId, 
     @RequestParam(required = true, value = "date") LocalDate date
   ) {
-    return ResponseEntity.ok(todoService.getAllTodosByDate(userId, companyId, date));
+    return ResponseEntity.ok(todoService.getAllTodosByDate(userDetails.getUserId(), companyId, date));
   }
 
   @GetMapping("/monthly")
   public ResponseEntity<List<TodoResponseDto>> getMonthlyTodos(
-    @RequestParam(required = true, value = "userId") Long userId, 
+    @AuthenticationPrincipal CustomUserDetails userDetails,
     @RequestParam(required = true, value = "companyId") Long companyId, 
     @RequestParam(required = true, value = "date") LocalDate date
   ) {
-    return ResponseEntity.ok(todoService.getMonthlyTodos(userId, companyId, date));
+    return ResponseEntity.ok(todoService.getMonthlyTodos(userDetails.getUserId(), companyId, date));
   }
 
   @PostMapping
   public ResponseEntity<TodoResponseDto> createTodo(
+    @AuthenticationPrincipal CustomUserDetails userDetails,
     @RequestBody TodoCreateDto todoCreateDto
   ) {
-    return ResponseEntity.ok(todoService.createTodo(todoCreateDto));
+    return ResponseEntity.ok(todoService.createTodo(userDetails.getUserId(), todoCreateDto));
   }
 
   @PutMapping("/complete/{id}")

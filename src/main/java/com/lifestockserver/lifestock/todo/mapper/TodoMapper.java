@@ -25,7 +25,6 @@ public class TodoMapper {
   public TodoResponseDto toDto(Todo todo) {
     return TodoResponseDto.builder()
       .id(todo.getId())
-      .userId(todo.getUser().getId())
       .companyId(todo.getCompany().getId())
       .title(todo.getTitle())
       .description(todo.getDescription())

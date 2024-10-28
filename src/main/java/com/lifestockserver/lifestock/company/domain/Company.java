@@ -13,6 +13,7 @@ import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Filter;
 
 @Entity
 @Getter
@@ -22,6 +23,7 @@ import lombok.*;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "company")
+@Filter(name = "deletedCompanyFilter", condition = "deletedAt IS NULL")
 public class Company extends Base {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,6 +58,9 @@ public class Company extends Base {
   // 주식 발행수
   @Builder.Default
   private Long initialStockQuantity = 100L;
+  // 매각 시 주가
+  @Column(nullable = true)
+  private Long listedStockPrice;
 
   @ManyToOne
   @JoinColumn(name = "logo_file_id")
@@ -65,8 +70,9 @@ public class Company extends Base {
     this.description = description;
   }
   
-  public void setListedDate(LocalDate listedDate) {
+  public void setListed(LocalDate listedDate, Long listedStockPrice) {
     this.listedDate = listedDate;
+    this.listedStockPrice = listedStockPrice;
   }
 
   public void setLogo(File logo) {

@@ -2,6 +2,9 @@ package com.lifestockserver.lifestock.company.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
+import org.springframework.lang.NonNull;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,13 +16,16 @@ import com.lifestockserver.lifestock.todo.domain.Todo;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Long> {
-  Company findByIdAndDeletedAtIsNull(Long id);
+  @NonNull Optional<Company> findById(@NonNull Long id);
 
   @Query("SELECT t FROM Company c JOIN c.todos t WHERE c.id = :companyId AND :date BETWEEN t.startDate AND t.endDate")
   List<Todo> findTodosByCompanyIdAndDate(@Param("companyId") Long companyId, @Param("date") LocalDate date);
 
-  @Query("SELECT c FROM Company c WHERE c.user.id = :userId")
   List<Company> findAllByUserId(@Param("userId") Long userId);
 
-  List<Company> findAllByUserIdAndDeletedAtIsNull(@Param("userId") Long userId);
+  @Query("SELECT c FROM Company c WHERE c.user.id = :userId AND c.listedDate IS NOT NULL")
+  List<Company> findListedCompaniesByUserId(@Param("userId") Long userId);
+
+  @Query("SELECT c FROM Company c WHERE c.user.id = :userId AND c.listedDate IS NULL")
+  List<Company> findUnlistedCompaniesByUserId(@Param("userId") Long userId);
 }

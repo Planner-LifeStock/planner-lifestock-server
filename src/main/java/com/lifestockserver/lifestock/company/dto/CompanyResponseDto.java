@@ -15,7 +15,6 @@ import java.time.LocalDate;
 @Setter
 @Builder
 public class CompanyResponseDto {
-  private Long userId;
   private Long id;
   private String name;
   private String description;
@@ -27,4 +26,5 @@ public class CompanyResponseDto {
   private Long initialStockQuantity;
   private FileResponseDto logo;
   private Long currentStockPrice;
+  private Long listedStockPrice;
 }
