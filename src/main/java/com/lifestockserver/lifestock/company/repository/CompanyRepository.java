@@ -22,4 +22,10 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
   List<Todo> findTodosByCompanyIdAndDate(@Param("companyId") Long companyId, @Param("date") LocalDate date);
 
   List<Company> findAllByUserId(@Param("userId") Long userId);
+
+  @Query("SELECT c FROM Company c WHERE c.user.id = :userId AND c.listedDate IS NOT NULL")
+  List<Company> findListedCompaniesByUserId(@Param("userId") Long userId);
+
+  @Query("SELECT c FROM Company c WHERE c.user.id = :userId AND c.listedDate IS NULL")
+  List<Company> findUnlistedCompaniesByUserId(@Param("userId") Long userId);
 }

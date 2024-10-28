@@ -22,6 +22,7 @@ import com.lifestockserver.lifestock.file.service.FileService;
 import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
 import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
 import com.lifestockserver.lifestock.file.domain.File;
+import com.lifestockserver.lifestock.company.domain.enums.CompanyStatus;
 
 @Service
 @Transactional(readOnly = true)
@@ -89,6 +90,7 @@ public class CompanyService {
     return companyResponseDto;
   }
 
+  @Transactional
   public CompanyResponseDto listCompany(Long companyId) {
     Company company = companyRepository.findById(companyId)
       .orElseThrow(() -> new EntityNotFoundException("Company not found"));
@@ -99,7 +101,14 @@ public class CompanyService {
     return companyResponseDto;
   }
 
-  public List<CompanyResponseDto> findAllByUserId(Long userId) {
+  public List<CompanyResponseDto> findAllByUserId(Long userId, CompanyStatus status) {
+    if (status == CompanyStatus.LISTED) {
+      return findListedCompaniesByUserId(userId);
+    }
+    if (status == CompanyStatus.UNLISTED) {
+      return findUnlistedCompaniesByUserId(userId);
+    }
+
     List<Company> companies = companyRepository.findAllByUserId(userId);
 
     List<CompanyResponseDto> companyResponseDtos = companies.stream()
@@ -110,6 +119,22 @@ public class CompanyService {
       })
       .collect(Collectors.toList());
     return companyResponseDtos;
+  }
+
+  public List<CompanyResponseDto> findListedCompaniesByUserId(Long userId) {
+    List<Company> companies = companyRepository.findListedCompaniesByUserId(userId);
+
+    return companies.stream()
+      .map(company -> companyMapper.toDto(company))
+      .collect(Collectors.toList());
+  }
+
+  public List<CompanyResponseDto> findUnlistedCompaniesByUserId(Long userId) {
+    List<Company> companies = companyRepository.findUnlistedCompaniesByUserId(userId);
+
+    return companies.stream()
+      .map(company -> companyMapper.toDto(company))
+      .collect(Collectors.toList());
   }
 
   public CompanyResponseDto findById(Long id) {
