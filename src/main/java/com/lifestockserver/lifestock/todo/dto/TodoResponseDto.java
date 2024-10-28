@@ -15,7 +15,6 @@ import lombok.Setter;
 @Builder
 public class TodoResponseDto {
   private Long id;
-  private Long userId;
   private Long companyId;
   private String title;
   private String description;

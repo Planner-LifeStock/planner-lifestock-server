@@ -56,6 +56,9 @@ public class Company extends Base {
   // 주식 발행수
   @Builder.Default
   private Long initialStockQuantity = 100L;
+  // 매각 시 주가
+  @Column(nullable = true)
+  private Long listedStockPrice;
 
   @ManyToOne
   @JoinColumn(name = "logo_file_id")
