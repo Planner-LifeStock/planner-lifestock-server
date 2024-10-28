@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class UserCurrentPriceListResponseDto {
-  private Long userId;
   private List<CompanyCurrentPriceResponseDto> companyCurrentPriceList;
   private double totalChangeRate;
   private Long totalCurrentPrice;

@@ -26,7 +26,6 @@ public class CompanyMapper {
 
     public CompanyResponseDto toDto(Company company) {
         return CompanyResponseDto.builder()
-                .userId(company.getUser().getId())
                 .id(company.getId())
                 .name(company.getName())
                 .description(company.getDescription())
