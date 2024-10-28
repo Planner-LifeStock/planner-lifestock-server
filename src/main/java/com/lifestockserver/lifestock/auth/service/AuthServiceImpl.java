@@ -84,9 +84,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String createAccessToken(String username, UserRole role) {
+    public String createAccessToken(String username, Long userId, UserRole role) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("userId", userId)
                 .claim("role", role.name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessExpirationTime))
@@ -113,8 +114,7 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        UserRole userRole = user.getRole();
-        String accessToken = createAccessToken(user.getUsername(), userRole);
+        String accessToken = createAccessToken(user.getUsername(), user.getId(), user.getRole());
         String refreshToken = createRefreshToken(user.getUsername());
 
         return new TokenResponseDto(accessToken, refreshToken);
@@ -124,9 +124,9 @@ public class AuthServiceImpl implements AuthService {
     public TokenResponseDto refresh(String refreshToken) {
         if (validateToken(refreshToken)) {
             String username = getUsernameFromToken(refreshToken);
-            String newAccessToken = createAccessToken(username, userServiceProvider.get().findUserByUsername(username)
-                    .map(User::getRole)
-                    .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다.")));
+            User user = userServiceProvider.get().findUserByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+            String newAccessToken = createAccessToken(username, user.getId(), user.getRole());
 
             return new TokenResponseDto(newAccessToken, refreshToken);
         } else {
