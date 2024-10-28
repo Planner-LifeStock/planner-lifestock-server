@@ -14,7 +14,6 @@ import java.util.Set;
 @Setter
 @Builder
 public class TodoCreateDto {
-  private Long userId;
   private Long companyId;
   private String title;
   private String description;

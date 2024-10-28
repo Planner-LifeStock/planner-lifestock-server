@@ -5,6 +5,8 @@ import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
 import com.lifestockserver.lifestock.company.service.CompanyService;
 import com.lifestockserver.lifestock.company.dto.CompanyResponseDto;
 import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
+import com.lifestockserver.lifestock.company.domain.enums.CompanyStatus;
+import com.lifestockserver.lifestock.user.domain.CustomUserDetails;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,9 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -30,8 +33,11 @@ public class CompanyController {
   }
 
   @GetMapping
-  public ResponseEntity<List<CompanyResponseDto>> getCompaniesByUserId(@RequestParam(required = true, value="userId") Long userId) {
-    List<CompanyResponseDto> companyResponseDtos = companyService.findAllByUserId(userId);
+  public ResponseEntity<List<CompanyResponseDto>> getCompaniesByUserId(
+    @AuthenticationPrincipal CustomUserDetails userDetails,
+    @RequestParam(required = false, value = "status") CompanyStatus status
+  ) {
+    List<CompanyResponseDto> companyResponseDtos = companyService.findAllByUserId(userDetails.getUserId(), status);
     return ResponseEntity.ok(companyResponseDtos);
   }
   
@@ -42,14 +48,23 @@ public class CompanyController {
   }
 
   @PostMapping
-  public ResponseEntity<CompanyResponseDto> createCompany(@RequestBody CompanyCreateDto companyCreateDto, String userId) {
-    CompanyResponseDto companyResponseDto = companyService.createCompany(companyCreateDto);
+  public ResponseEntity<CompanyResponseDto> createCompany(
+    @AuthenticationPrincipal CustomUserDetails userDetails,
+    @RequestBody CompanyCreateDto companyCreateDto
+  ) {
+    CompanyResponseDto companyResponseDto = companyService.createCompany(userDetails.getUserId(), companyCreateDto);
     return ResponseEntity.ok(companyResponseDto);
   }
 
   @PutMapping("/{companyId}")
   public ResponseEntity<CompanyResponseDto> updateCompany(@PathVariable Long companyId, @RequestBody CompanyUpdateDto companyUpdateDto) {
     CompanyResponseDto companyResponseDto = companyService.updateCompany(companyId, companyUpdateDto);
+    return ResponseEntity.ok(companyResponseDto);
+  }
+
+  @PutMapping("/{companyId}/list")
+  public ResponseEntity<CompanyResponseDto> listCompany(@PathVariable Long companyId) {
+    CompanyResponseDto companyResponseDto = companyService.listCompany(companyId);
     return ResponseEntity.ok(companyResponseDto);
   }
 
