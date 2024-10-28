@@ -13,6 +13,7 @@ import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Filter;
 
 @Entity
 @Getter
@@ -22,6 +23,7 @@ import lombok.*;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "company")
+@Filter(name = "deletedCompanyFilter", condition = "deletedAt IS NULL")
 public class Company extends Base {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,8 +70,9 @@ public class Company extends Base {
     this.description = description;
   }
   
-  public void setListedDate(LocalDate listedDate) {
+  public void setListed(LocalDate listedDate, Long listedStockPrice) {
     this.listedDate = listedDate;
+    this.listedStockPrice = listedStockPrice;
   }
 
   public void setLogo(File logo) {
