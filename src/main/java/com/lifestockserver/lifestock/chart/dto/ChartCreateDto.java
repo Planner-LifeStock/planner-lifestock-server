@@ -15,7 +15,6 @@ import lombok.Setter;
 @Builder
 public class ChartCreateDto {
   private Long companyId;
-  private Long userId;
   private Long todoId;
 
   private Long open;

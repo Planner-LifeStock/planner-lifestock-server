@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.lifestockserver.lifestock.user.domain.CustomUserDetails;
 
 import java.util.List;
 
@@ -30,8 +31,10 @@ public class CompanyController {
   }
 
   @GetMapping
-  public ResponseEntity<List<CompanyResponseDto>> getCompaniesByUserId(@RequestParam(required = true, value="userId") Long userId) {
-    List<CompanyResponseDto> companyResponseDtos = companyService.findAllByUserId(userId);
+  public ResponseEntity<List<CompanyResponseDto>> getCompaniesByUserId(
+    @AuthenticationPrincipal CustomUserDetails userDetails
+  ) {
+    List<CompanyResponseDto> companyResponseDtos = companyService.findAllByUserId(userDetails.getUserId());
     return ResponseEntity.ok(companyResponseDtos);
   }
   
@@ -42,8 +45,11 @@ public class CompanyController {
   }
 
   @PostMapping
-  public ResponseEntity<CompanyResponseDto> createCompany(@RequestBody CompanyCreateDto companyCreateDto, String userId) {
-    CompanyResponseDto companyResponseDto = companyService.createCompany(companyCreateDto);
+  public ResponseEntity<CompanyResponseDto> createCompany(
+    @AuthenticationPrincipal CustomUserDetails userDetails,
+    @RequestBody CompanyCreateDto companyCreateDto
+  ) {
+    CompanyResponseDto companyResponseDto = companyService.createCompany(userDetails.getUserId(), companyCreateDto);
     return ResponseEntity.ok(companyResponseDto);
   }
 

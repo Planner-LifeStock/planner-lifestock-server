@@ -50,7 +50,7 @@ public class TodoService {
     return todoResponseDtos;
   }
 
-  public List<TodoResponseDto> getMonthlyTodos(Long userId, Long companyId, LocalDate date) {
+  public List<TodoResponseDto> getMonthlyTodos(Long userId, Long companyId, LocalDate date) {    
     List<Todo> todos = todoRepository.findAllByUserIdAndCompanyIdAndMonth(userId, companyId, date);
     
     List<TodoResponseDto> todoResponseDtos = todos.stream()
@@ -63,18 +63,18 @@ public class TodoService {
   }
 
   @Transactional
-  public TodoResponseDto createTodo(TodoCreateDto todoCreateDto) {
+  public TodoResponseDto createTodo(Long userId, TodoCreateDto todoCreateDto) {
     if (todoCreateDto.getStartDate().isAfter(todoCreateDto.getEndDate())) {
       throw new RuntimeException("시작일이 종료일보다 클 수 없습니다");
     }
 
-    User user = userRepository.findById(todoCreateDto.getUserId())
-      .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + userId));
     Company company = companyRepository.findById(todoCreateDto.getCompanyId())
-      .orElseThrow(() -> new RuntimeException("회사를 찾을 수 없습니다"));
+      .orElseThrow(() -> new RuntimeException("회사를 찾을 수 없습니다: " + todoCreateDto.getCompanyId()));
     
     if (user.getId() != company.getUser().getId()) {
-      throw new RuntimeException("사용자와 회사의 관계가 올바르지 않습니다");
+      throw new RuntimeException("사용자와 회사의 관계가 올바르지 않습니다: " + user.getId());
     }
 
     Todo todo = todoMapper.toEntity(todoCreateDto, user, company);
@@ -99,10 +99,10 @@ public class TodoService {
     // 추후 chart 업데이트되는 로직 추가
     ChartCreateDto chartCreateDto = ChartCreateDto.builder()
       .companyId(todo.getCompany().getId())
-      .userId(todo.getUser().getId())
       .todoId(todo.getId())
       .build();
-    ChartResponseDto chartResponseDto = chartService.createChart(chartCreateDto);
+    
+    ChartResponseDto chartResponseDto = chartService.createChart(todo.getUser().getId(), chartCreateDto);
 
     return TodoCompletedResponseDto.builder()
       .id(updatedTodo.getId())
