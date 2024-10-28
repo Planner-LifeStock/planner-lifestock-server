@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.lifestockserver.lifestock.user.domain.CustomUserDetails;
 
 import java.util.List;
 
@@ -27,10 +29,17 @@ public class UserController {
     }
 
     // 모든 유저 목록 조회
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<UserResponseDto>> showUsers() {
         List<UserResponseDto> users = userService.findAllUsers();
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping
+    public ResponseEntity<UserResponseDto> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return userService.findUserById(userDetails.getUserId())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // 특정 유저 조회
@@ -41,17 +50,17 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // 유저 업데이트
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
-        UserResponseDto updatedUser = userService.updateUser(id, userUpdateDto);
+    // 현재 유저 업데이트
+    @PutMapping
+    public ResponseEntity<?> updateUser(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody UserUpdateDto userUpdateDto) {
+        UserResponseDto updatedUser = userService.updateUser(userDetails.getUserId(), userUpdateDto);
         return ResponseEntity.ok(updatedUser);
     }
 
-    // 유저 삭제 (Status를 DELETED로 변경)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    // 현재 유저 삭제 (Status를 DELETED로 변경)
+    @DeleteMapping
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        userService.deleteUser(userDetails.getUserId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
