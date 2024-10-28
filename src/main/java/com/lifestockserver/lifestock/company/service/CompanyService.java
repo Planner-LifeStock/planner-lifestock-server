@@ -75,7 +75,7 @@ public class CompanyService {
       File file = fileService.getFileById(companyUpdateDto.getLogoFileId());
       company.setLogo(file);
     }
-    if (companyUpdateDto.getDescription() != null && !company.getDescription().equals(companyUpdateDto.getDescription())) {
+    if (companyUpdateDto.getDescription() != null && !companyUpdateDto.getDescription().equals(company.getDescription())) {
       company.setDescription(companyUpdateDto.getDescription());
     }
 
