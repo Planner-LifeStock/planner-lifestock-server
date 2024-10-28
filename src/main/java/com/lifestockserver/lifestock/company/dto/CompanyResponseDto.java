@@ -26,4 +26,5 @@ public class CompanyResponseDto {
   private Long initialStockQuantity;
   private FileResponseDto logo;
   private Long currentStockPrice;
+  private Long listedStockPrice;
 }

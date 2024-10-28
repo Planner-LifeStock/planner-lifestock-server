@@ -78,17 +78,23 @@ public class CompanyService {
     if (companyUpdateDto.getDescription() != null && !company.getDescription().equals(companyUpdateDto.getDescription())) {
       company.setDescription(companyUpdateDto.getDescription());
     }
-      if (companyUpdateDto.getListedDate() != null && company.getListedDate() == null) {
-      company.setListedDate(companyUpdateDto.getListedDate());
-    }
 
     // companyCreateDto.logo가 null이면 기본 로고를 설정
     if (company.getLogo() == null) {
       company.setLogo(fileService.getDefaultCompanyLogo());
     }
 
-    Company savedCompany = companyRepository.save(company);
-    CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
+    CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
+    companyResponseDto.setCurrentStockPrice(chartService.getLatestCloseByCompanyId(companyId));
+    return companyResponseDto;
+  }
+
+  public CompanyResponseDto listCompany(Long companyId) {
+    Company company = companyRepository.findById(companyId)
+      .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+    company.setListed(LocalDate.now(), chartService.getLatestCloseByCompanyId(companyId));
+
+    CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
     companyResponseDto.setCurrentStockPrice(chartService.getLatestCloseByCompanyId(companyId));
     return companyResponseDto;
   }
