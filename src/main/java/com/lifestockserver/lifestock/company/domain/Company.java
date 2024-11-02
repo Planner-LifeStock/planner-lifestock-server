@@ -33,9 +33,9 @@ public class Company extends Base {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @Builder.Default
-  private List<Todo> todos = new ArrayList<>();
+  // @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  // @Builder.Default
+  // private List<Todo> todos = new ArrayList<>();
 
   private String name;
   

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.chart.service.ChartService;
@@ -109,8 +110,7 @@ public class CompanyService {
       return findUnlistedCompaniesByUserId(userId);
     }
 
-    List<Company> companies = companyRepository.findAllByUserId(userId);
-
+    List<Company> companies = companyRepository.findAllByUserId(userId);  
     List<CompanyResponseDto> companyResponseDtos = companies.stream()
       .map(company -> {
         CompanyResponseDto companyResponseDto = companyMapper.toDto(company);

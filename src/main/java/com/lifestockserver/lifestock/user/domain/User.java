@@ -1,20 +1,30 @@
 package com.lifestockserver.lifestock.user.domain;
 
 import com.lifestockserver.lifestock.company.domain.Company;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import com.lifestockserver.lifestock.common.domain.Base;
+
+import jakarta.persistence.*;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.hibernate.annotations.Filter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "user")
-@Getter
-@Setter
+@Data
 @ToString(exclude = "password")
+@Builder
+@EqualsAndHashCode(callSuper = true)
+@Filter(name = "deletedUserFilter", condition = "deletedAt IS NULL")
+@NoArgsConstructor
+@AllArgsConstructor
 public class User extends Base {
 
     @Id
@@ -48,5 +58,6 @@ public class User extends Base {
     private UserRole role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Company> companies = new ArrayList<>();
 }

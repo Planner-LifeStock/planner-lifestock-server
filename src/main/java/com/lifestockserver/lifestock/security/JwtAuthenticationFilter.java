@@ -53,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
         return request.getRequestURI().equals("/auth/login") ||
-                request.getRequestURI().equals("/user/register");
+            request.getRequestURI().equals("/user/register");
     }
 
     private String extractToken(HttpServletRequest request) {
