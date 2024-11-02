@@ -49,6 +49,10 @@ public class User extends Base {
     @Column(nullable = false)
     private String phoneNumber;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Long asset = 100000000L;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private UserStatus status;
