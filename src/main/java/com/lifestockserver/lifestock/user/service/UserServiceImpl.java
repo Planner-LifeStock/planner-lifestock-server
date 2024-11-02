@@ -124,4 +124,12 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + id));
     }
+
+    @Override
+    @Transactional
+    public void updateUserAsset(Long id, Long amount) {
+        User user = findUserByIdOrThrow(id);
+        user.setAsset(user.getAsset() + amount);
+        userRepository.save(user);
+    }
 }
