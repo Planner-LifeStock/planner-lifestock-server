@@ -21,7 +21,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/company")
 public class CompanyController {
@@ -33,7 +35,7 @@ public class CompanyController {
   }
 
   @GetMapping
-  public ResponseEntity<List<CompanyResponseDto>> getCompaniesByUserId(
+  public ResponseEntity<List<CompanyResponseDto>> getCompanies(
     @AuthenticationPrincipal CustomUserDetails userDetails,
     @RequestParam(required = false, value = "status") CompanyStatus status
   ) {

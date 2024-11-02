@@ -132,7 +132,8 @@ public class ChartService {
     }
 
     public Long getLatestCloseByCompanyId(Long companyId) {
-        Chart chart = chartRepository.findLatestAfterMarketOpenChartByCompanyId(companyId);
+        Chart chart = chartRepository.findLatestAfterMarketOpenChartByCompanyId(companyId)
+            .orElseThrow(() -> new IllegalArgumentException("Latest after market open chart not found:" + companyId));
         return chart.getClose();
     }
 
