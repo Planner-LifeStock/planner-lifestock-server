@@ -23,6 +23,7 @@ import com.lifestockserver.lifestock.company.dto.CompanyUpdateDto;
 import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
 import com.lifestockserver.lifestock.file.domain.File;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyStatus;
+import com.lifestockserver.lifestock.todo.service.TodoService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,13 +37,15 @@ public class CompanyService {
   private final CompanyMapper companyMapper;
   private final UserRepository userRepository;
   private final FileService fileService;
+  private final TodoService todoService;
 
-  public CompanyService(ChartService chartService, CompanyRepository companyRepository, CompanyMapper companyMapper, UserRepository userRepository, FileService fileService) {
+  public CompanyService(ChartService chartService, CompanyRepository companyRepository, CompanyMapper companyMapper, UserRepository userRepository, FileService fileService, TodoService todoService) {
     this.chartService = chartService;
     this.companyRepository = companyRepository;
     this.companyMapper = companyMapper;
     this.userRepository = userRepository;
     this.fileService = fileService;
+    this.todoService = todoService;
   }
 
   // file 저장은 따로 api 보내야만함
@@ -114,6 +117,8 @@ public class CompanyService {
     }
 
     company.setListed(LocalDate.now(), chartService.getLatestCloseByCompanyId(companyId));
+
+    todoService.deleteTodosAfterDateByCompanyId(companyId, LocalDate.now());
 
     CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
     Long currentStockPrice = chartService.getLatestCloseByCompanyId(companyId);
