@@ -28,4 +28,12 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
   
   // 해당 id의 todo 반환
   Todo findByIdAndDeletedAtIsNull(Long id);
+
+  // 해당 날짜 이후의 모든 todo 반환
+  @Query("SELECT t FROM Todo t " + 
+         "WHERE t.company.id = :companyId " + 
+         "AND t.endDate >= :date " + 
+         "AND t.done = false " + 
+         "AND t.deletedAt IS NULL")
+  List<Todo> findAllByCompanyIdAndDateAfter(Long companyId, LocalDate date);
 }

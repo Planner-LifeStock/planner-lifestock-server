@@ -149,4 +149,14 @@ public class TodoService {
     todo.setDeletedReason(deletedReason);
     todoRepository.save(todo);
   }
+
+  @Transactional
+  public void deleteTodosAfterDateByCompanyId(Long companyId, LocalDate date) {
+    List<Todo> todos = todoRepository.findAllByCompanyIdAndDateAfter(companyId, date);
+
+    for (Todo todo : todos) {
+      todo.setDeletedAt(LocalDateTime.now());
+    }
+    todoRepository.saveAll(todos);
+  }
 }
