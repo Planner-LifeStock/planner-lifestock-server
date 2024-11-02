@@ -9,6 +9,7 @@ import com.lifestockserver.lifestock.user.domain.User;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Filter;
 
 @Entity
 @Getter
@@ -18,6 +19,7 @@ import lombok.*;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "todo")
+@Filter(name = "deletedFilter", condition = "deletedAt is null")
 public class Todo extends Base { 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
