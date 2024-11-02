@@ -14,7 +14,6 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
   // 해당 날짜에 포함되는 삭제되지 않은 모든 todo 반환
   @Query("SELECT t FROM Todo t WHERE t.user.id = :userId AND t.company.id = :companyId " +
          "AND :date BETWEEN t.startDate AND t.endDate " +
-        //  "AND (t.days IS EMPTY OR FUNCTION('MOD', FUNCTION('DAYOFWEEK', :date) + 5, 7) + 1 IN (SELECT d FROM t.days d)) " +
          "AND t.deletedAt IS NULL")
   List<Todo> findAllByUserIdAndCompanyIdAndDate(Long userId, Long companyId, LocalDate date);
   
@@ -36,4 +35,19 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
          "AND t.done = false " + 
          "AND t.deletedAt IS NULL")
   List<Todo> findAllByCompanyIdAndDateAfter(Long companyId, LocalDate date);
+
+  // 해당 날짜의 모든 todo 개수 반환
+  @Query("SELECT COUNT(t) FROM Todo t " + 
+         "WHERE t.company.id = :companyId " + 
+         "AND t.endDate = :date " + 
+         "AND t.deletedAt IS NULL")
+  int countByCompanyIdAndDate(Long companyId, LocalDate date);
+
+  // 해당 날짜의 모든 완료된 todo 개수 반환
+  @Query("SELECT COUNT(t) FROM Todo t " + 
+         "WHERE t.company.id = :companyId " + 
+         "AND t.endDate = :date " + 
+         "AND t.completed = true " + 
+         "AND t.deletedAt IS NULL")
+  int countCompletedByCompanyIdAndDate(Long companyId, LocalDate date);
 }
