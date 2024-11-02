@@ -24,6 +24,9 @@ import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
 import com.lifestockserver.lifestock.file.domain.File;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyStatus;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 public class CompanyService {
@@ -100,6 +103,16 @@ public class CompanyService {
   public CompanyResponseDto listCompany(Long companyId) {
     Company company = companyRepository.findById(companyId)
       .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+
+    if (company.getListedDate() != null) {
+      throw new IllegalArgumentException("Company is already listed");
+    }
+
+    LocalDate leastOperatePeriodDate = company.getCreatedAt().toLocalDate().plusDays(company.getLeastOperatePeriod().getDays());
+    if (leastOperatePeriodDate.isAfter(LocalDate.now())) {
+      throw new IllegalArgumentException("Company can not be listed yet");
+    }
+
     company.setListed(LocalDate.now(), chartService.getLatestCloseByCompanyId(companyId));
 
     CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
