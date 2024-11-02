@@ -30,4 +30,6 @@ public interface UserService {
     UserResponseDto updateUser(Long id, UserUpdateDto userUpdateDto);
 
     UserRole getUserRoleByUsername(String username);
+
+    void updateUserAsset(Long id, Long amount);
 }

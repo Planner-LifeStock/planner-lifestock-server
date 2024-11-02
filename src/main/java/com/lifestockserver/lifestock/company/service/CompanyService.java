@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.chart.service.ChartService;
@@ -49,6 +48,12 @@ public class CompanyService {
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
     companyCreateDto.setUser(user);
+
+    Long investmentAmount = companyCreateDto.getInitialStockQuantity() * companyCreateDto.getInitialStockPrice();
+    if (user.getAsset() < investmentAmount) {
+      throw new IllegalArgumentException("User does not have enough asset");
+    }
+    user.setAsset(user.getAsset() - investmentAmount);
 
     Company company = companyMapper.toEntity(companyCreateDto);
 
@@ -98,7 +103,9 @@ public class CompanyService {
     company.setListed(LocalDate.now(), chartService.getLatestCloseByCompanyId(companyId));
 
     CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
-    companyResponseDto.setCurrentStockPrice(chartService.getLatestCloseByCompanyId(companyId));
+    Long currentStockPrice = chartService.getLatestCloseByCompanyId(companyId);
+    companyResponseDto.setCurrentStockPrice(currentStockPrice);
+    company.getUser().setAsset(company.getUser().getAsset() + currentStockPrice * company.getInitialStockQuantity());
     return companyResponseDto;
   }
 

@@ -17,7 +17,6 @@ public class CompanyMapper {
                 .description(dto.getDescription())
                 .level(dto.getLevel())
                 .leastOperatePeriod(dto.getLeastOperatePeriod())
-                .investmentAmount(dto.getInvestmentAmount())
                 .initialStockPrice(dto.getInitialStockPrice())
                 .initialStockQuantity(dto.getInitialStockQuantity())
                 // .logo(dto.getLogo()) logo는 따로 설정해야한다.
