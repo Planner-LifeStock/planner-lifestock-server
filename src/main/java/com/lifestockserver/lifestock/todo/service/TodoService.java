@@ -162,4 +162,12 @@ public class TodoService {
     }
     todoRepository.saveAll(todos);
   }
+
+  public int getTodoCountByCompanyIdAndDate(Long companyId, LocalDate date) {
+    return todoRepository.countByCompanyIdAndDate(companyId, date);
+  }
+
+  public int getCompletedCountByCompanyIdAndDate(Long companyId, LocalDate date) {
+    return todoRepository.countCompletedByCompanyIdAndDate(companyId, date);
+  }
 }
