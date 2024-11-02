@@ -56,7 +56,7 @@ public class CompanyService {
     if (user.getAsset() < investmentAmount) {
       throw new IllegalArgumentException("User does not have enough asset");
     }
-    user.setAsset(user.getAsset() - investmentAmount);
+    user.setAsset(user.getAsset() - investmentAmount < 100000 ? 100000 : user.getAsset() - investmentAmount);
 
     Company company = companyMapper.toEntity(companyCreateDto);
 
