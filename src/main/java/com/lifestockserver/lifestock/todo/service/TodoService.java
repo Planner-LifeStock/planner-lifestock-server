@@ -43,7 +43,6 @@ public class TodoService {
     List<Todo> todos = todoRepository.findAllByUserIdAndCompanyIdAndDate(userId, companyId, date);
     
     List<TodoResponseDto> todoResponseDtos = todos.stream()
-        .filter(todo -> todo.getDays().contains(date.getDayOfWeek()))
         .map(todoMapper::toDto)
         .collect(Collectors.toList());
         
@@ -67,19 +66,48 @@ public class TodoService {
     if (todoCreateDto.getStartDate().isAfter(todoCreateDto.getEndDate())) {
       throw new RuntimeException("시작일이 종료일보다 클 수 없습니다");
     }
-
     User user = userRepository.findById(userId)
       .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + userId));
     Company company = companyRepository.findById(todoCreateDto.getCompanyId())
       .orElseThrow(() -> new RuntimeException("회사를 찾을 수 없습니다: " + todoCreateDto.getCompanyId()));
-    
     if (user.getId() != company.getUser().getId()) {
       throw new RuntimeException("사용자와 회사의 관계가 올바르지 않습니다: " + user.getId());
     }
 
-    Todo todo = todoMapper.toEntity(todoCreateDto, user, company);
-    Todo savedTodo = todoRepository.save(todo);
-    
+    Todo savedTodo = null;
+
+    if (todoCreateDto.getDays() == null) {
+      Todo todo = todoMapper.toEntity(todoCreateDto, user, company);
+      savedTodo = todoRepository.save(todo);
+      return todoMapper.toDto(savedTodo);
+    }
+
+    // startDate부터 endDate까지 반복하여 todo 생성
+    LocalDate date = todoCreateDto.getStartDate();
+    LocalDate endDate = todoCreateDto.getEndDate().plusDays(1);
+    while (date.isBefore(endDate)) {
+      if (!todoCreateDto.getDays().contains(date.getDayOfWeek())) {
+        date = date.plusDays(1);
+        continue;
+      }
+
+      TodoCreateDto dailyTodoCreateDto = TodoCreateDto.builder()
+        .companyId(todoCreateDto.getCompanyId())
+        .title(todoCreateDto.getTitle())
+        .description(todoCreateDto.getDescription())
+        .level(todoCreateDto.getLevel())
+        .startDate(date)
+        .endDate(date)
+        .build();
+
+      Todo todo = todoMapper.toEntity(dailyTodoCreateDto, user, company);
+      savedTodo = todoRepository.save(todo);
+      date = date.plusDays(1);
+    }
+
+    if (savedTodo == null) {
+      throw new RuntimeException("해당 기간 내에 생성할 수 있는 todo가 없습니다.");
+    }
     return todoMapper.toDto(savedTodo);
   }
 
