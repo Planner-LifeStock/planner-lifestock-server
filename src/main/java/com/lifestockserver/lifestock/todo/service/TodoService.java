@@ -120,6 +120,9 @@ public class TodoService {
     if (todo.isDone()) {
       throw new RuntimeException("기한이 만료된 todo입니다");
     }
+    if (todo.getStartDate().isAfter(LocalDate.now())) {
+      throw new RuntimeException("아직 시작하지 않은 todo입니다");
+    }
 
     todo.setCompleted(true);
     Todo updatedTodo = todoRepository.save(todo);
