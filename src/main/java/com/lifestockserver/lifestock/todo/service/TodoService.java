@@ -176,4 +176,8 @@ public class TodoService {
   public int getCompletedCountByCompanyIdAndDate(Long companyId, LocalDate date) {
     return todoRepository.countCompletedByCompanyIdAndDate(companyId, date);
   }
+
+  public List<Todo> findAllByCompanyIdAndDoneFalseAndEndDateLessThanEqual(Long companyId, LocalDate date) {
+    return todoRepository.findAllByCompanyIdAndDoneFalseAndEndDateLessThanEqual(companyId, date);
+  }
 }

@@ -23,4 +23,7 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
 
   @Query("SELECT c FROM Company c WHERE c.user.id = :userId AND c.listedDate IS NULL")
   List<Company> findUnlistedCompaniesByUserId(@Param("userId") Long userId);
+
+  @Query("SELECT c FROM Company c WHERE c.listedDate IS NULL")
+  List<Company> findAllUnlisted();
 }

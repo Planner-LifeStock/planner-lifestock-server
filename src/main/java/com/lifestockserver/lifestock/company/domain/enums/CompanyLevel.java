@@ -24,4 +24,14 @@ public enum CompanyLevel {
       return (float) (Math.random() * 0.3 + 0.7);
     }
   }
+
+  public static int getTodoCount(CompanyLevel companyLevel) {
+    if (companyLevel == LOW) {
+      return 1;
+    } else if (companyLevel == MEDIUM) {
+      return 2;
+    } else {
+      return 3;
+    }
+  }
 }

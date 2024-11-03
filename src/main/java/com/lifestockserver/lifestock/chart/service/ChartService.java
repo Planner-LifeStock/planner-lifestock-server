@@ -76,6 +76,25 @@ public class ChartService {
     }
 
     @Transactional
+    public Chart createChart(Company company, Chart latestChart, LocalDate date, Long calculatedClose, boolean isAfterMarketOpen) {
+        Chart chart = Chart.builder()
+            .company(company)
+            .user(latestChart.getUser())
+            .open(latestChart.getClose())
+            .high(latestChart.getClose())
+            .low(latestChart.getClose())
+            .close(calculatedClose)
+            .date(date)
+            .isAfterMarketOpen(isAfterMarketOpen)
+            .build();
+        return chartRepository.save(chart);
+    }
+
+    public Chart findLatestByCompanyId(Long companyId) {
+        return chartRepository.findLatestByCompanyId(companyId);
+    }
+
+    @Transactional
     public ChartResponseDto createChart(Todo todo, LocalDate date, int consecutiveCompletedCount) {
         User user = userRepository.findById(todo.getUser().getId())
         .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + todo.getUser().getId()));
@@ -86,7 +105,7 @@ public class ChartService {
         }
 
         log.info("consecutive completed count: {}", consecutiveCompletedCount);
-        Chart latestChart = chartRepository.findLatestByCompanyId(company.getId());
+        Chart latestChart = findLatestByCompanyId(company.getId());
         if (latestChart.getDate().isBefore(date)
             || latestChart.isAfterMarketOpen() == false) {
             createDailyInitialChart(company, latestChart, date);
@@ -109,6 +128,7 @@ public class ChartService {
             .low(latestChart.getLow())
             .close(calculatedClose)
             .date(date)
+            .isAfterMarketOpen(todo.isCompleted())
             .build();
         Chart savedChart = chartRepository.save(chart);
         log.info("created chart close: {}", savedChart.getClose());
