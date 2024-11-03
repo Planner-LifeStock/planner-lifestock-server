@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.RequestPart;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -52,15 +54,19 @@ public class CompanyController {
   @PostMapping
   public ResponseEntity<CompanyResponseDto> createCompany(
     @AuthenticationPrincipal CustomUserDetails userDetails,
-    @RequestBody CompanyCreateDto companyCreateDto
+    @RequestPart CompanyCreateDto company,
+    @RequestPart(required = false) MultipartFile logo
   ) {
-    CompanyResponseDto companyResponseDto = companyService.createCompany(userDetails.getUserId(), companyCreateDto);
+    CompanyResponseDto companyResponseDto = companyService.createCompany(userDetails.getUserId(), company, logo);
     return ResponseEntity.ok(companyResponseDto);
   }
 
   @PutMapping("/{companyId}")
-  public ResponseEntity<CompanyResponseDto> updateCompany(@PathVariable Long companyId, @RequestBody CompanyUpdateDto companyUpdateDto) {
-    CompanyResponseDto companyResponseDto = companyService.updateCompany(companyId, companyUpdateDto);
+  public ResponseEntity<CompanyResponseDto> updateCompany(@PathVariable Long companyId, 
+    @RequestPart CompanyUpdateDto company,
+    @RequestPart(required = false) MultipartFile logo
+  ) {
+    CompanyResponseDto companyResponseDto = companyService.updateCompany(companyId, company, logo);
     return ResponseEntity.ok(companyResponseDto);
   }
 
