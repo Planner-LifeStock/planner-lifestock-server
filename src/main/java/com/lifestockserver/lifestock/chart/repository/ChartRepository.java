@@ -18,16 +18,16 @@ public interface ChartRepository extends JpaRepository<Chart, Long> {
            "ORDER BY c.date DESC LIMIT 1")
     Optional<Chart> findLatestAfterMarketOpenChartByCompanyId(@Param("companyId") Long companyId);
 
-    @Query("SELECT c FROM Chart c " +
-           "JOIN (SELECT FUNCTION('DATE', c2.date) as chartDate, MAX(c2.date) as maxDate " +
-           "      FROM Chart c2 " +
-           "      WHERE c2.company.id = :companyId AND c2.isAfterMarketOpen = true " +
-           "      GROUP BY FUNCTION('DATE', c2.date)) latestDates " +
-           "ON FUNCTION('DATE', c.date) = latestDates.chartDate " +
-           "AND c.date = latestDates.maxDate " +
-           "WHERE c.company.id = :companyId AND c.isAfterMarketOpen = true " +
-           "ORDER BY c.date DESC")
-    Page<Chart> findLatestAfterMarketOpenChartPageByCompanyId(@Param("companyId") Long companyId, Pageable pageable);
+       @Query("SELECT c FROM Chart c " +
+              "JOIN (SELECT FUNCTION('DATE', c2.date) as chartDate, MAX(c2.date) as maxDate " +
+              "      FROM Chart c2 " +
+              "      WHERE c2.company.id = :companyId AND c2.isAfterMarketOpen = true " +
+              "      GROUP BY FUNCTION('DATE', c2.date)) latestDates " +
+              "ON FUNCTION('DATE', c.date) = latestDates.chartDate " +
+              "AND c.date = latestDates.maxDate " +
+              "WHERE c.company.id = :companyId AND c.isAfterMarketOpen = true " +
+              "ORDER BY c.date DESC")
+       Page<Chart> findLatestAfterMarketOpenChartPageByCompanyId(@Param("companyId") Long companyId, Pageable pageable);
 
        @Query("SELECT c FROM Chart c " +
        "JOIN (SELECT FUNCTION('DATE', c2.date) as chartDate, MAX(c2.date) as maxDate " +
