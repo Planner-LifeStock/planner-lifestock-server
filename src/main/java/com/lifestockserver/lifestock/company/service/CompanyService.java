@@ -25,8 +25,12 @@ import com.lifestockserver.lifestock.file.domain.File;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyStatus;
 import com.lifestockserver.lifestock.todo.service.TodoService;
 import com.lifestockserver.lifestock.chart.domain.Chart;
+import com.lifestockserver.lifestock.file.dto.FileCreateDto;
+import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -51,7 +55,16 @@ public class CompanyService {
 
   // file 저장은 따로 api 보내야만함
   @Transactional
-  public CompanyResponseDto createCompany(Long userId, CompanyCreateDto companyCreateDto) {
+  public CompanyResponseDto createCompany(Long userId, CompanyCreateDto companyCreateDto, MultipartFile logo) {
+    File savedLogo = null;
+    if (logo != null) {
+      savedLogo = fileService.getFileById(fileService.saveFile(FileCreateDto.builder()
+        .file(logo)
+        .folder(FileFolder.COMPANY)
+        .build()).getId());
+    } else {
+      savedLogo = fileService.getDefaultCompanyLogo();
+    }
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
     companyCreateDto.setUser(user);
@@ -64,13 +77,7 @@ public class CompanyService {
 
     Company company = companyMapper.toEntity(companyCreateDto);
 
-    // companyCreateDto.logo가 null이면 기본 로고를 설정
-    if (companyCreateDto.getLogoFileId() == null) {
-      company.setLogo(fileService.getDefaultCompanyLogo());
-    } else {
-      File file = fileService.getFileById(companyCreateDto.getLogoFileId());
-      company.setLogo(file);
-    }
+    company.setLogo(savedLogo);
 
     Company savedCompany = companyRepository.save(company);
     Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(savedCompany.getId());
@@ -85,23 +92,28 @@ public class CompanyService {
   }
 
   @Transactional
-  public CompanyResponseDto updateCompany(Long companyId, CompanyUpdateDto companyUpdateDto) {
+  public CompanyResponseDto updateCompany(Long companyId, CompanyUpdateDto companyUpdateDto, MultipartFile logo) {
     Company company = companyRepository.findById(companyId)
       .orElseThrow(() -> new EntityNotFoundException("Company not found"));
-    if (companyUpdateDto.getLogoFileId() != null && !company.getLogo().getId().equals(companyUpdateDto.getLogoFileId())) {
-      File file = fileService.getFileById(companyUpdateDto.getLogoFileId());
-      company.setLogo(file);
+    if (company.getLogo() != fileService.getDefaultCompanyLogo()) {
+      fileService.deleteFile(company.getLogo().getId());
     }
+    File savedLogo;
+    if (logo != null) {
+      savedLogo = fileService.getFileById(fileService.saveFile(FileCreateDto.builder()
+        .file(logo)
+        .folder(FileFolder.COMPANY)
+        .build()).getId());
+    } else {
+      savedLogo = fileService.getDefaultCompanyLogo();
+    }
+    company.setLogo(savedLogo);
     if (companyUpdateDto.getDescription() != null && !companyUpdateDto.getDescription().equals(company.getDescription())) {
       company.setDescription(companyUpdateDto.getDescription());
     }
+    company.setLogo(savedLogo);
 
-    // companyCreateDto.logo가 null이면 기본 로고를 설정
-    if (company.getLogo() == null) {
-      company.setLogo(fileService.getDefaultCompanyLogo());
-    }
-
-    CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
+    CompanyResponseDto companyResponseDto = companyMapper.toDto(companyRepository.save(company));
     Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(companyId);
     Long currentStockPrice = chart.getClose();
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
