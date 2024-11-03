@@ -3,13 +3,10 @@ package com.lifestockserver.lifestock.company.domain;
 import com.lifestockserver.lifestock.common.domain.Base;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLevel;
 import com.lifestockserver.lifestock.user.domain.User;
-import com.lifestockserver.lifestock.todo.domain.Todo;
 import com.lifestockserver.lifestock.file.domain.File;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyLeastOperatePeriod;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,10 +29,6 @@ public class Company extends Base {
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
-
-  @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @Builder.Default
-  private List<Todo> todos = new ArrayList<>();
 
   private String name;
   
@@ -66,6 +59,11 @@ public class Company extends Base {
   @JoinColumn(name = "logo_file_id")
   private File logo;
 
+  @PrePersist
+  private void setInvestmentAmount() {
+    this.investmentAmount = initialStockQuantity * initialStockPrice;
+  }
+  
   public void setDescription(String description) {
     this.description = description;
   }

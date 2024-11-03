@@ -1,9 +1,6 @@
 package com.lifestockserver.lifestock.todo.domain;
 
 import java.time.LocalDate;
-import java.time.DayOfWeek;
-import java.util.Set;
-import java.util.EnumSet;
 
 import com.lifestockserver.lifestock.common.domain.Base;
 import com.lifestockserver.lifestock.todo.domain.enums.TodoLevel;
@@ -12,6 +9,7 @@ import com.lifestockserver.lifestock.user.domain.User;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Filter;
 
 @Entity
 @Getter
@@ -21,6 +19,7 @@ import lombok.*;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "todo")
+@Filter(name = "deletedFilter", condition = "deletedAt is null")
 public class Todo extends Base { 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,8 +46,6 @@ public class Todo extends Base {
   
   private LocalDate startDate;
   private LocalDate endDate;
-  @Builder.Default
-  private Set<DayOfWeek> days = EnumSet.noneOf(DayOfWeek.class);
 
   @PrePersist
   @PreUpdate
@@ -58,9 +55,6 @@ public class Todo extends Base {
       }
       if (endDate == null) { 
         endDate = startDate;
-      }
-      if (days == null) {
-        days = EnumSet.noneOf(DayOfWeek.class);
       }
   }
 
@@ -85,14 +79,4 @@ public class Todo extends Base {
       this.description = description;
     }
   }
-  
-  void setDays(Set<DayOfWeek> days) {
-    if (done) {
-      throw new IllegalStateException("Todo is done");
-    }
-    if (days != null) {
-      this.days = days;
-    }
-  }
-  
 }
