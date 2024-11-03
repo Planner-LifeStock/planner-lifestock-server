@@ -168,6 +168,7 @@ public class CompanyService {
 
     // 가장 최근의 high 값을 가져와서 currentStockPrice에 설정
     Long currentStockPrice = chartService.getLatestCloseByCompanyId(id);
+    log.info("current stock price: {}", currentStockPrice);
     
     CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
     companyResponseDto.setCurrentStockPrice(currentStockPrice);

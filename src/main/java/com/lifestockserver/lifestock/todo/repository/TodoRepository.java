@@ -2,6 +2,7 @@ package com.lifestockserver.lifestock.todo.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,7 +27,7 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
   List<Todo> findAllByUserIdAndCompanyIdAndMonth(Long userId, Long companyId, LocalDate date);
   
   // 해당 id의 todo 반환
-  Todo findByIdAndDeletedAtIsNull(Long id);
+  Optional<Todo> findByIdAndDeletedAtIsNull(Long id);
 
   // 해당 날짜 이후의 모든 todo 반환
   @Query("SELECT t FROM Todo t " + 
