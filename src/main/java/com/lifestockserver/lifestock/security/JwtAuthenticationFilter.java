@@ -43,7 +43,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (token == null) {
-            throw new ServletException("토큰이 유효하지 않습니다.");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid JWT token");
+            return ;
+            // throw new ServletException("토큰이 유효하지 않습니다.");
         }
         
         // 다음 필터로 요청 전달
