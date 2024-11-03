@@ -168,6 +168,11 @@ public class ChartService {
         return chartMapperImpl.toChartResponseDto(chart);
     }
 
+    public Chart getLatestAfterMarketOpenChartByCompanyId(Long companyId) {
+        return chartRepository.findLatestAfterMarketOpenChartByCompanyId(companyId)
+            .orElseThrow(() -> new IllegalArgumentException("Latest after market open chart not found:" + companyId));
+    }
+
     public Long getLatestCloseByCompanyId(Long companyId) {
         Chart chart = chartRepository.findLatestAfterMarketOpenChartByCompanyId(companyId)
             .orElseThrow(() -> new IllegalArgumentException("Latest after market open chart not found:" + companyId));
