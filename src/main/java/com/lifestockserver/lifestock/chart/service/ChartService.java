@@ -24,7 +24,6 @@ import com.lifestockserver.lifestock.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 
 import com.lifestockserver.lifestock.company.repository.CompanyRepository;
-import com.lifestockserver.lifestock.todo.repository.TodoRepository;
 
 import java.util.List;
 import java.time.LocalDate;
@@ -39,7 +38,7 @@ public class ChartService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
 
-    public ChartService(ChartRepository chartRepository, ChartMapperImpl chartMapperImpl, UserRepository userRepository, CompanyRepository companyRepository, TodoRepository todoRepository) {
+    public ChartService(ChartRepository chartRepository, ChartMapperImpl chartMapperImpl, UserRepository userRepository, CompanyRepository companyRepository) {
         this.chartRepository = chartRepository;
         this.chartMapperImpl = chartMapperImpl;
         this.userRepository = userRepository;
@@ -180,12 +179,15 @@ public class ChartService {
     public CompanyMonthlyChartListResponseDto getCompanyMonthlyChartList(Long companyId, int year, int month, Long userId) {
         Company company = companyRepository.findById(companyId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid company Id:" + companyId));
-        if (company.getUser().getId() != userId) {
+        if (company.getUser().getId() - userId != 0) {
+            log.info("company{} user id is invalid: {}, {}", company.getId(), company.getUser().getId(), userId);
+            log.info("isSame: {}", company.getUser().getId() == userId);
             throw new IllegalArgumentException("company user id is invalid:" + userId);
         }
         List<Chart> charts = chartRepository.findLatestAfterMarketOpenChartListByCompanyIdAndYearMonth(companyId, year, month);
         return chartMapperImpl.toCompanyMonthlyChartListResponseDto(charts);
     }
+
     public CompanyChartPageReponseDto getCompanyChartPage(Long companyId, int page, int size, Long userId) {
         Company company = companyRepository.findById(companyId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid company Id:" + companyId));
@@ -206,4 +208,10 @@ public class ChartService {
         return chartRepository.countCompletedByCompanyIdAndDate(companyId, date);
     }
 
+    public Long getTotalStockPriceByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userId));
+
+        return chartRepository.getTotalStockPriceByUserId(user.getId()) + user.getAsset();
+    }
 }

@@ -61,11 +61,16 @@ public interface ChartRepository extends JpaRepository<Chart, Long> {
        "ORDER BY c.company.id, c.date DESC")
        List<Chart> findLatestChartsByUserIdGroupedByCompany(@Param("userId") Long userId);
 
-    @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId ORDER BY c.date DESC LIMIT 1")
-    Chart findLatestByCompanyId(@Param("companyId") Long companyId);
+       @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId ORDER BY c.date DESC LIMIT 1")
+       Chart findLatestByCompanyId(@Param("companyId") Long companyId);
 
-    int countByCompanyId(Long companyId);
+       int countByCompanyId(Long companyId);
 
-    @Query("SELECT COUNT(c) FROM Chart c WHERE c.company.id = :companyId AND c.date = :date AND c.isAfterMarketOpen = true")
-    int countCompletedByCompanyIdAndDate(Long companyId, LocalDate date);
+       @Query("SELECT COUNT(c) FROM Chart c WHERE c.company.id = :companyId AND c.date = :date AND c.isAfterMarketOpen = true")
+       int countCompletedByCompanyIdAndDate(Long companyId, LocalDate date);
+
+       @Query("SELECT SUM(c.close) FROM Chart c " +
+              "WHERE c.user.id = :userId " +
+              "AND c.date = (SELECT MAX(c2.date) FROM Chart c2 WHERE c2.company.id = c.company.id AND c2.user.id = :userId)")
+       Long getTotalStockPriceByUserId(Long userId);                     
 }
