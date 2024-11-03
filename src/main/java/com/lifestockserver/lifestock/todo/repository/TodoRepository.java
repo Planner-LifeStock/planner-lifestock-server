@@ -51,4 +51,6 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
          "AND t.completed = true " + 
          "AND t.deletedAt IS NULL")
   int countCompletedByCompanyIdAndDate(Long companyId, LocalDate date);
+
+  List<Todo> findAllByCompanyIdAndDoneFalseAndEndDateLessThanEqual(Long companyId, LocalDate date);
 }

@@ -196,4 +196,8 @@ public class CompanyService {
 
     companyRepository.save(company);
   }
+
+  public List<Company> findAllUnlisted() {
+    return companyRepository.findAllUnlisted();
+  }
 }
