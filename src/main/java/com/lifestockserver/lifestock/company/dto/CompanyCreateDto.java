@@ -16,7 +16,6 @@ public class CompanyCreateDto {
   private String description;
   private CompanyLevel level;
   private CompanyLeastOperatePeriod leastOperatePeriod;
-  private Long investmentAmount;
   private Long initialStockQuantity;
   private Long initialStockPrice;
   private String logoFileId;

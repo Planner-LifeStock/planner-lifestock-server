@@ -18,7 +18,6 @@ public class TodoMapper {
       .level(dto.getLevel())
       .startDate(dto.getStartDate())
       .endDate(dto.getEndDate())
-      .days(dto.getDays())
       .build();
   }
 
@@ -33,7 +32,6 @@ public class TodoMapper {
       .level(todo.getLevel())
       .startDate(todo.getStartDate())
       .endDate(todo.getEndDate())
-      .days(todo.getDays())
       .build();
   }
 }

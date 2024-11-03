@@ -10,10 +10,13 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.Filter;
+
 @MappedSuperclass
 @ToString
 @EqualsAndHashCode
 @Data
+@Filter(name = "deletedBaseFilter", condition = "deletedAt IS NULL")
 public class Base {
   @Column(updatable = false)
   @CreationTimestamp()

@@ -9,23 +9,25 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+import java.util.Optional;
+import java.time.LocalDate;
 @Repository
 public interface ChartRepository extends JpaRepository<Chart, Long> {
     @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId " +
            "AND c.isAfterMarketOpen = true " +
-           "ORDER BY c.date DESC")
-    Chart findLatestAfterMarketOpenChartByCompanyId(@Param("companyId") Long companyId);
-    @Query("SELECT c FROM Chart c " +
-           "JOIN (SELECT FUNCTION('DATE', c2.date) as chartDate, MAX(c2.date) as maxDate " +
-           "      FROM Chart c2 " +
-           "      WHERE c2.company.id = :companyId AND c2.isAfterMarketOpen = true " +
-           "      GROUP BY FUNCTION('DATE', c2.date)) latestDates " +
-           "ON FUNCTION('DATE', c.date) = latestDates.chartDate " +
-           "AND c.date = latestDates.maxDate " +
-           "WHERE c.company.id = :companyId AND c.isAfterMarketOpen = true " +
-           "ORDER BY c.date DESC")
-    Page<Chart> findLatestAfterMarketOpenChartPageByCompanyId(@Param("companyId") Long companyId, Pageable pageable);
+           "ORDER BY c.date DESC LIMIT 1")
+    Optional<Chart> findLatestAfterMarketOpenChartByCompanyId(@Param("companyId") Long companyId);
+
+       @Query("SELECT c FROM Chart c " +
+              "JOIN (SELECT FUNCTION('DATE', c2.date) as chartDate, MAX(c2.date) as maxDate " +
+              "      FROM Chart c2 " +
+              "      WHERE c2.company.id = :companyId AND c2.isAfterMarketOpen = true " +
+              "      GROUP BY FUNCTION('DATE', c2.date)) latestDates " +
+              "ON FUNCTION('DATE', c.date) = latestDates.chartDate " +
+              "AND c.date = latestDates.maxDate " +
+              "WHERE c.company.id = :companyId AND c.isAfterMarketOpen = true " +
+              "ORDER BY c.date DESC")
+       Page<Chart> findLatestAfterMarketOpenChartPageByCompanyId(@Param("companyId") Long companyId, Pageable pageable);
 
        @Query("SELECT c FROM Chart c " +
        "JOIN (SELECT FUNCTION('DATE', c2.date) as chartDate, MAX(c2.date) as maxDate " +
@@ -59,8 +61,16 @@ public interface ChartRepository extends JpaRepository<Chart, Long> {
        "ORDER BY c.company.id, c.date DESC")
        List<Chart> findLatestChartsByUserIdGroupedByCompany(@Param("userId") Long userId);
 
-    @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId ORDER BY c.date DESC LIMIT 1")
-    Chart findLatestByCompanyId(@Param("companyId") Long companyId);
+       @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId ORDER BY c.date DESC LIMIT 1")
+       Chart findLatestByCompanyId(@Param("companyId") Long companyId);
 
-    int countByCompanyId(Long companyId);
+       int countByCompanyId(Long companyId);
+
+       @Query("SELECT COUNT(c) FROM Chart c WHERE c.company.id = :companyId AND c.date = :date AND c.isAfterMarketOpen = true")
+       int countCompletedByCompanyIdAndDate(Long companyId, LocalDate date);
+
+       @Query("SELECT SUM(c.close) FROM Chart c " +
+              "WHERE c.user.id = :userId " +
+              "AND c.date = (SELECT MAX(c2.date) FROM Chart c2 WHERE c2.company.id = c.company.id AND c2.user.id = :userId)")
+       Long getTotalStockPriceByUserId(Long userId);                     
 }

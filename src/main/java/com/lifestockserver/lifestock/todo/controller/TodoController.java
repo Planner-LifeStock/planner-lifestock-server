@@ -59,7 +59,8 @@ public class TodoController {
   public ResponseEntity<?> updateTodoCompleted(
     @PathVariable Long id
   ) {
-    return ResponseEntity.ok(todoService.updateTodoCompleted(id));
+    todoService.updateTodoCompleted(id);
+    return ResponseEntity.ok().build();
   }
 
   @DeleteMapping("/{id}")
