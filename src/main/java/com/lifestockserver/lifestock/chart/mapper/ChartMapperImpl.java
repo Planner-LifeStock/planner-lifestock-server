@@ -73,6 +73,9 @@ public class ChartMapperImpl implements ChartMapper {
 
   @Override
   public CompanyMonthlyChartListResponseDto toCompanyMonthlyChartListResponseDto(List<Chart> chartList) {
+    if (chartList.isEmpty()) {
+      return null;
+    }
     LocalDate date = chartList.get(0).getDate();
     int year = date.getYear();
     int month = date.getMonthValue();

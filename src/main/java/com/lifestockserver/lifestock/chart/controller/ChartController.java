@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.lifestockserver.lifestock.chart.dto.CompanyChartPageReponseDto;
 import com.lifestockserver.lifestock.chart.dto.CompanyMonthlyChartListResponseDto;
-import com.lifestockserver.lifestock.chart.dto.UserCurrentPriceListResponseDto;
 import com.lifestockserver.lifestock.chart.service.ChartService;
 import com.lifestockserver.lifestock.user.domain.CustomUserDetails;
 
@@ -33,17 +32,14 @@ public class ChartController {
       if (year != null && month != null) {
         CompanyMonthlyChartListResponseDto chartResponseDtos = chartService.getCompanyMonthlyChartList(companyId, year.intValue(), month.intValue(), userDetails.getUserId());
         return ResponseEntity.ok(chartResponseDtos);
-      } else if (year != null || month != null) {
-        throw new IllegalArgumentException("year and month must be provided together");
       } else {
         CompanyChartPageReponseDto chartResponseDtos = chartService.getCompanyChartPage(companyId, page.intValue(), size.intValue(), userDetails.getUserId());
         return ResponseEntity.ok(chartResponseDtos);
       }
   }
 
-  @GetMapping("/user/current-price")
-  public ResponseEntity<?> getUserCurrentPrice(@AuthenticationPrincipal CustomUserDetails userDetails) {
-    UserCurrentPriceListResponseDto currentPrice = chartService.getUserCurrentPriceList(userDetails.getUserId());
-    return ResponseEntity.ok(currentPrice);
+  @GetMapping("/user/asset")
+  public ResponseEntity<Long> getUserAsset(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    return ResponseEntity.ok(chartService.getTotalStockPriceByUserId(userDetails.getUserId()));
   }
 }
