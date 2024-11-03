@@ -185,21 +185,23 @@ public class ChartService {
         Company company = companyRepository.findById(companyId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid company Id:" + companyId));
         if (company.getUser().getId() - userId != 0) {
-            log.info("company{} user id is invalid: {}, {}", company.getId(), company.getUser().getId(), userId);
-            log.info("isSame: {}", company.getUser().getId() == userId);
             throw new IllegalArgumentException("company user id is invalid:" + userId);
         }
         List<Chart> charts = chartRepository.findLatestAfterMarketOpenChartListByCompanyIdAndYearMonth(companyId, year, month);
+        log.info("charts size: {}", charts.size());
+        log.info("charts: {}", charts);
         return chartMapperImpl.toCompanyMonthlyChartListResponseDto(charts);
     }
 
     public CompanyChartPageReponseDto getCompanyChartPage(Long companyId, int page, int size, Long userId) {
         Company company = companyRepository.findById(companyId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid company Id:" + companyId));
-        if (company.getUser().getId() != userId) {
+        if (company.getUser().getId() - userId != 0) {
             throw new IllegalArgumentException("company user id is invalid:" + userId);
         }
         Page<Chart> charts = chartRepository.findLatestAfterMarketOpenChartPageByCompanyId(companyId, PageRequest.of(page, size));
+        log.info("charts size: {}", charts.getContent().size());
+        log.info("charts: {}", charts.getContent());
         return chartMapperImpl.toCompanyChartPageReponseDto(charts);
     }
 

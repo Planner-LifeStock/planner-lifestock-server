@@ -59,9 +59,11 @@ public class ChartMapperImpl implements ChartMapper {
 
   @Override
   public CompanyChartPageReponseDto toCompanyChartPageReponseDto(Page<Chart> chartPage) {
+    List<ChartResponseDto> chartResponseDtos = toChartResponseDtoList(chartPage.getContent());
+
     return CompanyChartPageReponseDto.builder()
-      .companyId(chartPage.getContent().get(0).getCompany().getId())  
-      .chartList(toChartResponseDtoList(chartPage.getContent()))
+      .companyId(chartPage.getContent().get(0).getCompany().getId())
+      .chartList(chartResponseDtos)
       .totalPages(chartPage.getTotalPages())
       .totalElements(chartPage.getTotalElements())
       .pageSize(chartPage.getSize())
