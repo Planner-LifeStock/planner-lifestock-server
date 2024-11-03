@@ -24,6 +24,7 @@ import com.lifestockserver.lifestock.company.dto.CompanyDeleteDto;
 import com.lifestockserver.lifestock.file.domain.File;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyStatus;
 import com.lifestockserver.lifestock.todo.service.TodoService;
+import com.lifestockserver.lifestock.chart.domain.Chart;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,8 +73,11 @@ public class CompanyService {
     }
 
     Company savedCompany = companyRepository.save(company);
+    Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(savedCompany.getId());
+    Long currentStockPrice = chart.getClose();
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
-    companyResponseDto.setCurrentStockPrice(savedCompany.getInitialStockPrice());
+    companyResponseDto.setCurrentStockPrice(currentStockPrice);
+    companyResponseDto.setOpenStockPrice(chart.getOpen());
 
     chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
     
@@ -98,7 +102,10 @@ public class CompanyService {
     }
 
     CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
-    companyResponseDto.setCurrentStockPrice(chartService.getLatestCloseByCompanyId(companyId));
+    Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(companyId);
+    Long currentStockPrice = chart.getClose();
+    companyResponseDto.setCurrentStockPrice(currentStockPrice);
+    companyResponseDto.setOpenStockPrice(chart.getOpen());
     return companyResponseDto;
   }
 
@@ -121,45 +128,35 @@ public class CompanyService {
     todoService.deleteTodosAfterDateByCompanyId(companyId, LocalDate.now());
 
     CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
-    Long currentStockPrice = chartService.getLatestCloseByCompanyId(companyId);
+    Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(companyId);
+    Long currentStockPrice = chart.getClose();
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
+    companyResponseDto.setOpenStockPrice(chart.getOpen());
+
     company.getUser().setAsset(company.getUser().getAsset() + currentStockPrice * company.getInitialStockQuantity());
     return companyResponseDto;
   }
 
   public List<CompanyResponseDto> findAllByUserId(Long userId, CompanyStatus status) {
+    List<Company> companies;
     if (status == CompanyStatus.LISTED) {
-      return findListedCompaniesByUserId(userId);
-    }
-    if (status == CompanyStatus.UNLISTED) {
-      return findUnlistedCompaniesByUserId(userId);
+      companies = companyRepository.findListedCompaniesByUserId(userId);
+    } else if (status == CompanyStatus.UNLISTED) {
+      companies = companyRepository.findUnlistedCompaniesByUserId(userId);
+    } else {
+    companies = companyRepository.findAllByUserId(userId);  
     }
 
-    List<Company> companies = companyRepository.findAllByUserId(userId);  
     List<CompanyResponseDto> companyResponseDtos = companies.stream()
       .map(company -> {
+        Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(company.getId());
         CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
-        companyResponseDto.setCurrentStockPrice(chartService.getLatestCloseByCompanyId(company.getId()));
+        companyResponseDto.setOpenStockPrice(chart.getOpen());
+        companyResponseDto.setCurrentStockPrice(chart.getClose());
         return companyResponseDto;
       })
       .collect(Collectors.toList());
     return companyResponseDtos;
-  }
-
-  public List<CompanyResponseDto> findListedCompaniesByUserId(Long userId) {
-    List<Company> companies = companyRepository.findListedCompaniesByUserId(userId);
-
-    return companies.stream()
-      .map(company -> companyMapper.toDto(company))
-      .collect(Collectors.toList());
-  }
-
-  public List<CompanyResponseDto> findUnlistedCompaniesByUserId(Long userId) {
-    List<Company> companies = companyRepository.findUnlistedCompaniesByUserId(userId);
-
-    return companies.stream()
-      .map(company -> companyMapper.toDto(company))
-      .collect(Collectors.toList());
   }
 
   public CompanyResponseDto findById(Long id) {
@@ -167,12 +164,13 @@ public class CompanyService {
       .orElseThrow(() -> new EntityNotFoundException("Company not found"));
 
     // 가장 최근의 high 값을 가져와서 currentStockPrice에 설정
-    Long currentStockPrice = chartService.getLatestCloseByCompanyId(id);
-    log.info("current stock price: {}", currentStockPrice);
+    Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(id);
+    Long currentStockPrice = chart.getClose();
     
     CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
-    
+    companyResponseDto.setOpenStockPrice(chart.getOpen());
+
     return companyResponseDto;
   }
 

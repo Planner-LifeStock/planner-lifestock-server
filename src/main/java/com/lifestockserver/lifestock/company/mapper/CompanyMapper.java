@@ -33,7 +33,6 @@ public class CompanyMapper {
                 .listedDate(company.getListedDate())
                 .investmentAmount(company.getInvestmentAmount())
                 .initialStockPrice(company.getInitialStockPrice())
-                .currentStockPrice(company.getInitialStockPrice())
                 .listedStockPrice(company.getListedStockPrice())
                 .logo(FileResponseDto.builder()
                     .originalName(company.getLogo().getOriginalName())

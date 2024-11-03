@@ -42,7 +42,7 @@ public class CompanyController {
     List<CompanyResponseDto> companyResponseDtos = companyService.findAllByUserId(userDetails.getUserId(), status);
     return ResponseEntity.ok(companyResponseDtos);
   }
-  
+
   @GetMapping("/{companyId}")
   public ResponseEntity<CompanyResponseDto> getCompany(@PathVariable Long companyId) {
     CompanyResponseDto companyResponseDto = companyService.findById(companyId);
