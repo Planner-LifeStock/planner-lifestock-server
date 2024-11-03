@@ -5,9 +5,10 @@ import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.todo.domain.Todo;
 import com.lifestockserver.lifestock.user.domain.User;
 
-import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "charts")
@@ -37,8 +38,19 @@ public class Chart extends Base {
   private Long low;
   private Long close;
 
-  private LocalDateTime date;
+  private LocalDate date;
 
   @Builder.Default
   private boolean isAfterMarketOpen = true;
+
+  @PrePersist
+  @PreUpdate
+  public void prePersist() {
+    if (this.high < this.close) {
+      this.high = this.close;
+    }
+    if (this.low > this.close) {
+      this.low = this.close;
+    }
+  }
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-
+import java.time.LocalDate;
 @Repository
 public interface ChartRepository extends JpaRepository<Chart, Long> {
     @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId " +
@@ -65,4 +65,7 @@ public interface ChartRepository extends JpaRepository<Chart, Long> {
     Chart findLatestByCompanyId(@Param("companyId") Long companyId);
 
     int countByCompanyId(Long companyId);
+
+    @Query("SELECT COUNT(c) FROM Chart c WHERE c.company.id = :companyId AND c.date = :date AND c.isAfterMarketOpen = true")
+    int countCompletedByCompanyIdAndDate(Long companyId, LocalDate date);
 }

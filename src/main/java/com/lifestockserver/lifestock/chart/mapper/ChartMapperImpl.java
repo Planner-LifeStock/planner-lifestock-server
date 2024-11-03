@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Component
 public class ChartMapperImpl implements ChartMapper {
@@ -42,7 +42,7 @@ public class ChartMapperImpl implements ChartMapper {
       .low(chart.getLow())
       .open(chart.getOpen())
       .close(chart.getClose())
-      .date(chart.getDate().toLocalDate())
+      .date(chart.getDate())
       .changeRate((double) (chart.getClose() - chart.getOpen()) / chart.getOpen() * 100)
       .build();
     return chartResponseDto;
@@ -73,7 +73,7 @@ public class ChartMapperImpl implements ChartMapper {
 
   @Override
   public CompanyMonthlyChartListResponseDto toCompanyMonthlyChartListResponseDto(List<Chart> chartList) {
-    LocalDateTime date = chartList.get(0).getDate();
+    LocalDate date = chartList.get(0).getDate();
     int year = date.getYear();
     int month = date.getMonthValue();
 
