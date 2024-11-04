@@ -2,11 +2,13 @@ package com.lifestockserver.lifestock.rank.controller;
 
 import com.lifestockserver.lifestock.rank.dto.UserAssetDto;
 import com.lifestockserver.lifestock.rank.service.RankService;
+import com.lifestockserver.lifestock.user.domain.CustomUserDetails;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,9 +33,9 @@ public class RankController {
     }
 
     //유저 순위 조회 API
-    @GetMapping("/rank/{userId}")
-    public Long getUserRank(@PathVariable Long userId){
-        return rankService.getUserRank(userId);
+    @GetMapping("/rank")
+    public Long getUserRank(@AuthenticationPrincipal CustomUserDetails userDetails){
+        return rankService.getUserRank(userDetails.getUserId());
     }
 
     //상위 N명의 유저 조회 API
