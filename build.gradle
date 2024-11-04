@@ -58,6 +58,16 @@ dependencies {
 
 }
 
+task executeBatchSchema(type: Exec) {
+	def dbUser = 'yourUsername' // DB 사용자 이름
+	def dbPassword = 'yourPassword' // DB 비밀번호
+	def dbName = 'lifestock' // 데이터베이스 이름
+	def dbHost = 'localhost' // 데이터베이스 호스트
+
+	commandLine 'mysql', '-u', dbUser, '-p' + dbPassword, '-h', dbHost, dbName, '-e', 'source src/main/resources/db/schema-mysql.sql'
+}
+
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
