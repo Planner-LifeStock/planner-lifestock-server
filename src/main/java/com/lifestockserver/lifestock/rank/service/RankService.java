@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -49,13 +50,7 @@ public class RankService {
     public Double getUserTotalAsset(Long userID){
         return zSetOperations.score(KEY, userID);
     }
-    /*
-    public Set<ZSetOperations.TypedTuple<Object>> getTopUsersByPage(int page, int size){
-        int start = page*size;
-        int end = (page+1)*size - 1;
 
-        return zSetOperations.reverseRangeWithScores(KEY, start, end);
-    }*/
     public Page<ZSetOperations.TypedTuple<Object>> getTopUsersByPage(Pageable pageable){
         int start = (int)pageable.getOffset();
         int end = (start + pageable.getPageSize()) - 1;
@@ -67,4 +62,18 @@ public class RankService {
 
         return new PageImpl<>(userList, pageable, total);
     }//페이지네이션
+
+
+    //현재 유저 기준으로 앞뒤 n명의 유저 반환
+    public Set<ZSetOperations.TypedTuple<Object>> getSurroundingUsers(Long userId, int n) {
+        Long rank = getUserRank(userId);
+        if(rank == null){
+            return Set.of();
+        }
+
+        int start = Math.max(0, rank.intValue() - n);
+        int end = rank.intValue() + n;
+
+        return zSetOperations.reverseRangeWithScores(KEY, start, end);
+    }
 }
