@@ -83,11 +83,4 @@ public class UserAssetUpdateJobConfig {
                 .start(updateUserAssetStep())
                 .build();
     }
-    /*
-    @Bean
-    public Job updateUserAssetJob(){
-        return new JobBuilder("updateUserAssetJob", jobRepository)
-                .start()
-                .build();
-    }*/
 }
