@@ -66,5 +66,5 @@ public class RankService {
         List<ZSetOperations.TypedTuple<Object>> userList = users.stream().collect(Collectors.toList());
 
         return new PageImpl<>(userList, pageable, total);
-    }
+    }//페이지네이션
 }
