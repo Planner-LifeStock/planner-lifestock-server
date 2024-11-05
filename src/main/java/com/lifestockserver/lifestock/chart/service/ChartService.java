@@ -235,7 +235,7 @@ public class ChartService {
         return chartRepository.countCompletedByCompanyIdAndDate(companyId, date);
     }
 
-    public Long getTotalStockPriceByUserId(Long userId) {
+    public Long getAssetByUserId(Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userId));
 
