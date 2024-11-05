@@ -25,6 +25,7 @@ import com.lifestockserver.lifestock.file.domain.File;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyStatus;
 import com.lifestockserver.lifestock.todo.service.TodoService;
 import com.lifestockserver.lifestock.chart.domain.Chart;
+import com.lifestockserver.lifestock.chart.dto.ChartResponseDto;
 import com.lifestockserver.lifestock.file.dto.FileCreateDto;
 import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
 
@@ -74,13 +75,13 @@ public class CompanyService {
       throw new IllegalArgumentException("User does not have enough asset");
     }
     user.setAsset(user.getAsset() - investmentAmount < 100000 ? 100000 : user.getAsset() - investmentAmount);
-
+    
     Company company = companyMapper.toEntity(companyCreateDto);
-
+    
     company.setLogo(savedLogo);
-
+    
     Company savedCompany = companyRepository.save(company);
-    Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(savedCompany.getId());
+    ChartResponseDto chart = chartService.createInitialChart(savedCompany, user, investmentAmount);
     Long currentStockPrice = chart.getClose();
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
