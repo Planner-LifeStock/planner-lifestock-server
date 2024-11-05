@@ -52,4 +52,11 @@ public class RankController {
         Pageable pageable = PageRequest.of(page, size);
         return rankService.getTopUsersByPage(pageable);
     }
+
+    @GetMapping("/surrounding")
+    public Set<?> getSurroundingUsers(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                      @RequestParam(value = "n", defaultValue = "5") int n) {
+        return rankService.getSurroundingUsers(userDetails.getUserId(), n);
+    }
+
 }
