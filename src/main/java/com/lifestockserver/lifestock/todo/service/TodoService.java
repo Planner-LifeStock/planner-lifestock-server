@@ -89,7 +89,7 @@ public class TodoService {
 
     // startDate부터 endDate까지 반복하여 todo 생성
     LocalDate date = todoCreateDto.getStartDate();
-    LocalDate endDate = todoCreateDto.getEndDate().plusDays(1);
+    LocalDate endDate = todoCreateDto.getEndDate().plusDays(2); //1 2 3 다 테스트 해 본 결과 2가 제대로 작동합니다
     while (date.isBefore(endDate)) {
       if (!todoCreateDto.getDays().contains(date.getDayOfWeek())) {
         date = date.plusDays(1);
