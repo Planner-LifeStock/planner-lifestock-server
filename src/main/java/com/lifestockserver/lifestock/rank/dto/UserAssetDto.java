@@ -9,5 +9,5 @@ import lombok.Setter;
 @Builder
 public class UserAssetDto {
     private Long userId;
-    private double totalAssets;
+    private double totalAssets; //캐시에 필요한 정보
 }
