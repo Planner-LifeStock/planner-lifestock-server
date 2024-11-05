@@ -27,7 +27,7 @@ public class BatchSchedulerConfig {
         this.updateUserAssetJob = updateUserAssetJob;
     }
 
-    @Scheduled(cron = "0 */1 * * * ?") // 매일 자정에 실행
+    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정 실행
     public void runUserAssetUpdateJob() {
         try {
             JobParameters params = new JobParametersBuilder()
