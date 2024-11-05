@@ -44,7 +44,7 @@ public class RankController {
         return rankService.getTopUsers(size);
     }
 
-    @GetMapping()
+    @GetMapping() //상위 N명 반환(페이지네이션)
     public Page<?> getRankingPage(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "30") int size
