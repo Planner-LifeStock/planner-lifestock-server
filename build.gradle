@@ -63,9 +63,11 @@ task executeBatchSchema(type: Exec) {
 	def dbPassword = 'yourPassword' // DB 비밀번호
 	def dbName = 'lifestock' // 데이터베이스 이름
 	def dbHost = 'localhost' // 데이터베이스 호스트
+	def sqlFile = file('src/main/resources/db/schema-mysql.sql') // SQL 파일 경로
 
-	commandLine 'mysql', '-u', dbUser, '-p' + dbPassword, '-h', dbHost, dbName, '-e', 'source src/main/resources/db/schema-mysql.sql'
+	commandLine 'mysql', '-u', dbUser, '-p' + dbPassword, '-h', dbHost, dbName, '<', sqlFile.absolutePath
 }
+
 
 
 tasks.named('test') {
