@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
-@EnableBatchProcessing
 public class UserAssetUpdateJobConfig {
 
     private final RankService rankService;
@@ -53,6 +52,9 @@ public class UserAssetUpdateJobConfig {
     public ItemProcessor<Long, Long> userItemProcessor(){
         return userId -> {
             Long totalAssets = chartService.getTotalStockPriceByUserId(userId); // 차트 서비스를 통해 유저의 총자산 반환
+            if(totalAssets == null) {
+                totalAssets = 0L;
+            }
             rankService.updateUserAsset(userId, totalAssets);
             return userId;
         };
