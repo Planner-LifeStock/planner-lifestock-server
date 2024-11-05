@@ -56,6 +56,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework:spring-context-support'
 
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'redis.clients:jedis'
+
+
 }
 
 task executeBatchSchema(type: Exec) {
