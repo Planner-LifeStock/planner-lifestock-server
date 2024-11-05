@@ -19,31 +19,27 @@ public interface ChartRepository extends JpaRepository<Chart, Long> {
     Optional<Chart> findLatestAfterMarketOpenChartByCompanyId(@Param("companyId") Long companyId);
 
        @Query("SELECT c FROM Chart c " +
-              "JOIN (SELECT FUNCTION('DATE', c2.date) as chartDate, MAX(c2.date) as maxDate " +
+              "JOIN (SELECT c2.company.id as companyId, MAX(c2.createdAt) as latestCreatedAt " +
               "      FROM Chart c2 " +
               "      WHERE c2.company.id = :companyId AND c2.isAfterMarketOpen = true " +
-              "      GROUP BY FUNCTION('DATE', c2.date)) latestDates " +
-              "ON FUNCTION('DATE', c.date) = latestDates.chartDate " +
-              "AND c.date = latestDates.maxDate " +
+              "      GROUP BY c2.date) latestDates " +
+              "ON c.company.id = latestDates.companyId " +
+              "AND c.createdAt = latestDates.latestCreatedAt " +
               "WHERE c.company.id = :companyId AND c.isAfterMarketOpen = true " +
               "ORDER BY c.date DESC")
        Page<Chart> findLatestAfterMarketOpenChartPageByCompanyId(@Param("companyId") Long companyId, Pageable pageable);
 
        @Query("SELECT c FROM Chart c " +
-       "JOIN (SELECT FUNCTION('DATE', c2.date) as chartDate, MAX(c2.date) as maxDate " +
-       "      FROM Chart c2 " +
-       "      WHERE c2.company.id = :companyId " +
-       "      AND c2.isAfterMarketOpen = true " +
-       "      AND FUNCTION('YEAR', c2.date) = :year " +
-       "      AND FUNCTION('MONTH', c2.date) = :month " +
-       "      GROUP BY FUNCTION('DATE', c2.date)) latestDates " +
-       "ON FUNCTION('DATE', c.date) = latestDates.chartDate " +
-       "AND c.date = latestDates.maxDate " +
-       "WHERE c.company.id = :companyId " +
-       "AND c.isAfterMarketOpen = true " +
-       "AND FUNCTION('YEAR', c.date) = :year " +
-       "AND FUNCTION('MONTH', c.date) = :month " +
-       "ORDER BY c.date DESC")
+              "JOIN (SELECT c2.company.id as companyId, MAX(c2.createdAt) as latestCreatedAt " +
+              "      FROM Chart c2 " +
+              "      WHERE c2.company.id = :companyId AND c2.isAfterMarketOpen = true " +
+              "      AND FUNCTION('YEAR', c2.date) = :year " +
+              "      AND FUNCTION('MONTH', c2.date) = :month " +
+              "      GROUP BY c2.date) latestDates " +
+              "ON c.company.id = latestDates.companyId " +
+              "AND c.createdAt = latestDates.latestCreatedAt " +
+              "WHERE c.company.id = :companyId AND c.isAfterMarketOpen = true " +
+              "ORDER BY c.date DESC")
        List<Chart> findLatestAfterMarketOpenChartListByCompanyIdAndYearMonth(
        @Param("companyId") Long companyId,
        @Param("year") int year,
