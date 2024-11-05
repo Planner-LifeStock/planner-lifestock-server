@@ -75,7 +75,7 @@ public class UserAssetUpdateJobConfig {
                 .processor(userItemProcessor())
                 .writer(userItemWriter())
                 .build();
-    }
+    }//
 
     @Bean
     public Job updateUserAssetJob(){
