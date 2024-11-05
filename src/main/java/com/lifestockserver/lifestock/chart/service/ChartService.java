@@ -239,6 +239,13 @@ public class ChartService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userId));
 
-        return chartRepository.getTotalStockPriceByUserId(user.getId()) + user.getAsset();
+        Long totalStockPrice = chartRepository.getTotalStockPriceByUserId(user.getId());
+        Long asset = user.getAsset();
+        Long totalAsset = totalStockPrice + asset;
+
+        log.info("total stock price: {}", totalStockPrice);
+        log.info("asset: {}", asset);
+        log.info("total asset: {}", totalAsset);
+        return totalAsset == null ? 0L : totalAsset;
     }
 }
