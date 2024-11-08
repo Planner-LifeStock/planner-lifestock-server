@@ -241,4 +241,5 @@ public class ChartService {
 
         return chartRepository.getTotalStockPriceByUserId(user.getId()) + user.getAsset();
     }
+
 }
