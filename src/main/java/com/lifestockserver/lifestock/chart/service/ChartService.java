@@ -234,21 +234,11 @@ public class ChartService {
     public int countCompletedByCompanyIdAndDate(Long companyId, LocalDate date) {
         return chartRepository.countCompletedByCompanyIdAndDate(companyId, date);
     }
-    /* --기존 로직
+
     public Long getTotalStockPriceByUserId(Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userId));
 
         return chartRepository.getTotalStockPriceByUserId(user.getId()) + user.getAsset();
-    }*/
-
-    //오류가 나 일시적으로 수정해본 로직
-    public Long getTotalStockPriceByUserId(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid user Id: " + userId));
-
-        Long totalStockPrice = chartRepository.getTotalStockPriceByUserId(user.getId());
-        return (totalStockPrice != null ? totalStockPrice : 0L) + user.getAsset();
     }
-
 }
