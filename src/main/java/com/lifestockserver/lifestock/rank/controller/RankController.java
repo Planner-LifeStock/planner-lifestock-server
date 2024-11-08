@@ -3,13 +3,10 @@ package com.lifestockserver.lifestock.rank.controller;
 import com.lifestockserver.lifestock.rank.dto.UserAssetDto;
 import com.lifestockserver.lifestock.rank.service.RankService;
 import com.lifestockserver.lifestock.user.domain.CustomUserDetails;
-import io.lettuce.core.dynamic.annotation.Param;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -20,7 +17,6 @@ public class RankController {
 
     private final RankService rankService;
 
-    @Autowired
     public RankController(RankService rankService) {
         this.rankService = rankService;
     }
