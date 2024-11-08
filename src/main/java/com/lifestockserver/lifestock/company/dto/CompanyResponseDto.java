@@ -10,6 +10,7 @@ import com.lifestockserver.lifestock.company.domain.enums.CompanyLeastOperatePer
 import com.lifestockserver.lifestock.file.dto.FileResponseDto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -28,4 +29,5 @@ public class CompanyResponseDto {
   private Long openStockPrice;
   private Long currentStockPrice;
   private Long listedStockPrice;
+  private LocalDateTime createdAt;
 }
