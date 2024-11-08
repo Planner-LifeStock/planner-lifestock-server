@@ -29,8 +29,8 @@ public class RankService {
     private final String KEY = "user:asset:ranking";
 
     // 유저 자산 업데이트 (Sorted Set에 유저 ID와 자산 저장)
-    public void updateUserAsset(Long userId, double totalAssets){
-        zSetOperations.add(KEY, String.valueOf(userId), totalAssets);
+    public void updateUserAsset(Long userId, Long totalAssets){
+        zSetOperations.add(KEY, String.valueOf(userId), totalAssets.doubleValue());
 
         //만료 시간 정의
         redisTemplate.expire(KEY, 1, TimeUnit.DAYS);
