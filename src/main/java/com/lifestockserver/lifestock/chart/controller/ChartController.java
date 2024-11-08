@@ -40,6 +40,6 @@ public class ChartController {
 
   @GetMapping("/user/asset")
   public ResponseEntity<Long> getUserAsset(@AuthenticationPrincipal CustomUserDetails userDetails) {
-    return ResponseEntity.ok(chartService.getTotalStockPriceByUserId(userDetails.getUserId()));
+    return ResponseEntity.ok(chartService.getAssetByUserId(userDetails.getUserId()));
   }
 }
