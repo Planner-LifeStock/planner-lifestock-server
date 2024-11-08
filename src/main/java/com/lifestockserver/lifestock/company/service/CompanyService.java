@@ -28,6 +28,7 @@ import com.lifestockserver.lifestock.chart.domain.Chart;
 import com.lifestockserver.lifestock.chart.dto.ChartResponseDto;
 import com.lifestockserver.lifestock.file.dto.FileCreateDto;
 import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
+import com.lifestockserver.lifestock.file.dto.FileResponseDto;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,10 +60,11 @@ public class CompanyService {
   public CompanyResponseDto createCompany(Long userId, CompanyCreateDto companyCreateDto, MultipartFile logo) {
     File savedLogo = null;
     if (logo != null) {
-      savedLogo = fileService.getFileById(fileService.saveFile(FileCreateDto.builder()
+      FileResponseDto savedFile = fileService.saveFile(FileCreateDto.builder()
         .file(logo)
         .folder(FileFolder.COMPANY)
-        .build()).getId());
+        .build());
+      savedLogo = fileService.getFileById(savedFile.getId());
     } else {
       savedLogo = fileService.getDefaultCompanyLogo();
     }
@@ -79,9 +81,11 @@ public class CompanyService {
     Company company = companyMapper.toEntity(companyCreateDto);
     
     company.setLogo(savedLogo);
+    log.info("savedLogo: {}", savedLogo);
+    log.info("company: {}", company);
     
     Company savedCompany = companyRepository.save(company);
-    ChartResponseDto chart = chartService.createInitialChart(savedCompany, user, investmentAmount);
+    ChartResponseDto chart = chartService.createInitialChart(savedCompany, user, company.getInitialStockPrice());
     Long currentStockPrice = chart.getClose();
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
