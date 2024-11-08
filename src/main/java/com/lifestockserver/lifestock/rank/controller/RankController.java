@@ -51,7 +51,7 @@ public class RankController {
     }
 
     @GetMapping("/surrounding")
-    public Set<?> getSurroundingUsers(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public List<?> getSurroundingUsers(@AuthenticationPrincipal CustomUserDetails userDetails,
                                       @RequestParam(value = "n", defaultValue = "5") int n) {
         return rankService.getSurroundingUsers(userDetails.getUserId(), n);
     }
