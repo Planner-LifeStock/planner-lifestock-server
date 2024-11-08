@@ -55,19 +55,6 @@ public class RankService {
         return zSetOperations.score(KEY, userID);
     }
 
-    /*
-    public Page<ZSetOperations.TypedTuple<Object>> getTopUsersByPage(Pageable pageable){
-        int start = (int)pageable.getOffset();
-        int end = (start + pageable.getPageSize()) - 1;
-
-        Set<ZSetOperations.TypedTuple<Object>> users = zSetOperations.reverseRangeWithScores(KEY, start, end);
-        long total = zSetOperations.zCard(KEY);
-
-        List<ZSetOperations.TypedTuple<Object>> userList = users.stream().collect(Collectors.toList());
-
-        return new PageImpl<>(userList, pageable, total);
-    }//페이지네이션
-     */
     // 페이지네이션 (UserAssetDto로 반환)
     public Page<UserAssetDto> getTopUsersByPage(Pageable pageable){
         int start = (int)pageable.getOffset();
@@ -86,7 +73,7 @@ public class RankService {
         return new PageImpl<>(userList, pageable, total);
     }
 
-
+    /*
     //현재 유저 기준으로 앞뒤 n명의 유저 반환
     public Set<ZSetOperations.TypedTuple<Object>> getSurroundingUsers(Long userId, int n) {
         Long rank = getUserRank(userId);
@@ -98,5 +85,26 @@ public class RankService {
         int end = rank.intValue() + n;
 
         return zSetOperations.reverseRangeWithScores(KEY, start, end);
+    }
+     */
+
+    // 현재 유저 기준으로 앞뒤 n명의 유저 반환 (UserAssetDto로 반환)
+    public List<UserAssetDto> getSurroundingUsers(Long userId, int n) {
+        Long rank = getUserRank(userId);
+        if(rank == null){
+            return List.of();
+        }
+
+        int start = Math.max(0, rank.intValue() - n);
+        int end = rank.intValue() + n;
+
+        Set<ZSetOperations.TypedTuple<Object>> surroundingUsers = zSetOperations.reverseRangeWithScores(KEY, start, end);
+
+        return surroundingUsers.stream()
+                .map(tuple -> UserAssetDto.builder()
+                        .userId(Long.valueOf((String) tuple.getValue()))
+                        .totalAssets(tuple.getScore().longValue())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
