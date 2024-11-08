@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -36,7 +37,7 @@ public class RankController {
 
     //상위 N명의 유저 조회 API
     @GetMapping("/top")
-    public Set<?> getTopUsers(@RequestParam(value = "size", defaultValue = "30") int size){
+    public List<?> getTopUsers(@RequestParam(value = "size", defaultValue = "30") int size){
         return rankService.getTopUsers(size);
     }
 

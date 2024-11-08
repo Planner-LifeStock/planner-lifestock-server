@@ -1,5 +1,6 @@
 package com.lifestockserver.lifestock.rank.service;
 
+import com.lifestockserver.lifestock.rank.dto.UserAssetDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -41,10 +42,20 @@ public class RankService {
         return zSetOperations.reverseRank(KEY, String.valueOf(userId));
     }
 
+    /*
     // 상위 N명의 유저 리스트 조회
     public Set<ZSetOperations.TypedTuple<Object>> getTopUsers(int count){
         //return zSetOperations.reverseRangeByScoreWithScores(KEY, 0, count - 1);
         return zSetOperations.reverseRangeWithScores(KEY, 0, count-1);
+    }*/
+
+    public  List<UserAssetDto> getTopUsers(int count){
+        Set<ZSetOperations.TypedTuple<Object>> topUsers = zSetOperations.reverseRangeWithScores(KEY, 0, count - 1);
+
+        return topUsers.stream().map(tuple -> UserAssetDto.builder()
+                .userId(Long.valueOf((String) tuple.getValue()))
+                .totalAssets(tuple.getScore().longValue())
+                .build()).collect(Collectors.toList());
     }
 
     public Double getUserTotalAsset(Long userID){
