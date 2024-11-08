@@ -42,13 +42,6 @@ public class RankService {
         return zSetOperations.reverseRank(KEY, String.valueOf(userId));
     }
 
-    /*
-    // 상위 N명의 유저 리스트 조회
-    public Set<ZSetOperations.TypedTuple<Object>> getTopUsers(int count){
-        //return zSetOperations.reverseRangeByScoreWithScores(KEY, 0, count - 1);
-        return zSetOperations.reverseRangeWithScores(KEY, 0, count-1);
-    }*/
-
     public  List<UserAssetDto> getTopUsers(int count){
         Set<ZSetOperations.TypedTuple<Object>> topUsers = zSetOperations.reverseRangeWithScores(KEY, 0, count - 1);
 
@@ -62,6 +55,7 @@ public class RankService {
         return zSetOperations.score(KEY, userID);
     }
 
+    /*
     public Page<ZSetOperations.TypedTuple<Object>> getTopUsersByPage(Pageable pageable){
         int start = (int)pageable.getOffset();
         int end = (start + pageable.getPageSize()) - 1;
@@ -73,6 +67,24 @@ public class RankService {
 
         return new PageImpl<>(userList, pageable, total);
     }//페이지네이션
+     */
+    // 페이지네이션 (UserAssetDto로 반환)
+    public Page<UserAssetDto> getTopUsersByPage(Pageable pageable){
+        int start = (int)pageable.getOffset();
+        int end = (start + pageable.getPageSize()) - 1;
+
+        Set<ZSetOperations.TypedTuple<Object>> users = zSetOperations.reverseRangeWithScores(KEY, start, end);
+        long total = zSetOperations.zCard(KEY);
+
+        List<UserAssetDto> userList = users.stream()
+                .map(tuple -> UserAssetDto.builder()
+                        .userId(Long.valueOf((String) tuple.getValue()))
+                        .totalAssets(tuple.getScore().longValue())
+                        .build())
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(userList, pageable, total);
+    }
 
 
     //현재 유저 기준으로 앞뒤 n명의 유저 반환
