@@ -160,9 +160,6 @@ public class CompanyService {
     } else if (status == CompanyStatus.UNLISTED) {
       // 미상장된 회사만 조회
       companies = companyRepository.findUnlistedCompaniesByUserId(userId);
-      if (companies.isEmpty()){
-        return Collections.emptyList();
-      }
     } else {
       // 모든 회사 조회
       companies = companyRepository.findAllByUserId(userId);
