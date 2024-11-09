@@ -89,7 +89,8 @@ public class CompanyService {
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
     companyResponseDto.setOpenStockPrice(chart.getOpen());
 
-    chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
+    // 위에서 investamount를 넣었는데 같은 테이블에 시작가를 넣으면 안 될 것입니다!!!
+    //chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
     
     return companyResponseDto;
   }
