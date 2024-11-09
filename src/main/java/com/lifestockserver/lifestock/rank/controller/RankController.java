@@ -3,15 +3,13 @@ package com.lifestockserver.lifestock.rank.controller;
 import com.lifestockserver.lifestock.rank.dto.UserAssetDto;
 import com.lifestockserver.lifestock.rank.service.RankService;
 import com.lifestockserver.lifestock.user.domain.CustomUserDetails;
-import io.lettuce.core.dynamic.annotation.Param;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -20,7 +18,6 @@ public class RankController {
 
     private final RankService rankService;
 
-    @Autowired
     public RankController(RankService rankService) {
         this.rankService = rankService;
     }
@@ -40,7 +37,7 @@ public class RankController {
 
     //상위 N명의 유저 조회 API
     @GetMapping("/top")
-    public Set<?> getTopUsers(@RequestParam(value = "size", defaultValue = "30") int size){
+    public List<?> getTopUsers(@RequestParam(value = "size", defaultValue = "30") int size){
         return rankService.getTopUsers(size);
     }
 
@@ -54,7 +51,7 @@ public class RankController {
     }
 
     @GetMapping("/surrounding")
-    public Set<?> getSurroundingUsers(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public List<?> getSurroundingUsers(@AuthenticationPrincipal CustomUserDetails userDetails,
                                       @RequestParam(value = "n", defaultValue = "5") int n) {
         return rankService.getSurroundingUsers(userDetails.getUserId(), n);
     }
