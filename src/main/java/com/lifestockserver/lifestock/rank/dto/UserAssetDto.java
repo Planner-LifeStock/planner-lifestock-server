@@ -10,4 +10,5 @@ import lombok.Setter;
 public class UserAssetDto {
     private Long userId;
     private Long totalAssets; //캐시에 필요한 정보
+    private String userRealName;
 }

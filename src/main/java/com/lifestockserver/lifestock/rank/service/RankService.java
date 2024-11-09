@@ -1,6 +1,7 @@
 package com.lifestockserver.lifestock.rank.service;
 
 import com.lifestockserver.lifestock.rank.dto.UserAssetDto;
+import com.lifestockserver.lifestock.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,11 +21,13 @@ public class RankService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ZSetOperations<String, Object> zSetOperations;
+    private final UserRepository userRepository;
 
     @Autowired
-    public RankService(RedisTemplate<String, Object> redisTemplate){
+    public RankService(RedisTemplate<String, Object> redisTemplate, UserRepository userRepository){
         this.redisTemplate = redisTemplate;
         this.zSetOperations = redisTemplate.opsForZSet();
+        this.userRepository = userRepository;
     }
 
     private final String KEY = "user:asset:ranking";
@@ -42,21 +45,32 @@ public class RankService {
         return zSetOperations.reverseRank(KEY, String.valueOf(userId));
     }
 
-    public  List<UserAssetDto> getTopUsers(int count){
+    public List<UserAssetDto> getTopUsers(int count) {
         Set<ZSetOperations.TypedTuple<Object>> topUsers = zSetOperations.reverseRangeWithScores(KEY, 0, count - 1);
 
-        return topUsers.stream().map(tuple -> UserAssetDto.builder()
-                .userId(Long.valueOf((String) tuple.getValue()))
-                .totalAssets(tuple.getScore().longValue())
-                .build()).collect(Collectors.toList());
+        return topUsers.stream().map(tuple -> {
+            Long userId = Long.valueOf((String) tuple.getValue());
+            Long totalAssets = tuple.getScore().longValue();
+
+            // userId를 통해 UserRepository에서 realName 조회
+            String realName = userRepository.findById(userId)
+                    .map(user -> user.getRealName())
+                    .orElse("Unknown"); // 실명이 없을 경우 기본값 설정
+
+            return UserAssetDto.builder()
+                    .userId(userId)
+                    .totalAssets(totalAssets)
+                    .userRealName(realName) // 실명 추가
+                    .build();
+        }).collect(Collectors.toList());
     }
+
 
     public Double getUserTotalAsset(Long userID){
         return zSetOperations.score(KEY, userID);
     }
 
-    // 페이지네이션 (UserAssetDto로 반환)
-    public Page<UserAssetDto> getTopUsersByPage(Pageable pageable){
+    public Page<UserAssetDto> getTopUsersByPage(Pageable pageable) {
         int start = (int)pageable.getOffset();
         int end = (start + pageable.getPageSize()) - 1;
 
@@ -64,34 +78,27 @@ public class RankService {
         long total = zSetOperations.zCard(KEY);
 
         List<UserAssetDto> userList = users.stream()
-                .map(tuple -> UserAssetDto.builder()
-                        .userId(Long.valueOf((String) tuple.getValue()))
-                        .totalAssets(tuple.getScore().longValue())
-                        .build())
+                .map(tuple -> {
+                    Long userId = Long.valueOf((String) tuple.getValue());
+                    Long totalAssets = tuple.getScore().longValue();
+                    // userId를 사용해 실명 조회
+                    String realName = userRepository.findById(userId)
+                            .map(user -> user.getRealName())
+                            .orElse("Unknown"); // 실명이 없을 경우 기본값 설정
+                    return UserAssetDto.builder()
+                            .userId(userId)
+                            .totalAssets(totalAssets)
+                            .userRealName(realName) // 실명 추가
+                            .build();
+                })
                 .collect(Collectors.toList());
 
         return new PageImpl<>(userList, pageable, total);
     }
 
-    /*
-    //현재 유저 기준으로 앞뒤 n명의 유저 반환
-    public Set<ZSetOperations.TypedTuple<Object>> getSurroundingUsers(Long userId, int n) {
-        Long rank = getUserRank(userId);
-        if(rank == null){
-            return Set.of();
-        }
-
-        int start = Math.max(0, rank.intValue() - n);
-        int end = rank.intValue() + n;
-
-        return zSetOperations.reverseRangeWithScores(KEY, start, end);
-    }
-     */
-
-    // 현재 유저 기준으로 앞뒤 n명의 유저 반환 (UserAssetDto로 반환)
     public List<UserAssetDto> getSurroundingUsers(Long userId, int n) {
         Long rank = getUserRank(userId);
-        if(rank == null){
+        if (rank == null) {
             return List.of();
         }
 
@@ -101,10 +108,22 @@ public class RankService {
         Set<ZSetOperations.TypedTuple<Object>> surroundingUsers = zSetOperations.reverseRangeWithScores(KEY, start, end);
 
         return surroundingUsers.stream()
-                .map(tuple -> UserAssetDto.builder()
-                        .userId(Long.valueOf((String) tuple.getValue()))
-                        .totalAssets(tuple.getScore().longValue())
-                        .build())
+                .map(tuple -> {
+                    Long surroundingUserId = Long.valueOf((String) tuple.getValue());
+                    Long totalAssets = tuple.getScore().longValue();
+
+                    // userId를 통해 UserRepository에서 realName 조회
+                    String realName = userRepository.findById(surroundingUserId)
+                            .map(user -> user.getRealName())
+                            .orElse("Unknown"); // 실명이 없을 경우 기본값 설정
+
+                    return UserAssetDto.builder()
+                            .userId(surroundingUserId)
+                            .totalAssets(totalAssets)
+                            .userRealName(realName) // 실명 추가
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
+
 }
