@@ -4,6 +4,8 @@ import com.lifestockserver.lifestock.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
@@ -158,6 +160,9 @@ public class CompanyService {
     } else if (status == CompanyStatus.UNLISTED) {
       // 미상장된 회사만 조회
       companies = companyRepository.findUnlistedCompaniesByUserId(userId);
+      if (companies.isEmpty()){
+        return Collections.emptyList();
+      }
     } else {
       // 모든 회사 조회
       companies = companyRepository.findAllByUserId(userId);
