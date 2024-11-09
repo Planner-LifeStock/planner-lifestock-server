@@ -41,7 +41,7 @@ public class DailyChartBatch {
      * 전날에 만들어진 DailyChart (날짜 a에 해당)의 id값을 가져와서 
      * dailyChartService.updateDailChart(DailyChart, Company, TodoService.countAllByCompanyAndDate(Company, a), TodoService.countCompletedByCompanyAndDate(Company, a))를 호출해줘.
      */
-    @Scheduled(cron = "0 55 20 * * *")
+    @Scheduled(cron = "0 59 23 * * *")
     public void executeDailyChartBatch() {
         LocalDate today = LocalDate.now();
 
