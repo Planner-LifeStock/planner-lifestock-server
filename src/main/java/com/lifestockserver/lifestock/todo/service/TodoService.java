@@ -135,8 +135,8 @@ public class TodoService {
 
     int latestConsecutiveCompletedCount = dailyChartService
       .findLatestConsecutiveCompletedCountByCompanyId(todo.getCompany().getId());
-    chartService.createChart(updatedTodo, 
-      LocalDate.now(), 
+    chartService.createChart(updatedTodo,
+      LocalDate.now(),
       latestConsecutiveCompletedCount);
   }
 

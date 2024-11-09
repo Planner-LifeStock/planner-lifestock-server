@@ -3,14 +3,13 @@ package com.lifestockserver.lifestock.company.service;
 import com.lifestockserver.lifestock.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import jakarta.persistence.EntityNotFoundException;
-
+import jakarta.persistence.EntityManager;
+import org.hibernate.Session;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
-
 import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.chart.service.ChartService;
 import com.lifestockserver.lifestock.company.repository.CompanyRepository;
@@ -28,9 +27,7 @@ import com.lifestockserver.lifestock.chart.domain.Chart;
 import com.lifestockserver.lifestock.chart.dto.ChartResponseDto;
 import com.lifestockserver.lifestock.file.dto.FileCreateDto;
 import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -44,14 +41,26 @@ public class CompanyService {
   private final UserRepository userRepository;
   private final FileService fileService;
   private final TodoService todoService;
+  private final EntityManager entityManager;
 
-  public CompanyService(ChartService chartService, CompanyRepository companyRepository, CompanyMapper companyMapper, UserRepository userRepository, FileService fileService, TodoService todoService) {
+  private void enableDeletedCompanyFilter() {
+    entityManager.unwrap(Session.class).enableFilter("deletedCompanyFilter");
+  }
+
+  public CompanyService(ChartService chartService,
+                        CompanyRepository companyRepository,
+                        CompanyMapper companyMapper,
+                        UserRepository userRepository,
+                        FileService fileService,
+                        TodoService todoService,
+                        EntityManager entityManager) {
     this.chartService = chartService;
     this.companyRepository = companyRepository;
     this.companyMapper = companyMapper;
     this.userRepository = userRepository;
     this.fileService = fileService;
     this.todoService = todoService;
+    this.entityManager = entityManager;
   }
 
   // file 저장은 따로 api 보내야만함
@@ -151,25 +160,25 @@ public class CompanyService {
   }
 
   public List<CompanyResponseDto> findAllByUserId(Long userId, CompanyStatus status) {
+    enableDeletedCompanyFilter();
     List<Company> companies;
     if (status == CompanyStatus.LISTED) {
       companies = companyRepository.findListedCompaniesByUserId(userId);
     } else if (status == CompanyStatus.UNLISTED) {
       companies = companyRepository.findUnlistedCompaniesByUserId(userId);
     } else {
-    companies = companyRepository.findAllByUserId(userId);  
+      companies = companyRepository.findAllByUserId(userId);
     }
 
-    List<CompanyResponseDto> companyResponseDtos = companies.stream()
-      .map(company -> {
-        Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(company.getId());
-        CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
-        companyResponseDto.setOpenStockPrice(chart.getOpen());
-        companyResponseDto.setCurrentStockPrice(chart.getClose());
-        return companyResponseDto;
-      })
-      .collect(Collectors.toList());
-    return companyResponseDtos;
+    return companies.stream()
+            .map(company -> {
+              Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(company.getId());
+              CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
+              companyResponseDto.setOpenStockPrice(chart.getOpen());
+              companyResponseDto.setCurrentStockPrice(chart.getClose());
+              return companyResponseDto;
+            })
+            .collect(Collectors.toList());
   }
 
   public CompanyResponseDto findById(Long id) {
@@ -189,8 +198,9 @@ public class CompanyService {
 
   @Transactional
   public void deleteCompany(Long companyId, CompanyDeleteDto companyDeleteDto) {
+    enableDeletedCompanyFilter();
     Company company = companyRepository.findById(companyId)
-      .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+            .orElseThrow(() -> new EntityNotFoundException("Company not found"));
 
     company.setDeletedAt(LocalDateTime.now());
     company.setDeletedReason(companyDeleteDto.getDeletedReason());
