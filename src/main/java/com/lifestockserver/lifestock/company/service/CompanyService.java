@@ -83,13 +83,12 @@ public class CompanyService {
     company.setLogo(savedLogo);
     
     Company savedCompany = companyRepository.save(company);
-    ChartResponseDto chart = chartService.createInitialChart(savedCompany, user, investmentAmount);
+    ChartResponseDto chart = chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
     Long currentStockPrice = chart.getClose();
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
     companyResponseDto.setOpenStockPrice(chart.getOpen());
 
-    // 위에서 investamount를 넣었는데 같은 테이블에 시작가를 넣으면 안 될 것입니다!!!
     //chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
     
     return companyResponseDto;
