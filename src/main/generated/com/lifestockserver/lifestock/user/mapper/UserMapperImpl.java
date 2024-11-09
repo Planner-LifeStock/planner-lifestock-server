@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-10-08T16:50:13+0900",
+    date = "2024-11-09T16:41:18+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.11 (Oracle Corporation)"
 )
 @Component
@@ -21,16 +21,16 @@ public class UserMapperImpl implements UserMapper {
             return null;
         }
 
-        User user = new User();
+        User.UserBuilder user = User.builder();
 
-        user.setUsername( userCreateDto.getUsername() );
-        user.setPassword( userCreateDto.getPassword() );
-        user.setRealName( userCreateDto.getRealName() );
-        user.setDisplayName( userCreateDto.getDisplayName() );
-        user.setEmail( userCreateDto.getEmail() );
-        user.setPhoneNumber( userCreateDto.getPhoneNumber() );
+        user.username( userCreateDto.getUsername() );
+        user.password( userCreateDto.getPassword() );
+        user.realName( userCreateDto.getRealName() );
+        user.displayName( userCreateDto.getDisplayName() );
+        user.email( userCreateDto.getEmail() );
+        user.phoneNumber( userCreateDto.getPhoneNumber() );
 
-        return user;
+        return user.build();
     }
 
     @Override
@@ -39,18 +39,19 @@ public class UserMapperImpl implements UserMapper {
             return null;
         }
 
-        UserResponseDto userResponseDto = new UserResponseDto();
+        UserResponseDto.UserResponseDtoBuilder userResponseDto = UserResponseDto.builder();
 
-        userResponseDto.setStatus( user.getStatus() );
-        userResponseDto.setId( user.getId() );
-        userResponseDto.setUsername( user.getUsername() );
-        userResponseDto.setRealName( user.getRealName() );
-        userResponseDto.setEmail( user.getEmail() );
-        userResponseDto.setDisplayName( user.getDisplayName() );
-        userResponseDto.setPhoneNumber( user.getPhoneNumber() );
-        userResponseDto.setRole( user.getRole() );
+        userResponseDto.status( user.getStatus() );
+        userResponseDto.id( user.getId() );
+        userResponseDto.username( user.getUsername() );
+        userResponseDto.realName( user.getRealName() );
+        userResponseDto.email( user.getEmail() );
+        userResponseDto.displayName( user.getDisplayName() );
+        userResponseDto.phoneNumber( user.getPhoneNumber() );
+        userResponseDto.role( user.getRole() );
+        userResponseDto.asset( user.getAsset() );
 
-        return userResponseDto;
+        return userResponseDto.build();
     }
 
     @Override

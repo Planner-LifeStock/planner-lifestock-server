@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 public class CompanyMapper {
 
     public Company toEntity(CompanyCreateDto dto) {
-
         return Company.builder()
                 .user(dto.getUser())
                 .name(dto.getName())
@@ -20,7 +19,6 @@ public class CompanyMapper {
                 .leastOperatePeriod(dto.getLeastOperatePeriod())
                 .initialStockPrice(dto.getInitialStockPrice())
                 .initialStockQuantity(dto.getInitialStockQuantity())
-                // .logo(dto.getLogo()) logo는 따로 설정해야한다.
                 .build();
     }
 
@@ -36,14 +34,16 @@ public class CompanyMapper {
                 .listedDate(company.getListedDate())
                 .investmentAmount(company.getInvestmentAmount())
                 .initialStockPrice(company.getInitialStockPrice())
+                .initialStockQuantity(company.getInitialStockQuantity())
                 .listedStockPrice(company.getListedStockPrice())
+                .createdAt(company.getCreatedAt())
                 .logo(FileResponseDto.builder()
-                    .originalName(logo == null ? null : logo.getOriginalName())
-                    .mimeType(logo == null ? null : logo.getMimeType())
-                    .size(logo == null ? null : logo.getSize())
-                    .meta(logo == null ? null : logo.getMeta())
-                    .url(logo == null ? null : logo.getUrl())
-                    .build())
+                        .originalName(logo == null ? null : logo.getOriginalName())
+                        .mimeType(logo == null ? null : logo.getMimeType())
+                        .size(logo == null ? null : logo.getSize())
+                        .meta(logo == null ? null : logo.getMeta())
+                        .url(logo == null ? null : logo.getUrl())
+                        .build())
                 .build();
     }
 }
