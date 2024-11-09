@@ -153,14 +153,17 @@ public class CompanyService {
   public List<CompanyResponseDto> findAllByUserId(Long userId, CompanyStatus status) {
     List<Company> companies;
     if (status == CompanyStatus.LISTED) {
+      // 상장된 회사만 조회
       companies = companyRepository.findListedCompaniesByUserId(userId);
     } else if (status == CompanyStatus.UNLISTED) {
+      // 미상장된 회사만 조회
       companies = companyRepository.findUnlistedCompaniesByUserId(userId);
     } else {
+      // 모든 회사 조회
       companies = companyRepository.findAllByUserId(userId);
     }
 
-    List<CompanyResponseDto> companyResponseDtos = companies.stream()
+    return companies.stream()
             .map(company -> {
               Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(company.getId());
               CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
@@ -169,9 +172,7 @@ public class CompanyService {
               return companyResponseDto;
             })
             .collect(Collectors.toList());
-    return companyResponseDtos;
   }
-
 
   public CompanyResponseDto findById(Long id) {
     Company company = companyRepository.findById(id)
