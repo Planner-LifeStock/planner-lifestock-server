@@ -4,8 +4,6 @@ import com.lifestockserver.lifestock.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.EntityManager;
-import org.hibernate.Session;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
@@ -41,26 +39,19 @@ public class CompanyService {
   private final UserRepository userRepository;
   private final FileService fileService;
   private final TodoService todoService;
-  private final EntityManager entityManager;
-
-  private void enableDeletedCompanyFilter() {
-    entityManager.unwrap(Session.class).enableFilter("deletedCompanyFilter");
-  }
 
   public CompanyService(ChartService chartService,
                         CompanyRepository companyRepository,
                         CompanyMapper companyMapper,
                         UserRepository userRepository,
                         FileService fileService,
-                        TodoService todoService,
-                        EntityManager entityManager) {
+                        TodoService todoService) {
     this.chartService = chartService;
     this.companyRepository = companyRepository;
     this.companyMapper = companyMapper;
     this.userRepository = userRepository;
     this.fileService = fileService;
     this.todoService = todoService;
-    this.entityManager = entityManager;
   }
 
   // file 저장은 따로 api 보내야만함
@@ -160,7 +151,6 @@ public class CompanyService {
   }
 
   public List<CompanyResponseDto> findAllByUserId(Long userId, CompanyStatus status) {
-    enableDeletedCompanyFilter();
     List<Company> companies;
     if (status == CompanyStatus.LISTED) {
       companies = companyRepository.findListedCompaniesByUserId(userId);
@@ -170,7 +160,7 @@ public class CompanyService {
       companies = companyRepository.findAllByUserId(userId);
     }
 
-    return companies.stream()
+    List<CompanyResponseDto> companyResponseDtos = companies.stream()
             .map(company -> {
               Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(company.getId());
               CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
@@ -179,7 +169,9 @@ public class CompanyService {
               return companyResponseDto;
             })
             .collect(Collectors.toList());
+    return companyResponseDtos;
   }
+
 
   public CompanyResponseDto findById(Long id) {
     Company company = companyRepository.findById(id)
@@ -198,7 +190,6 @@ public class CompanyService {
 
   @Transactional
   public void deleteCompany(Long companyId, CompanyDeleteDto companyDeleteDto) {
-    enableDeletedCompanyFilter();
     Company company = companyRepository.findById(companyId)
             .orElseThrow(() -> new EntityNotFoundException("Company not found"));
 
