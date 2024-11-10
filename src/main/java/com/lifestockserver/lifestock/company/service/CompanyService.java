@@ -89,8 +89,6 @@ public class CompanyService {
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
     companyResponseDto.setOpenStockPrice(chart.getOpen());
 
-    //chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
-    
     return companyResponseDto;
   }
 
