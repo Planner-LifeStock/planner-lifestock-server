@@ -46,16 +46,16 @@ public interface ChartRepository extends JpaRepository<Chart, Long> {
        @Param("month") int month
        );
 
-       @Query("SELECT c FROM Chart c " +
-       "JOIN (SELECT c2.company.id as companyId, MAX(c2.date) as maxDate " +
-       "      FROM Chart c2 " +
-       "      WHERE c2.user.id = :userId " +
-       "      GROUP BY c2.company.id, FUNCTION('DATE', c2.date)) latestDates " +
-       "ON c.company.id = latestDates.companyId " +
-       "AND c.date = latestDates.maxDate " +
-       "WHERE c.user.id = :userId " +
-       "ORDER BY c.company.id, c.date DESC")
-       List<Chart> findLatestChartsByUserIdGroupedByCompany(@Param("userId") Long userId);
+    @Query("SELECT c FROM Chart c " +
+            "JOIN (SELECT c2.company.id as companyId, MAX(c2.date) as maxDate " +
+            "      FROM Chart c2 " +
+            "      WHERE c2.user.id = :userId " +
+            "      GROUP BY c2.company.id, FUNCTION('DATE', c2.date)) latestDates " +
+            "ON c.company.id = latestDates.companyId " +
+            "AND c.date = latestDates.maxDate " +
+            "WHERE c.user.id = :userId " +
+            "ORDER BY c.company.id, c.createdAt DESC")
+    List<Chart> findLatestChartsByUserIdGroupedByCompany(@Param("userId") Long userId);
 
        @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId ORDER BY c.date DESC LIMIT 1")
        Chart findLatestByCompanyId(@Param("companyId") Long companyId);
