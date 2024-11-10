@@ -14,8 +14,8 @@ import java.time.LocalDate;
 @Repository
 public interface ChartRepository extends JpaRepository<Chart, Long> {
     @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId " +
-           "AND c.isAfterMarketOpen = true " +
-           "ORDER BY c.date DESC LIMIT 1")
+            "AND c.isAfterMarketOpen = true " +
+            "ORDER BY c.createdAt DESC LIMIT 1")
     Optional<Chart> findLatestAfterMarketOpenChartByCompanyId(@Param("companyId") Long companyId);
 
        @Query("SELECT c FROM Chart c " +
