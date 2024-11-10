@@ -57,8 +57,8 @@ public interface ChartRepository extends JpaRepository<Chart, Long> {
             "ORDER BY c.company.id, c.createdAt DESC")
     List<Chart> findLatestChartsByUserIdGroupedByCompany(@Param("userId") Long userId);
 
-       @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId ORDER BY c.date DESC LIMIT 1")
-       Chart findLatestByCompanyId(@Param("companyId") Long companyId);
+    @Query("SELECT c FROM Chart c WHERE c.company.id = :companyId ORDER BY c.createdAt DESC LIMIT 1")
+        Chart findLatestByCompanyId(@Param("companyId") Long companyId);
 
        int countByCompanyId(Long companyId);
 
