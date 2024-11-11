@@ -74,6 +74,7 @@ public class ChartService {
         log.info("created daily initial chart close: {}", chart.getClose());
         chartRepository.save(chart);
     }
+    //.close((long) (latestChart.getClose() * (1 + (Math.random() * 0.5 - 0.25))))
 
     @Transactional
     public Chart createChart(Company company, Chart latestChart, LocalDate date, Long calculatedClose, boolean isAfterMarketOpen) {
