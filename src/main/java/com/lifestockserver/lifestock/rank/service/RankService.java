@@ -42,7 +42,11 @@ public class RankService {
 
     // 특정 유저의 순위 조회
     public Long getUserRank(Long userId){
-        return zSetOperations.reverseRank(KEY, String.valueOf(userId));
+        Long rank = zSetOperations.reverseRank(KEY, String.valueOf(userId));
+        if(rank == null){
+            return -1L;
+        }
+        return rank;
     }
 
     public List<UserAssetDto> getTopUsers(int count) {
