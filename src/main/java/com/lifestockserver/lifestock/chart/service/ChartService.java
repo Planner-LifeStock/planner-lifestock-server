@@ -69,7 +69,7 @@ public class ChartService {
             .open(latestChart.getClose())
             .high(latestChart.getClose())
             .low(latestChart.getClose())
-            .close((long) (latestChart.getClose() * (1 + (Math.random() * 0.5 - 0.25))))
+            .close((long) (latestChart.getClose() * (1 + (Math.random() * 0.1 - 0.05))))
             .build();
         log.info("created daily initial chart close: {}", chart.getClose());
         chartRepository.save(chart);
