@@ -237,8 +237,15 @@ public class ChartService {
 
     public Long getTotalStockPriceByUserId(Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userId));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userId));
 
-        return chartRepository.getTotalStockPriceByUserId(user.getId()) + user.getAsset();
+        Long totalStockPrice = chartRepository.getTotalStockPriceByUserId(user.getId());
+        Long userAsset = user.getAsset();
+
+        // null 값을 0L로 대체하여 계산
+        totalStockPrice = (totalStockPrice != null) ? totalStockPrice : 0L;
+        userAsset = (userAsset != null) ? userAsset : 0L;
+
+        return totalStockPrice + userAsset;
     }
 }

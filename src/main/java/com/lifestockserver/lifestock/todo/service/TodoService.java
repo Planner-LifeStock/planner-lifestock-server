@@ -88,8 +88,8 @@ public class TodoService {
     }
 
     // startDate부터 endDate까지 반복하여 todo 생성
-    LocalDate date = todoCreateDto.getStartDate();
-    LocalDate endDate = todoCreateDto.getEndDate().plusDays(1);
+    LocalDate date = todoCreateDto.getStartDate().plusDays(1); //어디선가에서 -1이 들어가게되는데 뭘까요..
+    LocalDate endDate = todoCreateDto.getEndDate().plusDays(2); //그래서 여기도 2 추가하는게 맞더라구요
     while (date.isBefore(endDate)) {
       if (!todoCreateDto.getDays().contains(date.getDayOfWeek())) {
         date = date.plusDays(1);
@@ -135,8 +135,8 @@ public class TodoService {
 
     int latestConsecutiveCompletedCount = dailyChartService
       .findLatestConsecutiveCompletedCountByCompanyId(todo.getCompany().getId());
-    chartService.createChart(updatedTodo, 
-      LocalDate.now(), 
+    chartService.createChart(updatedTodo,
+      LocalDate.now(),
       latestConsecutiveCompletedCount);
   }
 
