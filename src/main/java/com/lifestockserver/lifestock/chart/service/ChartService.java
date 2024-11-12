@@ -61,7 +61,7 @@ public class ChartService {
     }
 
     @Transactional
-    public void createDailyInitialChart(Company company, Chart latestChart, LocalDate date) {
+    public Chart createDailyInitialChart(Company company, Chart latestChart, LocalDate date) {
         long randPrice = (long) (latestChart.getClose() * (0.95 + (Math.random() * 0.1)));
         Chart chart = Chart.builder()
             .company(company)
@@ -71,23 +71,24 @@ public class ChartService {
             .high(randPrice)
             .low(randPrice)
             .close(randPrice)
+            .isAfterMarketOpen(false)
             .build();
         log.info("created daily initial chart close: {}", chart.getClose());
-        chartRepository.save(chart);
+        return chartRepository.save(chart);
     }
 
     @Transactional
     public Chart createChart(Company company, Chart latestChart, LocalDate date, Long calculatedClose, boolean isAfterMarketOpen) {
         Chart chart = Chart.builder()
-            .company(company)
-            .user(latestChart.getUser())
-            .open(latestChart.getClose())
-            .high(latestChart.getClose())
-            .low(latestChart.getClose())
-            .close(calculatedClose)
-            .date(date)
-            .isAfterMarketOpen(isAfterMarketOpen)
-            .build();
+                .company(company)
+                .user(latestChart.getUser())
+                .open(latestChart.getOpen())
+                .high(latestChart.getHigh())
+                .low(latestChart.getLow())
+                .close(calculatedClose)
+                .date(date)
+                .isAfterMarketOpen(isAfterMarketOpen)
+                .build();
         return chartRepository.save(chart);
     }
 
@@ -107,10 +108,7 @@ public class ChartService {
 
         log.info("consecutive completed count: {}", consecutiveCompletedCount);
         Chart latestChart = findLatestByCompanyId(company.getId());
-        if (latestChart.getDate().isBefore(date)
-            || latestChart.isAfterMarketOpen() == false) {
-            createDailyInitialChart(company, latestChart, date);
-        }
+
         int dailyCompletedTodoCount = countCompletedByCompanyIdAndDate(todo.getCompany().getId(), date);
         Long calculatedClose = calculateChartClose(
             todo.isCompleted(), 
