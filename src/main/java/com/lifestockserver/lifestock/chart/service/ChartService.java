@@ -62,14 +62,15 @@ public class ChartService {
 
     @Transactional
     public void createDailyInitialChart(Company company, Chart latestChart, LocalDate date) {
+        long randPrice = (long) (latestChart.getClose() * (0.95 + (Math.random() * 0.1)));
         Chart chart = Chart.builder()
             .company(company)
             .user(latestChart.getUser())
             .date(date)
-            .open(latestChart.getClose())
-            .high(latestChart.getClose())
-            .low(latestChart.getClose())
-            .close((long) (latestChart.getClose() * (1 + (Math.random() * 0.1 - 0.05))))
+            .open(randPrice)
+            .high(randPrice)
+            .low(randPrice)
+            .close(randPrice)
             .build();
         log.info("created daily initial chart close: {}", chart.getClose());
         chartRepository.save(chart);
@@ -207,6 +208,7 @@ public class ChartService {
         if (company.getUser().getId() - userId != 0) {
             throw new IllegalArgumentException("company user id is invalid:" + userId);
         }
+
         List<Chart> charts = chartRepository.findLatestAfterMarketOpenChartListByCompanyIdAndYearMonth(companyId, year, month);
         log.info("charts size: {}", charts.size());
         log.info("charts: {}", charts);
