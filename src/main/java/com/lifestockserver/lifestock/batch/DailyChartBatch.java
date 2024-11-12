@@ -114,7 +114,8 @@ public class DailyChartBatch {
                 dailyChartService.save(dailyChart);
 
                 // 매일 새로운 initial chart 생성
-                chartService.createDailyInitialChart(company, latestChart, today.plusDays(1));
+                Chart newInitialChart = chartService.createDailyInitialChart(company, latestChart, today.plusDays(1));
+                chartService.createChart(company, newInitialChart, today.plusDays(1), newInitialChart.getClose(), true);
             });
     }
 }
