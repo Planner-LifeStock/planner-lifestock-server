@@ -6,6 +6,8 @@ import com.lifestockserver.lifestock.user.dto.UserResponseDto;
 import com.lifestockserver.lifestock.user.dto.UserUpdateDto;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
+import com.lifestockserver.lifestock.user.domain.UserStatus;
+import com.lifestockserver.lifestock.user.domain.UserRole;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
@@ -21,14 +23,13 @@ public class UserMapperImpl implements UserMapper {
             return null;
         }
 
-        User.UserBuilder user = User.builder();
-
-        user.username( userCreateDto.getUsername() );
-        user.password( userCreateDto.getPassword() );
-        user.realName( userCreateDto.getRealName() );
-        user.displayName( userCreateDto.getDisplayName() );
-        user.email( userCreateDto.getEmail() );
-        user.phoneNumber( userCreateDto.getPhoneNumber() );
+        User.UserBuilder user = User.builder()
+            .username(userCreateDto.getUsername())
+            .password(userCreateDto.getPassword())
+            .realName(userCreateDto.getRealName())
+            .displayName(userCreateDto.getDisplayName())
+            .email(userCreateDto.getEmail())
+            .phoneNumber(userCreateDto.getPhoneNumber());
 
         return user.build();
     }
@@ -39,17 +40,16 @@ public class UserMapperImpl implements UserMapper {
             return null;
         }
 
-        UserResponseDto.UserResponseDtoBuilder userResponseDto = UserResponseDto.builder();
-
-        userResponseDto.status( user.getStatus() );
-        userResponseDto.id( user.getId() );
-        userResponseDto.username( user.getUsername() );
-        userResponseDto.realName( user.getRealName() );
-        userResponseDto.email( user.getEmail() );
-        userResponseDto.displayName( user.getDisplayName() );
-        userResponseDto.phoneNumber( user.getPhoneNumber() );
-        userResponseDto.role( user.getRole() );
-        userResponseDto.asset( user.getAsset() );
+        UserResponseDto.UserResponseDtoBuilder userResponseDto = UserResponseDto.builder()
+            .status(user.getStatus())
+            .id(user.getId())
+            .username(user.getUsername())
+            .realName(user.getRealName())
+            .email(user.getEmail())
+            .displayName(user.getDisplayName())
+            .phoneNumber(user.getPhoneNumber())
+            .role(user.getRole())
+            .asset(user.getAsset());
 
         return userResponseDto.build();
     }
