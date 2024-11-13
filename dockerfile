@@ -1,8 +1,5 @@
 # Base Image
-FROM bellsoft/liberica-openjdk-slim:17
-
-# Gradle 빌드 명령어
-CMD ["./gradlew", "clean", "build"]
+FROM openjdk:17-alpine
 
 # 임시 디렉토리 설정
 VOLUME /tmp
@@ -11,7 +8,7 @@ VOLUME /tmp
 WORKDIR /app
 
 # JAR 파일 경로 설정
-ARG JAR_FILE_PATH=build/libs/lifestock-0.0.1-SNAPSHOT.jar
+ARG JAR_FILE_PATH=build/libs/*SNAPSHOT.jar
 
 # app.jar라는 이름으로 컨테이너에 추가
 COPY ${JAR_FILE_PATH} app.jar

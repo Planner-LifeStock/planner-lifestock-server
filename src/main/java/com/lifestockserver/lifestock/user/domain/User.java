@@ -54,12 +54,14 @@ public class User extends Base {
     private Long asset = 100000000L;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     @Column(name = "status", nullable = false)
-    private UserStatus status;
+    private UserStatus status = UserStatus.ACTIVE;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     @Column(name = "role", nullable = false)
-    private UserRole role;
+    private UserRole role = UserRole.USER;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
