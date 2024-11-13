@@ -3,14 +3,13 @@ package com.lifestockserver.lifestock.company.service;
 import com.lifestockserver.lifestock.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
-
 import com.lifestockserver.lifestock.company.domain.Company;
 import com.lifestockserver.lifestock.chart.service.ChartService;
 import com.lifestockserver.lifestock.company.repository.CompanyRepository;
@@ -25,11 +24,10 @@ import com.lifestockserver.lifestock.file.domain.File;
 import com.lifestockserver.lifestock.company.domain.enums.CompanyStatus;
 import com.lifestockserver.lifestock.todo.service.TodoService;
 import com.lifestockserver.lifestock.chart.domain.Chart;
+import com.lifestockserver.lifestock.chart.dto.ChartResponseDto;
 import com.lifestockserver.lifestock.file.dto.FileCreateDto;
 import com.lifestockserver.lifestock.common.domain.enums.FileFolder;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -44,7 +42,12 @@ public class CompanyService {
   private final FileService fileService;
   private final TodoService todoService;
 
-  public CompanyService(ChartService chartService, CompanyRepository companyRepository, CompanyMapper companyMapper, UserRepository userRepository, FileService fileService, TodoService todoService) {
+  public CompanyService(ChartService chartService,
+                        CompanyRepository companyRepository,
+                        CompanyMapper companyMapper,
+                        UserRepository userRepository,
+                        FileService fileService,
+                        TodoService todoService) {
     this.chartService = chartService;
     this.companyRepository = companyRepository;
     this.companyMapper = companyMapper;
@@ -74,20 +77,18 @@ public class CompanyService {
       throw new IllegalArgumentException("User does not have enough asset");
     }
     user.setAsset(user.getAsset() - investmentAmount < 100000 ? 100000 : user.getAsset() - investmentAmount);
-
+    
     Company company = companyMapper.toEntity(companyCreateDto);
-
+    
     company.setLogo(savedLogo);
-
+    
     Company savedCompany = companyRepository.save(company);
-    Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(savedCompany.getId());
+    ChartResponseDto chart = chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
     Long currentStockPrice = chart.getClose();
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
     companyResponseDto.setOpenStockPrice(chart.getOpen());
 
-    chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
-    
     return companyResponseDto;
   }
 
@@ -152,23 +153,25 @@ public class CompanyService {
   public List<CompanyResponseDto> findAllByUserId(Long userId, CompanyStatus status) {
     List<Company> companies;
     if (status == CompanyStatus.LISTED) {
+      // 상장된 회사만 조회
       companies = companyRepository.findListedCompaniesByUserId(userId);
     } else if (status == CompanyStatus.UNLISTED) {
+      // 미상장된 회사만 조회
       companies = companyRepository.findUnlistedCompaniesByUserId(userId);
     } else {
-    companies = companyRepository.findAllByUserId(userId);  
+      // 모든 회사 조회
+      companies = companyRepository.findAllByUserId(userId);
     }
 
-    List<CompanyResponseDto> companyResponseDtos = companies.stream()
-      .map(company -> {
-        Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(company.getId());
-        CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
-        companyResponseDto.setOpenStockPrice(chart.getOpen());
-        companyResponseDto.setCurrentStockPrice(chart.getClose());
-        return companyResponseDto;
-      })
-      .collect(Collectors.toList());
-    return companyResponseDtos;
+    return companies.stream()
+            .map(company -> {
+              Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(company.getId());
+              CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
+              companyResponseDto.setOpenStockPrice(chart.getOpen());
+              companyResponseDto.setCurrentStockPrice(chart.getClose());
+              return companyResponseDto;
+            })
+            .collect(Collectors.toList());
   }
 
   public CompanyResponseDto findById(Long id) {
@@ -189,7 +192,7 @@ public class CompanyService {
   @Transactional
   public void deleteCompany(Long companyId, CompanyDeleteDto companyDeleteDto) {
     Company company = companyRepository.findById(companyId)
-      .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+            .orElseThrow(() -> new EntityNotFoundException("Company not found"));
 
     company.setDeletedAt(LocalDateTime.now());
     company.setDeletedReason(companyDeleteDto.getDeletedReason());

@@ -1,78 +1,94 @@
-/*
-package com.lifestockserver.lifestock;
-
-import com.lifestockserver.lifestock.company.domain.Company;
-import com.lifestockserver.lifestock.company.domain.enums.CompanyLevel;
-import com.lifestockserver.lifestock.company.domain.enums.CompanyLeastOperatePeriod;
-import com.lifestockserver.lifestock.company.repository.CompanyRepository;
-import com.lifestockserver.lifestock.chart.domain.Chart;
-import com.lifestockserver.lifestock.chart.repository.ChartRepository;
-import com.lifestockserver.lifestock.user.domain.User;
-import com.lifestockserver.lifestock.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Random;
-
-@Component
-@RequiredArgsConstructor
-public class DataInitializer implements CommandLineRunner {
-
-    private final CompanyRepository companyRepository;
-    private final ChartRepository chartRepository;
-    private final UserRepository userRepository;
-
-    @Override
-    public void run(String... args) throws Exception {
-        if (companyRepository.count() < 10) {
-            // 더미 User를 가져옴
-            List<User> users = userRepository.findAll();
-            Random random = new Random();
-
-            for (int i = 1; i <= 10; i++) {
-                // User 중 랜덤으로 선택
-                User user = users.get(random.nextInt(users.size()));
-
-                // Company 엔티티 생성
-                Company company = Company.builder()
-                        .user(user)
-                        .name("Company " + i)
-                        .description("Description for company " + i)
-                        .level(CompanyLevel.values()[random.nextInt(CompanyLevel.values().length)])
-                        .leastOperatePeriod(CompanyLeastOperatePeriod.values()[random.nextInt(CompanyLeastOperatePeriod.values().length)])
-                        .investmentAmount((long) (random.nextInt(10000) + 1000))
-                        .initialStockPrice((long) (random.nextInt(500) + 100))
-                        .initialStockQuantity((long) (random.nextInt(1000) + 100))
-                        .listedDate(LocalDate.now().minusDays(random.nextInt(365)))
-                        .build();
-
-                // Company 저장
-                Company savedCompany = companyRepository.save(company);
-
-                // Chart 데이터 생성
-                for (int j = 0; j < 100; j++) {
-                    Chart chart = Chart.builder()
-                            .company(savedCompany)
-                            .user(user)
-                            .open((long) (random.nextInt(500) + 100))
-                            .high((long) (random.nextInt(600) + 100))
-                            .low((long) (random.nextInt(400) + 100))
-                            .close((long) (random.nextInt(500) + 100))
-                            .date(LocalDateTime.now().minusDays(j))
-                            .isAfterMarketOpen(true)
-                            .build();
-
-                    chartRepository.save(chart);
-                }
-            }
-            System.out.println("Company와 Chart 더미 데이터 생성 완료");
-        } else {
-            System.out.println("이미 데이터가 존재합니다.");
-        }
-    }
-}
-*/
+//package com.lifestockserver.lifestock;
+//
+//import com.lifestockserver.lifestock.chart.domain.Chart;
+//import com.lifestockserver.lifestock.chart.repository.ChartRepository;
+//import com.lifestockserver.lifestock.company.domain.Company;
+//import com.lifestockserver.lifestock.company.repository.CompanyRepository;
+//import com.lifestockserver.lifestock.todo.domain.Todo;
+//import com.lifestockserver.lifestock.todo.repository.TodoRepository;
+//import com.lifestockserver.lifestock.user.domain.User;
+//import com.lifestockserver.lifestock.user.repository.UserRepository;
+//import lombok.RequiredArgsConstructor;
+//import org.springframework.boot.CommandLineRunner;
+//import org.springframework.stereotype.Component;
+//
+//import java.time.LocalDate;
+//import java.util.ArrayList;
+//import java.util.Collections;
+//import java.util.List;
+//import java.util.Optional;
+//
+//@Component
+//@RequiredArgsConstructor
+//public class DataInitializer implements CommandLineRunner {
+//
+//    private final ChartRepository chartRepository;
+//    private final CompanyRepository companyRepository;
+//    private final UserRepository userRepository;
+//    private final TodoRepository todoRepository;
+//
+//    @Override
+//    public void run(String... args) throws Exception {
+//        Long companyId = 36L;
+//        Long userId = 139L;
+//        List<Integer> todoIds = new ArrayList<>(List.of(460, 461, 462, 463, 464, 465, 466, 467, 468));
+//
+//        // 필요한 개수만큼 todoIds를 확장하여 총 15개로 만듭니다.
+//        while (todoIds.size() < 15) {
+//            todoIds.addAll(List.of(460, 461, 462, 463, 464, 465, 466, 467, 468));
+//        }
+//        todoIds = todoIds.subList(0, 15);
+//
+//        // 무작위 셔플
+//        Collections.shuffle(todoIds);
+//
+//        Optional<Company> optionalCompany = companyRepository.findById(companyId);
+//        Optional<User> optionalUser = userRepository.findById(userId);
+//
+//        if (optionalCompany.isPresent() && optionalUser.isPresent()) {
+//            Company company = optionalCompany.get();
+//            User user = optionalUser.get();
+//
+//            for (int i = 0; i < 15; i++) {
+//                LocalDate date = LocalDate.of(2023, 10, 1).plusDays(i);
+//                long high = (long) (Math.random() * 5000);
+//                long low = (long) (Math.random() * high);
+//                long open = (i % 2 == 0) ? high : low;
+//                boolean isAfterMarketOpen = i == 14;
+//
+//                int todoIdValue = todoIds.get(i);
+//                Optional<Todo> optionalTodo = todoRepository.findById((long) todoIdValue);
+//
+//                // 중복 확인: 동일한 날짜와 Todo 조합이 존재하면 건너뜁니다.
+//                if (optionalTodo.isPresent()) {
+//                    Todo todo = optionalTodo.get();
+//
+//                    // 존재 여부 확인
+//                    boolean exists = chartRepository.existsByDateAndTodoAndCompanyAndUser(date, todo, company, user);
+//
+//                    if (!exists) {
+//                        Chart chart = Chart.builder()
+//                                .company(company)
+//                                .user(user)
+//                                .open(open)
+//                                .high(high)
+//                                .low(low)
+//                                .close(open)
+//                                .date(date)
+//                                .isAfterMarketOpen(isAfterMarketOpen)
+//                                .todo(todo)
+//                                .build();
+//
+//                        chartRepository.save(chart);
+//                    } else {
+//                        System.out.printf("중복된 데이터 건너뜀: 날짜 %s, Todo ID %d 조합%n", date, todoIdValue);
+//                    }
+//                }
+//            }
+//
+//            System.out.println("Custom Chart 데이터 생성 완료");
+//        } else {
+//            System.out.println("지정한 Company 또는 User를 찾을 수 없습니다.");
+//        }
+//    }
+//}
