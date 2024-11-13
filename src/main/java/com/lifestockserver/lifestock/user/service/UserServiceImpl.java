@@ -89,7 +89,10 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         User user = findUserByIdOrThrow(id);
 
-        userMapper.updateEntityFromDto(userUpdateDto, user);
+        user.setRealName(userUpdateDto.getRealName());
+        user.setDisplayName(userUpdateDto.getDisplayName());
+        user.setEmail(userUpdateDto.getEmail());
+        user.setPhoneNumber(userUpdateDto.getPhoneNumber());
 
         return toResponseDto(userRepository.save(user));
     }

@@ -63,10 +63,10 @@ public class DailyChartBatch {
                 if (completedCount == 0) {
                     isDailyCompleted = false;
                     // 주가 하락: 1 - 0.05 * 회사 가중치
-                    latestChart = chartService.createChart(company, latestChart, today, (long)(latestChart.getClose() * (1 - 0.05 * CompanyLevel.getWeight(company.getLevel()))), false);
+                    latestChart = chartService.createChart(company, latestChart, today, (long)(latestChart.getClose() * (1 - 0.05 * CompanyLevel.getWeight(company.getLevel()))), true);
                 } else if (todoCount >= 3 && todoCount == completedCount) {
                     // 주가 상승: 1.1
-                    latestChart = chartService.createChart(company, latestChart, today, (long)(latestChart.getClose() * 1.1), false);
+                    latestChart = chartService.createChart(company, latestChart, today, (long)(latestChart.getClose() * 1.1), true);
                 }
 
                 // 연속 완료 횟수
@@ -90,10 +90,10 @@ public class DailyChartBatch {
                 if (isWeeklyDone) {
                     if (CompanyLevel.getTodoCount(company.getLevel()) > weeklyCompletedCount) {
                         // 주가 하락
-                        latestChart = chartService.createChart(company, latestChart, today, (long)(latestChart.getClose() * (1 - 0.1 * CompanyLevel.getWeight(company.getLevel()))), false);
+                        latestChart = chartService.createChart(company, latestChart, today, (long)(latestChart.getClose() * (1 - 0.1 * CompanyLevel.getWeight(company.getLevel()))), true);
                     } else {
                         // 주가 상승
-                        latestChart = chartService.createChart(company, latestChart, today, (long)(latestChart.getClose() * (1 + 0.1 * CompanyLevel.getWeight(company.getLevel()))), false);
+                        latestChart = chartService.createChart(company, latestChart, today, (long)(latestChart.getClose() * (1 + 0.1 * CompanyLevel.getWeight(company.getLevel()))), true);
                     }
                     weeklyCompletedCount = 0;
                 }
@@ -114,7 +114,8 @@ public class DailyChartBatch {
                 dailyChartService.save(dailyChart);
 
                 // 매일 새로운 initial chart 생성
-                chartService.createDailyInitialChart(company, latestChart, today.plusDays(1));
+                Chart newInitialChart = chartService.createDailyInitialChart(company, latestChart, today.plusDays(1));
+                chartService.createChart(company, newInitialChart, today.plusDays(1), newInitialChart.getClose(), true);
             });
     }
 }
