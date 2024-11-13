@@ -51,7 +51,7 @@ public class User extends Base {
 
     @Column(nullable = false)
     @Builder.Default
-    private Long asset = 100000000L;
+    private Long asset = 10000000L;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

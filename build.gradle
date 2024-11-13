@@ -17,6 +17,9 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	all {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
 }
 
 repositories {
@@ -49,7 +52,30 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'jakarta.inject:jakarta.inject-api:2.0.1'
 	implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.3.1.RELEASE'// Redis
+	//batch 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	implementation 'org.springframework.boot:spring-boot-starter-quartz'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework:spring-context-support'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'redis.clients:jedis'
+
+
 }
+
+task executeBatchSchema(type: Exec) {
+	def dbUser = 'yourUsername' // DB 사용자 이름
+	def dbPassword = 'yourPassword' // DB 비밀번호
+	def dbName = 'lifestock' // 데이터베이스 이름
+	def dbHost = 'localhost' // 데이터베이스 호스트
+	def sqlFile = file('src/main/resources/db/schema-mysql.sql') // SQL 파일 경로
+
+	commandLine 'mysql', '-u', dbUser, '-p' + dbPassword, '-h', dbHost, dbName, '<', sqlFile.absolutePath
+}
+
+
 
 tasks.named('test') {
 	useJUnitPlatform()
