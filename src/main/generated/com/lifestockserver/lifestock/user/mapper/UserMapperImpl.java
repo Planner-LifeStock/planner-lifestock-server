@@ -53,16 +53,4 @@ public class UserMapperImpl implements UserMapper {
 
         return userResponseDto.build();
     }
-
-    @Override
-    public void updateEntityFromDto(UserUpdateDto userUpdateDto, User user) {
-        if ( userUpdateDto == null ) {
-            return;
-        }
-
-        user.setRealName( userUpdateDto.getRealName() );
-        user.setDisplayName( userUpdateDto.getDisplayName() );
-        user.setEmail( userUpdateDto.getEmail() );
-        user.setPhoneNumber( userUpdateDto.getPhoneNumber() );
-    }
 }
