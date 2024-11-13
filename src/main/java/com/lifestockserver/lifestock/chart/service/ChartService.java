@@ -71,7 +71,7 @@ public class ChartService {
             .high(randPrice)
             .low(randPrice)
             .close(randPrice)
-            .isAfterMarketOpen(false)
+            .isAfterMarketOpen(true)
             .build();
         log.info("created daily initial chart close: {}", chart.getClose());
         return chartRepository.save(chart);
