@@ -25,7 +25,7 @@ public class DailyChartBatch {
         CompanyService companyService, 
         ChartService chartService, 
         TodoService todoService) {
-        this.dailyChartService = dailyChartService; 
+        this.dailyChartService = dailyChartService;
         this.companyService = companyService;
         this.chartService = chartService;
         this.todoService = todoService;
