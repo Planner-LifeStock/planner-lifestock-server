@@ -68,7 +68,8 @@ public interface ChartRepository extends JpaRepository<Chart, Long> {
         @Query("SELECT SUM(c.close * c.company.initialStockQuantity) FROM Chart c " +
                 "WHERE c.user.id = :userId " +
                 "AND c.isAfterMarketOpen = true " +
-                "AND c.createdAt = (SELECT MAX(c2.createdAt) FROM Chart c2 WHERE c2.company.id = c.company.id AND c2.user.id = :userId)")
+                "AND c.createdAt = (SELECT MAX(c2.createdAt) FROM Chart c2 WHERE c2.company.id = c.company.id AND c2.user.id = :userId)" +
+                "AND c.company.listedDate IS NULL")
         Long getTotalStockPriceByUserId(Long userId);
 
 }
