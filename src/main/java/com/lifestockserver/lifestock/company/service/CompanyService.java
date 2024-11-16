@@ -42,12 +42,9 @@ public class CompanyService {
   private final FileService fileService;
   private final TodoService todoService;
 
-  public CompanyService(ChartService chartService,
-                        CompanyRepository companyRepository,
-                        CompanyMapper companyMapper,
-                        UserRepository userRepository,
-                        FileService fileService,
-                        TodoService todoService) {
+  public CompanyService(ChartService chartService, CompanyRepository companyRepository,
+      CompanyMapper companyMapper, UserRepository userRepository, FileService fileService,
+      TodoService todoService) {
     this.chartService = chartService;
     this.companyRepository = companyRepository;
     this.companyMapper = companyMapper;
@@ -58,32 +55,34 @@ public class CompanyService {
 
   // file 저장은 따로 api 보내야만함
   @Transactional
-  public CompanyResponseDto createCompany(Long userId, CompanyCreateDto companyCreateDto, MultipartFile logo) {
+  public CompanyResponseDto createCompany(Long userId, CompanyCreateDto companyCreateDto,
+      MultipartFile logo) {
     File savedLogo = null;
     if (logo != null) {
-      savedLogo = fileService.getFileById(fileService.saveFile(FileCreateDto.builder()
-        .file(logo)
-        .folder(FileFolder.COMPANY)
-        .build()).getId());
+      savedLogo = fileService.getFileById(fileService
+          .saveFile(FileCreateDto.builder().file(logo).folder(FileFolder.COMPANY).build()).getId());
     } else {
       savedLogo = fileService.getDefaultCompanyLogo();
     }
     User user = userRepository.findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
     companyCreateDto.setUser(user);
 
-    Long investmentAmount = companyCreateDto.getInitialStockQuantity() * companyCreateDto.getInitialStockPrice();
+    Long investmentAmount =
+        companyCreateDto.getInitialStockQuantity() * companyCreateDto.getInitialStockPrice();
     if (user.getAsset() < investmentAmount) {
       throw new IllegalArgumentException("User does not have enough asset");
     }
-    user.setAsset(user.getAsset() - investmentAmount < 100000 ? 100000 : user.getAsset() - investmentAmount);
-    
+    user.setAsset(
+        user.getAsset() - investmentAmount < 100000 ? 100000 : user.getAsset() - investmentAmount);
+
     Company company = companyMapper.toEntity(companyCreateDto);
-    
+
     company.setLogo(savedLogo);
-    
+
     Company savedCompany = companyRepository.save(company);
-    ChartResponseDto chart = chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
+    ChartResponseDto chart =
+        chartService.createInitialChart(savedCompany, user, savedCompany.getInitialStockPrice());
     Long currentStockPrice = chart.getClose();
     CompanyResponseDto companyResponseDto = companyMapper.toDto(savedCompany);
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
@@ -93,23 +92,23 @@ public class CompanyService {
   }
 
   @Transactional
-  public CompanyResponseDto updateCompany(Long companyId, CompanyUpdateDto companyUpdateDto, MultipartFile logo) {
+  public CompanyResponseDto updateCompany(Long companyId, CompanyUpdateDto companyUpdateDto,
+      MultipartFile logo) {
     Company company = companyRepository.findById(companyId)
-      .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+        .orElseThrow(() -> new EntityNotFoundException("Company not found"));
     if (company.getLogo() != fileService.getDefaultCompanyLogo()) {
       fileService.deleteFile(company.getLogo().getId());
     }
     File savedLogo;
     if (logo != null) {
-      savedLogo = fileService.getFileById(fileService.saveFile(FileCreateDto.builder()
-        .file(logo)
-        .folder(FileFolder.COMPANY)
-        .build()).getId());
+      savedLogo = fileService.getFileById(fileService
+          .saveFile(FileCreateDto.builder().file(logo).folder(FileFolder.COMPANY).build()).getId());
     } else {
       savedLogo = fileService.getDefaultCompanyLogo();
     }
     company.setLogo(savedLogo);
-    if (companyUpdateDto.getDescription() != null && !companyUpdateDto.getDescription().equals(company.getDescription())) {
+    if (companyUpdateDto.getDescription() != null
+        && !companyUpdateDto.getDescription().equals(company.getDescription())) {
       company.setDescription(companyUpdateDto.getDescription());
     }
     company.setLogo(savedLogo);
@@ -125,16 +124,18 @@ public class CompanyService {
   @Transactional
   public CompanyResponseDto listCompany(Long companyId) {
     Company company = companyRepository.findById(companyId)
-      .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+        .orElseThrow(() -> new EntityNotFoundException("Company not found"));
 
     if (company.getListedDate() != null) {
       throw new IllegalArgumentException("Company is already listed");
     }
 
-    LocalDate leastOperatePeriodDate = company.getCreatedAt().toLocalDate().plusDays(company.getLeastOperatePeriod().getDays());
-    if (leastOperatePeriodDate.isAfter(LocalDate.now())) {
-      throw new IllegalArgumentException("Company can not be listed yet");
-    }
+    // 셈틀제용 잠시 해제
+    // LocalDate leastOperatePeriodDate =
+    // company.getCreatedAt().toLocalDate().plusDays(company.getLeastOperatePeriod().getDays());
+    // if (leastOperatePeriodDate.isAfter(LocalDate.now())) {
+    // throw new IllegalArgumentException("Company can not be listed yet");
+    // }
 
     company.setListed(LocalDate.now(), chartService.getLatestCloseByCompanyId(companyId));
 
@@ -146,7 +147,8 @@ public class CompanyService {
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
     companyResponseDto.setOpenStockPrice(chart.getOpen());
 
-    company.getUser().setAsset(company.getUser().getAsset() + currentStockPrice * company.getInitialStockQuantity());
+    company.getUser().setAsset(
+        company.getUser().getAsset() + currentStockPrice * company.getInitialStockQuantity());
     return companyResponseDto;
   }
 
@@ -163,25 +165,23 @@ public class CompanyService {
       companies = companyRepository.findAllByUserId(userId);
     }
 
-    return companies.stream()
-            .map(company -> {
-              Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(company.getId());
-              CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
-              companyResponseDto.setOpenStockPrice(chart.getOpen());
-              companyResponseDto.setCurrentStockPrice(chart.getClose());
-              return companyResponseDto;
-            })
-            .collect(Collectors.toList());
+    return companies.stream().map(company -> {
+      Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(company.getId());
+      CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
+      companyResponseDto.setOpenStockPrice(chart.getOpen());
+      companyResponseDto.setCurrentStockPrice(chart.getClose());
+      return companyResponseDto;
+    }).collect(Collectors.toList());
   }
 
   public CompanyResponseDto findById(Long id) {
     Company company = companyRepository.findById(id)
-      .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+        .orElseThrow(() -> new EntityNotFoundException("Company not found"));
 
     // 가장 최근의 high 값을 가져와서 currentStockPrice에 설정
     Chart chart = chartService.getLatestAfterMarketOpenChartByCompanyId(id);
     Long currentStockPrice = chart.getClose();
-    
+
     CompanyResponseDto companyResponseDto = companyMapper.toDto(company);
     companyResponseDto.setCurrentStockPrice(currentStockPrice);
     companyResponseDto.setOpenStockPrice(chart.getOpen());
@@ -192,7 +192,7 @@ public class CompanyService {
   @Transactional
   public void deleteCompany(Long companyId, CompanyDeleteDto companyDeleteDto) {
     Company company = companyRepository.findById(companyId)
-            .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+        .orElseThrow(() -> new EntityNotFoundException("Company not found"));
 
     company.setDeletedAt(LocalDateTime.now());
     company.setDeletedReason(companyDeleteDto.getDeletedReason());
