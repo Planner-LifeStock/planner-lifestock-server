@@ -41,7 +41,7 @@ public class DailyChartBatch {
      * 전날에 만들어진 DailyChart (날짜 a에 해당)의 id값을 가져와서 
      * dailyChartService.updateDailChart(DailyChart, Company, TodoService.countAllByCompanyAndDate(Company, a), TodoService.countCompletedByCompanyAndDate(Company, a))를 호출해줘.
      */
-    @Scheduled(cron = "0 59 23 * * *")
+    @Scheduled(cron = "00 59 23 * * *")
     public void executeDailyChartBatch() {
         LocalDate today = LocalDate.now();
 
@@ -82,7 +82,7 @@ public class DailyChartBatch {
                 
                 // 주간 완료 여부 확인
                 LocalDate companyCreatedDate = company.getCreatedAt().toLocalDate();
-                boolean isWeeklyDone = (today.getDayOfWeek() == companyCreatedDate.getDayOfWeek()) && (today.getDayOfWeek() == companyCreatedDate.getDayOfWeek());
+                boolean isWeeklyDone = (today.getDayOfWeek() == companyCreatedDate.getDayOfWeek()) && (today != companyCreatedDate);
                 /**
                  * 해당 주차의 회사 난이도에 따라 주 1회 반영+ 5 / 3 / 1%
                  * 현재 주가 * (100%  +- 5 / 3 / 1%)
